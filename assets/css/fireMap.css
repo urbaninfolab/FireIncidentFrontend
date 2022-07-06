@@ -1,0 +1,543 @@
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #ffffff;
+
+}
+
+.page-wrapper {
+   /* margin-top: 50px;
+    margin-left: 200px;
+    margin-right: 200px; */
+    bottom: 0;
+    position: absolute;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 30px;
+}
+
+.page-description {
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.page-wrapper #map {
+    height: 800px;
+    width: 1400px;
+    margin-top: 10px;
+}
+
+.page-wrapper .location-info,
+.page-wrapper .cur-weather-info {
+    padding: 5px;
+    background: #FFED86;
+    border-radius: 6px;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.page-wrapper .air-info {
+    padding: 5px;
+    background: #FFED86;
+    border-radius: 6px;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.page-wrapper span {
+    font-size: 14px;
+    font-family: sans-serif;
+}
+
+.page-wrapper table {
+    border-spacing: 1;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+    outline: 1px solid #FFED86;
+}
+
+.page-wrapper td,
+.page-wrapper th {
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.page-wrapper thead tr {
+    height: 45px;
+    background: #FFED86;
+    font-size: 14px;
+    font-family: sans-serif;
+    font-weight: 600;
+}
+
+.page-wrapper tbody tr {
+    height: 38px;
+    border-bottom: 1px solid #E3F1D5;
+}
+
+.page-wrapper tbody tr td {
+    text-align: center;
+    font-size: 14px;
+    font-family: sans-serif;
+}
+
+.date-bar {
+    display: flex;
+}
+
+/* --------------------------Style of Stretch Button-------------------------- */
+.select-bar {
+    align-items: center;
+    /*border: 2px solid rgb(85, 82, 82);*/
+    border-radius: 10px;
+    display: flex;
+    height: 60px;
+    justify-content: center;
+    position: relative;
+    width: 480px;
+    margin-bottom: 10px;
+}
+
+.bar {
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    height: 32px;
+    left: 0;
+    padding: 0 21px;
+    position: absolute;
+    width: 100%;
+    color: white;
+}
+
+.bar-purple {
+    background: #500606;
+    color: white;
+    clip-path: polygon(480px 0,
+            480px 32px,
+            43px 32px,
+            39.775442px 31.67494px,
+            36.772078px 30.74264px,
+            34.054248px 29.26745px,
+            31.686292px 27.31371px,
+            29.732549px 24.94575px,
+            28.257359px 22.22792px,
+            27.325063px 19.22456px,
+            27px 16px,
+            27.325063px 12.77544px,
+            28.257359px 9.77208px,
+            29.732549px 7.05425px,
+            31.686292px 4.68629px,
+            34.054248px 2.73255px,
+            36.772078px 1.25736px,
+            39.775442px 0.32506px,
+            43px 0);
+    transition: clip-path 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.option {
+    cursor: pointer;
+    line-height: 142px;
+    text-align: center;
+    width: 25%;
+}
+
+.option2 {
+    cursor: pointer;
+    line-height: 142px;
+    text-align: center;
+    width: 25%;
+}
+
+.bar-outer {
+    clip-path: polygon(0 0, 120px 0, 120px 32px, 0 32px);
+    clip-path: polygon(0 0,
+            0 32px,
+            104px 32px,
+            107.22456px 31.67494px,
+            110.22792px 30.74264px,
+            112.94575px 29.26745px,
+            115.31371px 27.31371px,
+            117.26745px 24.94575px,
+            118.74264px 22.22792px,
+            119.67494px 19.22456px,
+            120px 16px,
+            119.67494px 12.77544px,
+            118.74264px 9.77208px,
+            117.26745px 7.05425px,
+            115.31371px 4.68629px,
+            112.94575px 2.73255px,
+            110.22792px 1.25736px,
+            107.22456px 0.32506px,
+            104px 0);
+    height: 32px;
+    pointer-events: none;
+    transition: clip-path 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+}
+
+.bar-outer2 {
+    clip-path: polygon(0 0, 120px 0, 120px 32px, 0 32px);
+    clip-path: polygon(0 0,
+            0 32px,
+            254px 32px,
+            257.22456px 31.67494px,
+            260.22792px 30.74264px,
+            262.94575px 29.26745px,
+            265.31371px 27.31371px,
+            267.26745px 24.94575px,
+            268.74264px 22.22792px,
+            269.67494px 19.22456px,
+            270px 16px,
+            269.67494px 12.77544px,
+            268.74264px 9.77208px,
+            267.26745px 7.05425px,
+            265.31371px 4.68629px,
+            262.94575px 2.73255px,
+            260.22792px 1.25736px,
+            257.22456px 0.32506px,
+            254px 0);
+    height: 32px;
+    pointer-events: none;
+    transition: clip-path 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    width: 300%;
+}
+
+.bar-outer.pos2 .bar-purple {
+    clip-path: polygon(480px 0,
+            480px 32px,
+            149px 32px,
+            145.775442px 31.67494px,
+            142.772078px 30.74264px,
+            140.054248px 29.26745px,
+            137.686292px 27.31371px,
+            135.732549px 24.94575px,
+            134.257359px 22.22792px,
+            133.325063px 19.22456px,
+            133px 16px,
+            133.325063px 12.77544px,
+            134.257359px 9.77208px,
+            135.732549px 7.05425px,
+            137.686292px 4.68629px,
+            140.054248px 2.73255px,
+            142.772078px 1.25736px,
+            145.775442px 0.32506px,
+            149px 0);
+}
+
+.bar-outer.pos2 {
+    clip-path: polygon(0 0,
+            0 32px,
+            210px 32px,
+            213.22456px 31.67494px,
+            216.22792px 30.74264px,
+            218.94575px 29.26745px,
+            221.31371px 27.31371px,
+            223.26745px 24.94575px,
+            224.74264px 22.22792px,
+            225.67494px 19.22456px,
+            226px 16px,
+            225.67494px 12.77544px,
+            224.74264px 9.77208px,
+            223.26745px 7.05425px,
+            221.31371px 4.68629px,
+            218.94575px 2.73255px,
+            216.22792px 1.25736px,
+            213.22456px 0.32506px,
+            210px 0);
+}
+
+.bar-outer.pos3 .bar-purple {
+    clip-path: polygon(480px 0,
+            480px 32px,
+            256px 32px,
+            252.775442px 31.67494px,
+            249.772078px 30.74264px,
+            247.054248px 29.26745px,
+            244.686292px 27.31371px,
+            242.732549px 24.94575px,
+            241.257359px 22.22792px,
+            240.325063px 19.22456px,
+            240px 16px,
+            240.325063px 12.77544px,
+            241.257359px 9.77208px,
+            242.732549px 7.05425px,
+            244.686292px 4.68629px,
+            247.054248px 2.73255px,
+            249.772078px 1.25736px,
+            252.775442px 0.32506px,
+            256px 0);
+}
+
+.bar-outer.pos3 {
+    clip-path: polygon(0 0,
+            0 32px,
+            317px 32px,
+            320.22456px 31.67494px,
+            323.22792px 30.74264px,
+            325.94575px 29.26745px,
+            328.31371px 27.31371px,
+            330.26745px 24.94575px,
+            331.74264px 22.22792px,
+            332.67494px 19.22456px,
+            333px 16px,
+            332.67494px 12.77544px,
+            331.74264px 9.77208px,
+            330.26745px 7.05425px,
+            328.31371px 4.68629px,
+            325.94575px 2.73255px,
+            323.22792px 1.25736px,
+            320.22456px 0.32506px,
+            317px 0);
+}
+
+.bar-outer.pos4 .bar-purple {
+    clip-path: polygon(480px 0,
+            480px 32px,
+            365px 32px,
+            361.775442px 31.67494px,
+            358.772078px 30.74264px,
+            356.054248px 29.26745px,
+            353.686292px 27.31371px,
+            351.732549px 24.94575px,
+            350.257359px 22.22792px,
+            349.325063px 19.22456px,
+            349px 16px,
+            349.325063px 12.77544px,
+            350.257359px 9.77208px,
+            351.732549px 7.05425px,
+            353.686292px 4.68629px,
+            356.054248px 2.73255px,
+            358.772078px 1.25736px,
+            361.775442px 0.32506px,
+            365px 0);
+}
+
+.bar-outer.pos4 {
+    clip-path: polygon(0 0, 333px 0, 333px 32px, 0 32px);
+    clip-path: polygon(0 0,
+            0 32px,
+            426px 32px,
+            429.22456px 31.67494px,
+            432.22792px 30.74264px,
+            434.94575px 29.26745px,
+            437.31371px 27.31371px,
+            439.26745px 24.94575px,
+            440.74264px 22.22792px,
+            441.67494px 19.22456px,
+            442px 16px,
+            441.67494px 12.77544px,
+            440.74264px 9.77208px,
+            439.26745px 7.05425px,
+            437.31371px 4.68629px,
+            434.94575px 2.73255px,
+            432.22792px 1.25736px,
+            429.22456px 0.32506px,
+            426px 0);
+}
+
+.bar-outer.left .bar-purple {
+    transition-delay: 0;
+}
+
+.bar-outer.left {
+    transition-delay: 80ms;
+}
+
+.bar-outer.right .bar-purple {
+    transition-delay: 80ms;
+}
+
+.bar-outer.right {
+    transition-delay: 0;
+}
+
+/* --------------------------Style of Date Picker-------------------------- */
+.date-picker {
+    /*border: 2px solid rgb(85, 82, 82);
+    border-radius: 10px;*/
+    height: 30px;
+    margin-left: 30px;
+    padding-top: 15px;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.date-picker label {
+    display: block;
+    font: 1rem 'Fira Sans', sans-serif;
+}
+
+/* --------------------------Style ofFilter Menu-------------------------- */
+.dropdown-check-list {
+    display: inline-block;
+    margin-left: 30px;
+    margin-top: 12px;
+    position: relative;
+}
+
+.dropdown-check-list .anchor {
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+    padding: 5px 50px 5px 10px;
+    border: 2px solid rgb(255, 255, 255);
+    border-radius: 10px;
+    color: white;
+}
+
+.dropdown-check-list .anchor:after {
+    position: absolute;
+    content: "";
+    border-left: 2px solid rgb(255, 255, 255);
+    border-top: 2px solid rgb(255, 255, 255);
+    padding: 5px;
+    right: 10px;
+    top: 20%;
+    -moz-transform: rotate(-135deg);
+    -ms-transform: rotate(-135deg);
+    -o-transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+    transform: rotate(-135deg);
+}
+
+.dropdown-check-list .anchor:active:after {
+    right: 8px;
+    top: 21%;
+}
+
+.dropdown-check-list ul.items {
+    padding: 2px;
+    display: none;
+    margin: 0;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+    background-color: white;
+    position: absolute;
+    z-index: 1000;
+    width: 150px;
+    /* border-top: none; */
+    text-align: left;
+
+}
+
+.dropdown-check-list ul.items li {
+    list-style: none;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.dropdown-check-list.visible .anchor {
+    color: #f4f4f4;
+}
+
+.dropdown-check-list.visible .items {
+    display: block;
+}
+
+/* --------------------------Style of Air Quality Legend-------------------------- */
+.legend-wrapper {
+    position: relative;
+}
+
+.air-quality-legend {
+    width: 750px;
+    display: flex;
+    border-radius: 4px;
+    flex: 1;
+    flex-direction: row;
+    justify-content: left;
+    margin-top: -40px;
+    margin-left: 10px;
+    z-index: 1000;
+    position: absolute;
+}
+
+.air-quality-legend div {
+    width: max-content;
+}
+
+.air-quality-legend div span {
+    padding: 10px;
+}
+
+/* --------------------------Style of Fire Risk Legend-------------------------- */
+.legend-wrapper {
+    position: relative;
+}
+
+.fire-risk-legend {
+    display: flex;
+    border-radius: 4px;
+    flex: 1;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: -70px;
+    margin-left: 10px;
+    z-index: 1000;
+    position: absolute;
+}
+
+.fire-risk-legend div {
+    width: max-content;
+}
+
+.fire-risk-legend div span {
+    padding: 10px;
+}
+
+/* --------------------------Style of Fire Risk Legend-------------------------- */
+.legend-wrapper {
+    position: relative;
+}
+
+.afd-legend {
+    display: flex;
+    border-radius: 4px;
+    flex: 1;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: -70px;
+    margin-left: 395px;
+    z-index: 1000;
+    position: absolute;
+    width: 670px;
+}
+
+.afd-legend div {
+    width: fit-content;
+}
+
+.afd-legend div span {
+    padding: 10px;
+}
+
+.hvi-legend {
+    display: flex;
+    border-radius: 4px;
+    flex: 1;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: -70px;
+    margin-left: 395px;
+    z-index: 1000;
+    position: absolute;
+    width: 670px;
+}
+
+.hvi-legend div {
+    width: fit-content;
+}
+
+.hvi-legend div span {
+    padding: 10px;
+}
