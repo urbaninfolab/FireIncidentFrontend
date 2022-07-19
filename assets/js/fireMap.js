@@ -139,10 +139,10 @@
             icon = deactiveFireIcon
         }
         var marker = L.marker(longNLatArray, { icon: icon }).addTo(map);
-        getWeatherAPI(weatherDataAPI, marker, data, windDirectionIcon, windDirections, angles, longNLatArray);
+        getWeatherAPI(weatherDataAPI, marker, data, windDirectionIcon, windDirections, angles, longNLatArray, longNLatString);
     }
 
-    async function getWeatherAPI(url, marker, fireData, windDirectionIcon, windDirections, angles, longNLatArray) {
+    async function getWeatherAPI(url, marker, fireData, windDirectionIcon, windDirections, angles, longNLatArray, longNLatString) {
         var response = await fetch(url);
         var api = await response.json();
         var hourlyApiUrl = api.properties.forecastHourly;
@@ -178,7 +178,7 @@
                 rotationOrigin: 'center',
                 zIndexOffset: -1,
             }).addTo(map); */
-            addSmokeRegions(map, "../data/" + fireData.guid['#text'] + ".kml")
+            addSmokeRegions(map, "../data/" + longNLatString)
         }
 
     }
@@ -188,9 +188,9 @@
     var threehourForecastGroup = L.layerGroup();
 
     function addSmokeRegions(map, KMLstring) {
-        addForecastedSmoke(map, KMLstring, onehourForecastGroup);
-        addForecastedSmoke(map, KMLstring.substring(0,KMLstring.length-4) + "2" + ".kml", twohourForecastGroup);
-        addForecastedSmoke(map, KMLstring.substring(0,KMLstring.length-4) + "3" + ".kml", threehourForecastGroup);
+        addForecastedSmoke(map, KMLstring + ".kml", onehourForecastGroup);
+        addForecastedSmoke(map, KMLstring + ".kml2", twohourForecastGroup);
+        addForecastedSmoke(map, KMLstring + ".kml3", threehourForecastGroup);
     }
 
     function addForecastedSmoke(map, KMLstring, forecastGroup) {
