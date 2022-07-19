@@ -49,7 +49,7 @@
         ];
 
         let rawData = [];
-        let cities = ["", "Dallas", "Houston","SanAntonio","OklahomaCity","LosAngeles","Riverside","ElPaso","SanDiego"];
+        let cities = ["", "Dallas", "Houston","SanAntonio","OklahomaCity","LosAngeles","Riverside","ElPaso","SanDiego","Seattle"];
 
         for(city in cities) {
         for (let i = 0; i < dateArray.length; i++) {
@@ -667,7 +667,8 @@
                 "LosAngeles":[34.052234,32.939087,-118.243652,-118.243652],
                 "Riverside":[33.926697,33.051758,-117.868164,-117.868164],
                 "ElPaso":[31.858597,31.051758,-106.63652,-106.63652],
-                "SanDiego":[32.715983,32.715983,-117.868164,-117.868164]
+                "SanDiego":[32.715983,32.715983,-117.868164,-117.868164],
+                "Seattle":[47.606209,47.606209,-122.330811,-122.330811]
             };
 
             rawwData = [];
