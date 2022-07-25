@@ -637,6 +637,83 @@
                 shpfile.addTo(map);
                 break;
 
+            case 'test-risk-radio':
+                shapefileName = "../data/firerisk.shp.zip";
+                var filePath = '../data/AverageFire.json';
+                var result;
+                cities = {
+                    '48453' : '',  // Austin
+                    '48113' : 'Dallas',
+                    '48201' : 'Houston',
+                    '48311' : 'SanAntonio',
+                    '48405' : 'SanDiego',
+                    '98101' : 'Seattle',
+                    '48503' : 'ElPaso'
+                }
+                fetch(filePath)
+                    .then(response => {
+                    return response.json();
+                })
+                .then(jsondata => result = jsondata);
+                shpfile = new L.Shapefile(shapefileName, {
+                    onEachFeature: function (feature, layer) {
+
+                        var averageNum = result[cities[feature.properties["ctid"].substring(0, 5)]];
+                        //console.log(cities[feature.properties["ctid"].substring(0, 5)] + " average " + averageNum)
+
+                        if (averageNum == undefined) {
+                            averageNum = 0;
+                        }
+
+                        let fireCat = "";
+                        let randomGuess = feature.properties["numFires"];
+                        if(randomGuess > 1.5 * averageNum) {
+                            fireCat = "Highest Potential Zone"
+                        } else if(randomGuess > 0.5 * averageNum) {
+                            fireCat = "Elevated Potential Zone"
+                        } else {
+                            fireCat = "Potential Zone"
+                        }
+
+                        popupContent = `
+                            <div class="risk-estimate-info">
+                                <span>Fire Category: ${fireCat}</span><BR>
+                                <span>Number of Fires: ${feature.properties["numFires"]}</span><BR>
+                            </div>
+                            <div class="basic-info">
+                                <span>TRCTNAME: ${feature.properties["NAME"]}</span><BR>
+                            </div>
+                            <div class="stats-info">
+                                <span>Families in Poverty: ${feature.properties["p_poverty"]} </span><BR>
+                                <span>People Under 5: ${feature.properties["p_children"]} </span><BR>
+                                <span>People Over 65: ${feature.properties["p_elderly"]} </span><BR>
+                                <span>People With Disability: ${feature.properties["p_disability"]}</span>
+                            </div>
+                            
+                        `;
+                        layer.bindPopup(popupContent);
+                        //let fireCat = feature.properties["FIRECAT"];
+                        let words = fireCat.toLowerCase().split(' ');
+                        if (words.includes("highest")) {
+                            layer.options.color = "red";
+                        } else if (words.includes("elevated")) {
+                            layer.options.color = "orange";
+                        } else if (words.includes("potential")) {
+                            layer.options.color = "yellow";
+                        } else {
+                            layer.options.color = "transparent";
+                        }
+
+                    }
+                })
+                // hide fire risk legend
+                fireRiskLegend.style.display = 'flex';
+                afdLegend.style.display = 'none';
+                hviLegend.style.display = 'none';
+                shpfile.addTo(map);
+                break;
+
+
             case 'none-radio':
                 fireRiskLegend.style.display = 'none';
                 afdLegend.style.display = 'none';
