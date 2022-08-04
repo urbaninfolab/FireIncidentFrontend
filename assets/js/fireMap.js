@@ -85,7 +85,12 @@
                 // loop through each data point
                 fireData.forEach(data => {
                     if ((inactive_flag === false && data.active_status === "yes") || inactive_flag === true) {
+                        try { 
                         processData(data)
+                        }
+                        catch(e) { 
+                        console.log(e)
+                        }
                     }
 
                 });
@@ -1160,7 +1165,7 @@
         "<pubDate>Mon, 06 Dec 2021 16:12:50 CDT</pubDate></item>";
 
     // initialize map and base layer
-    var map = L.map('map',{ zoomControl: false }).setView([30.356635, -97.701180], 12);
+    var map = L.map('map',{ zoomControl: false, renderer: L.canvas() }).setView([30.356635, -97.701180], 12);
 
     new L.Control.Zoom({ position: 'topright' }).addTo(map);
 
