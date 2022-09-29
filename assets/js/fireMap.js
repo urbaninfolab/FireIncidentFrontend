@@ -1519,7 +1519,7 @@ L.Control.Watermark = L.Control.extend({
         container.innerHTML = `
         <div class=\"geocoder-control-input leaflet-bar\" title=\"Stats\" style=\"    
 
-        background-image: url(); width:35px; \"><img src="assets/images/stats1.png" style="width: 20px;height: 20px;position: absolute;left: 5px;"></div><div class=\"geocoder-control-suggestions leaflet-bar\"><div class=\"\"></div></div>\r\n
+        background-image: url(); width:35px; \"><img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/stats1.png" style="width: 20px;height: 20px;position: absolute;left: 5px;"></div><div class=\"geocoder-control-suggestions leaflet-bar\"><div class=\"\"></div></div>\r\n
         `;
 
         return container;
