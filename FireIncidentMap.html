@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<!-- Made with love and solidarity during the COVID-19 pandemic of 2020. Housing is a human right. -->
-
 		<meta charset="utf-8">
 		<title>Active Fire Incidents Map - Smart Cities</title> 
 		<meta name="description" content="National city fire tracker. Find fires nearby and smoke fallouts.">
@@ -29,6 +27,28 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 		<script src="https://smartcity.tacc.utexas.edu/FireIncident/assets/js/leaflet-rotatedMarker.js"></script>
 		<script src="https://smartcity.tacc.utexas.edu/FireIncident/assets/js/leaflet.shpfile.js"></script>
+		<script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script>
+		<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.css' rel='stylesheet' />
+		<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.js'></script>
+		<script src="https://unpkg.com/mapbox-gl-leaflet/leaflet-mapbox-gl.js"></script>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.3/proj4.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/gipong/shp2geojson.js@master/lib/jszip.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/gipong/shp2geojson.js@master/lib/jszip-utils.js"></script>
+		<!--[if IE]>
+		<script type="text/javascript" src="lib/jszip-utils-ie.js"></script>
+		<![endif]-->
+		
+		<script src="https://cdn.jsdelivr.net/gh/gipong/shp2geojson.js@master/preprocess.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/gipong/shp2geojson.js@master/preview.js"></script>
+		
+		<script src="https://unpkg.com/leaflet.markercluster@1.1.0/dist/leaflet.markercluster.js"></script>
+		<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.1.0/dist/MarkerCluster.css" />
+		<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.1.0/dist/MarkerCluster.Default.css" />
+
+		<script src="https://cdn.jsdelivr.net/gh/zostera/leaflet-legend@master/leaflet-legend.js"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/zostera/leaflet-legend@master/leaflet-legend.css" />
+
 		<script src="https://smartcity.tacc.utexas.edu/FireIncident/assets/js/shp.js"></script>
 		<script src="https://cdn.jsdelivr.net/gh/windycom/leaflet-kml/L.KML.min.js"></script>
 		<link
@@ -250,7 +270,7 @@ Check My Location button code leaflet
 		<div  onclick="info()">
 		<!-- Fire Logo -->
 		<a href="#" onclick="info()" style="float: left; margin-right: 1rem; margin-top:0;">
-            <span style="max-height: 25px; margin-top: -5px; display: block; max-width: 100%; height: auto;">
+            <span style="margin-left: 10px; max-height: 25px; margin-top: -5px; display: block; max-width: 100%; height: auto;">
                 <img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/firelogo.svg" width="50px" height="50px"  xml:space="preserve"> </img>
             </span>
         </a>
@@ -295,32 +315,33 @@ Check My Location button code leaflet
 	
 				<div id="filter-menu" class="dropdown-check-list" tabindex="100">
 					<span class="anchor">Data Filter</span>
+					
 					<ul class="items">
-						<li style="text-align: center">- Fire Data -</li>
-						<li><input type="checkbox" class="active-fire" checked />  Inactive Fire </li>
-						<li style="text-align: center">- Smoke Data -</li>
-						<li><input type="checkbox" class="one-hour-smoke" checked />  1 Hour Forecast </li>
-						<li><input type="checkbox" class="two-hour-smoke" checked />  2 Hour Forecast </li>
-						<li><input type="checkbox" class="three-hour-smoke" checked />  3 Hour Forecast </li>
-						<li style="text-align: center">- Air Data -</li>
-						<li><input type="checkbox" class="purple-air" checked />  PurpleAir Data</li>
-						<li><input type="checkbox" class="microsoft-air" checked />  MSR Air Quality Sensors </li>
-						<li style="text-align: center">- Shapefile -</li>
-						<li><input type="radio" id="fire-risk-radio" name="shapefile-radio" value="fire-risk-radio"
+						<b><li>Fire Data</li></b>
+						<li><input style="margin-left: 15px;" type="checkbox" class="active-fire" checked />  Inactive Fire </li>
+						<b><li>Smoke Data</li></b>
+						<li><input style="margin-left: 15px;" type="checkbox" class="one-hour-smoke" checked />  1 Hour Forecast </li>
+						<li><input style="margin-left: 15px;" type="checkbox" class="two-hour-smoke" checked />  2 Hour Forecast </li>
+						<li><input style="margin-left: 15px;" type="checkbox" class="three-hour-smoke" checked />  3 Hour Forecast </li>
+						<b><li>Air Data</li></b>
+						<li><input style="margin-left: 15px;" type="checkbox" class="purple-air" checked />  PurpleAir Data</li>
+						<li><input style="margin-left: 15px;" type="checkbox" class="microsoft-air" checked />  MSR Air Quality Sensors </li>
+						<b><li>Shapefile</li></b>
+						<li><input style="margin-left: 15px;" type="radio" id="test-risk-radio" name="shapefile-radio" value="test-risk-radio"
 								checked />
-							<label for="fire-risk-radio">Fire Vulnerability</label>
+								<label for="test-risk-radio">Fire Risk</label>
+							</li>
+						<li><input style="margin-left: 15px;" type="radio" id="afd-radio" name="shapefile-radio" value="afd-radio" />
+								<label for="afd-radio">AFD Converage</label>
 						</li>
-						<li><input type="radio" id="afd-radio" name="shapefile-radio" value="afd-radio" />
-							<label for="afd-radio">AFD Converage</label>
-						</li>
-						<li><input type="radio" id="hvi-radio" name="shapefile-radio" value="hvi-radio" />
+						<li style="display:none"><input style="margin-left: 15px;"type="radio" id="hvi-radio" name="shapefile-radio" value="hvi-radio" />
 							<label for="hvi-radio">HVI Map</label>
 						</li>
-						<li><input type="radio" id="no-shapefile" name="shapefile-radio" value="none-radio" />
-							<label for="none-radio">None</label>
+						<li><input style="margin-left: 15px;" type="radio" id="fire-risk-radio" name="shapefile-radio" value="fire-risk-radio" />
+							<label for="fire-risk-radio">Vulnerability Map</label>
 						</li>
-						<li><input type="radio" id="test-risk-radio" name="shapefile-radio" value="test-risk-radio" />
-							<label for="test-risk-radio">Test Vulnerability</label>
+						<li ><input style="margin-left: 15px;" type="radio" id="no-shapefile" name="shapefile-radio" value="none-radio" />
+							<label for="none-radio">None</label>
 						</li>
 					</ul>
 				</div>
@@ -430,7 +451,7 @@ Check My Location button code leaflet
                 </svg>
             </span>
         </a>
-		<a href="http://goodsystems.utexas.edu" style="float: right; margin-right: 1rem; margin-top:0;">
+		<a href="http://goodsystems.utexas.edu" style="display: none; float: right; margin-right: 1rem; margin-top:0;">
             <span style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;color: #fff">University of Texas at Austin</span> 
             <span style="max-height: 25px; margin-top: 9px; display: block; max-width: 100%; height: auto;">
                 <img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/goodsystems.svg" width="115px" height="25px"  xml:space="preserve"> </img>
@@ -634,6 +655,7 @@ Check My Location button code leaflet
 				</div>
 	
 			</div>
+			<!--
 			<div class="legend-wrapper">
 				<div class="air-quality-legend">
 					<div style="background-color: white;">
@@ -719,6 +741,7 @@ Check My Location button code leaflet
 					</div>
 				</div>
 			</div>
+			-->
 		</div>
 
 		<link

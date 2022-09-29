@@ -111,7 +111,7 @@
         if (!purple_air_diaplay_flag && !microsoft_air_display_flag) {
             airQualityLegend.style.display = 'none';
         } else {
-            airQualityLegend.style.display = 'flex';
+            //airQualityLegend.style.display = 'flex';
 
         }
 
@@ -156,12 +156,30 @@
         var hourlyData = await response.json();
         hourlyData1 = hourlyData.properties.periods[0];
 
+
         var markerPopup = `
+        <span>
+        <div style="
+            font-size: xx-large;
+            font-family: sans-serif;
+            text-align: center;
+            border-color: green;
+            border-radius: 20px;
+            color: black;
+        ">
         <div class="location-info">
-            <span>Title: ${fireData.title}</span><BR>
-            <span>Location: ${fireData.description.split('|')[0]}</span><BR>
-            <span>Publish Date: ${fireData.pubDate}</span><BR>
+            <span>${fireData.title}</span><BR>
+
         </div>
+        </div>
+        <b>
+        <span>Location: ${fireData.description.split('|')[0]}</span><BR>
+        <span>Publish Date: ${fireData.pubDate}</span><BR>
+        `;
+
+        markerPopup += `<br><a id="moreButton" href="#" onclick="addMore()">More...</a>`
+
+        markerPopup += `<div id="more" style="display:none">
         <div class="cur-weather-info">
             <span>Temperature: ${hourlyData1.temperature}℉ </span><BR>
             <span>Forecast: ${hourlyData1.shortForecast} </span><BR>
@@ -171,7 +189,12 @@
 
         var tempTable = buildTemperatureTable(hourlyData.properties.periods);
         markerPopup += tempTable;
-        marker.bindPopup(markerPopup);
+
+        markerPopup += `</div>`;
+
+        marker.bindPopup(markerPopup, {
+            maxWidth : 251
+        });;
 
         // map wind direction
         let index = windDirections.indexOf(hourlyData1.windDirection);
@@ -201,6 +224,7 @@
     function addForecastedSmoke(map, KMLstring, forecastGroup) {
                 console.log("Added smoke map " + KMLstring);
                 // Load kml file
+                try {
                 fetch(KMLstring)
                 .then(res => res.text())
                 .then(kmltext => {
@@ -210,6 +234,9 @@
                     const track = new L.KML(kml);
                     forecastGroup.addLayer(track);
                 });
+            } catch (e) {
+                console.log(e);
+            }
     }
 
     // build temperature table for next 5 hours
@@ -230,8 +257,23 @@
 
         });
         var table = `
-        <table>
-        <thead>
+        <table  style="
+        border-collapse: collapse;
+        margin: 15px 0;
+        font-size: 0.9em;
+        font-family: sans-serif;
+        min-width: 210px;
+        min-height: 30px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    ">
+        <thead  style="
+        text-align: center;
+        padding: 10px 40px;
+        font-size: smaller;
+        background-color: #009375;
+        color: #ffffff;
+        text-align: center;
+    ">
             <tr>
                 <th>Time</th>
                 <th>Temperature</th>
@@ -556,9 +598,9 @@
                     }
                 })
                 // hide fire risk legend
-                fireRiskLegend.style.display = 'flex';
-                afdLegend.style.display = 'none';
-                hviLegend.style.display = 'none';
+                //fireRiskLegend.style.display = 'flex';
+                //afdLegend.style.display = 'none';
+                //hviLegend.style.display = 'none';
                 shpfile.addTo(map);
                 break;
             case 'afd-radio':
@@ -741,16 +783,16 @@
 
         if(airData.length == 0) {
             let cities = {
+                // Cities with northwest latitude, southwest latitude, northwest longitude, southwest longitude
                 "":[30.747879,29.978325,-98.056977,-97.357011],
                 "Dallas":[33.277373,32.386557,-97.530442,-96.398095],
                 "Houston":[29.760427,29.099097,-95.36327,-94.936891],
-                "SanAntonio":[29.424122,28.566406,-98.493652,-97.837158],
-                "OklahomaCity":[35.482327,34.822266,-99.868164,-97.868164],
-                "LosAngeles":[34.052234,32.939087,-118.243652,-118.243652],
-                "Riverside":[33.926697,33.051758,-117.868164,-117.868164],
-                "ElPaso":[31.858597,31.051758,-106.63652,-106.63652],
-                "SanDiego":[32.715983,32.715983,-117.868164,-117.868164],
-                "Seattle":[47.606209,47.606209,-122.330811,-122.330811]
+                "SanAntonio":[29.590767, 29.249684, -98.679199, -98.275590],
+                "Seattle":[47.734375,47.30957,-122.453613,-122.148438],
+                 "SanDiego":[33.277373,32.386557,-117.530442,-116.398095],
+                 "ElPaso":[31.999512,31.332397,-106.699219,-106.000977],
+                 "LosAngeles":[34.277373,33.386557,-118.530442,-117.398095],
+                 "Riverside":[34.277373,33.386557,-117.530442,-116.398095],
             };
 
             rawwData = [];
@@ -786,6 +828,7 @@
         //let airData = sensorData.data;
         // let airData = sampleData;
 
+
         for (let i = 0; i < airData.length; i++) {
             let data = airData[i];
             let sensorKey = data[0];
@@ -801,13 +844,9 @@
             var color = colorNDes[0];
             var description = colorNDes[1];
 
-            var circleMarker = L.circleMarker([popupData.latitude, popupData.longitude], {
-                color: color,
-                fillColor: color,
-                fillOpacity: 0.5,
-                radius: 15,
-            }).addTo(map);
-            var circleMarker = L.marker([popupData.latitude, popupData.longitude], {
+            var title = pm10Mins;
+            /*var circleMarker = L.circleMarker([popupData.latitude, popupData.longitude], { 
+                title: title,
                 icon: L.divIcon({
                     className: 'my-custom-icon',
                     html: popupData.stats["pm2.5_10minute"],
@@ -816,10 +855,58 @@
                 fillColor: color,
                 fillOpacity: 0.5,
                 radius: 15,
-            }).addTo(map);
+             })*/
+            //circleMarker.bindPopup(title);
+
+            var c = ' marker-cluster-';
+            if (color == "#00e400") {
+                c += 'small';
+            } else if (color == "#fdff01") {
+                c += 'medium';
+            } else {
+                c += 'large';
+            }
+            
+            var circleMarker = new L.marker([popupData.latitude, popupData.longitude],
+            { 
+                icon: L.divIcon({
+                    html: '<div><span><b>' + pm10Mins + '</b></span></div>',
+                    className: 'marker-cluster' + c, 
+                    iconSize: new L.Point(40, 40)
+                }),
+                title:pm10Mins,
+             });
+
+            /*var circleMarker = L.circleMarker([popupData.latitude, popupData.longitude], {
+                color: color,
+                fillColor: color,
+                radius: 15,
+                title:pm10Mins,
+            }) */
+            markers.addLayer(circleMarker);
+
+
             buildAirDataPopup(circleMarker, popupData, description);
         }
 
+
+
+
+
+    }
+
+    function addMore() {
+        console.log("hey")
+        var moreButton = document.getElementById("moreButton");
+        
+        if(moreButton.textContent == "More...") {
+        document.getElementById("more").style.display = "block";
+        document.getElementById("moreButton").textContent = "Less...";
+        } else {
+        document.getElementById("more").style.display = "none";
+        document.getElementById("moreButton").textContent = "More...";
+        }
+        //airMarkerPopup += `<a href="#">More...</a>`
     }
 
     function buildAirDataPopup(marker, popupData, description) {
@@ -834,22 +921,53 @@
         var time = month + ' ' + date + ', ' + year;
 
         var airMarkerPopup = `
-            <div class="air-info">
-            <span>Time: ${time} </span><BR>
-            <span>Latitude: ${popupData.latitude} </span><BR>
-            <span>Longitude: ${popupData.longitude} </span><BR>
-            <span>Altitude: ${popupData.altitude} </span><BR>
+        <span>
+        <div style="
+            font-size: xxx-large;
+            font-family: sans-serif;
+            text-align: center;
+            border-color: green;
+            border-radius: 20px;
+            color: black;
+        ">${popupData.stats["pm2.5_10minute"]}
+        </div>
+        <b>
+        ${description} 
         `;
+
+        // insert bold ending brace at end of colon
+        //airMarkerPopup.replace(":", ":</b>");
+
         airMarkerPopup += `
-            
-                <span>PM2.5 in past 10 minutes: ${popupData.stats["pm2.5_10minute"]} μg/m3</span><BR>
-                ${description}
-        `;
+        <span style="
+            font-size: small;
+            color: grey;
+            position: absolute;
+            top: 50px;
+            right: 40px;
+        "> μg/m <sup>3</sup>
+        </span>`
 
         airMarkerPopup += `</div>`;
 
         airMarkerPopup += buildAirTable(popupData.stats);
-        marker.bindPopup(airMarkerPopup);
+
+        airMarkerPopup += `<a id="moreButton" href="#" onclick="addMore()">More...</a>`
+
+        airMarkerPopup += `<div id="more" style="display:none">
+        <div class="air-info">
+        <span><b>Time:</b> ${time} </span><BR>
+        <span><b>Latitude:</b> ${popupData.latitude} </span><BR>
+        <span><b>Longitude:</b> ${popupData.longitude} </span><BR>
+        <span><b>Altitude:</b> ${popupData.altitude} </span><BR>
+        </div>
+        `;
+
+
+
+        marker.bindPopup(airMarkerPopup, {
+            maxWidth : 201
+        });;
     }
 
     // build air table for next 5 hours
@@ -869,8 +987,23 @@
 
 
         var table = `
-        <table>
-        <thead>
+        <table style="
+        border-collapse: collapse;
+        margin: 15px 0;
+        font-size: 0.9em;
+        font-family: sans-serif;
+        min-width: 210px;
+        min-height: 30px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    ">
+        <thead style="
+        text-align: center;
+        padding: 10px 40px;
+        font-size: smaller;
+        background-color: #009375;
+        color: #ffffff;
+        text-align: center;
+    ">
             <tr>
                 <th>Now</th>
                 <th>10 Min</th>
@@ -982,7 +1115,7 @@
 
 
 
-            var circleMarker = L.circleMarker([popupData.Latitude, popupData.Longitude], {
+            /*var circleMarker = L.circleMarker([popupData.Latitude, popupData.Longitude], {
                 color: color,
                 fillColor: color,
                 fillOpacity: 0.5,
@@ -997,7 +1130,30 @@
                 fillColor: color,
                 fillOpacity: 0.5,
                 radius: 15,
-            }).addTo(map);
+            }).addTo(map);  */
+
+
+            var c = ' marker-cluster-';
+            if (color == "#00e400") {
+                c += 'small';
+            } else if (color == "#fdff01") {
+                c += 'medium';
+            } else {
+                c += 'large';
+            }
+
+            var circleMarker = new L.marker([popupData.Latitude, popupData.Longitude],
+                { 
+                    icon: L.divIcon({
+                        html: '<div><span><b>' + (Math.round(pm10Mins * 100) / 100).toFixed(2) + '</b></span></div>',
+                        className: 'marker-cluster' + c, 
+                        iconSize: new L.Point(40, 40)
+                    }),
+                    title:pm10Mins,
+                 });
+
+            markers.addLayer(circleMarker);
+
             buildMicrosoftAirDataPopup(circleMarker, popupData, description);
         }
     }
@@ -1006,6 +1162,7 @@
 
         let datetime = popupData.ReadingDateTimeLocal;
 
+        
         var airMarkerPopup = `
             <div class="air-info">
             <span>Time: ${datetime} </span><BR>
@@ -1154,6 +1311,14 @@
                 });
                 addMapLayer(map);
                 mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
+                var checkboxOneSmoke = document.querySelector(".one-hour-smoke");
+                var checkboxTwoSmoke = document.querySelector(".two-hour-smoke");
+                var checkboxThreeSmoke = document.querySelector(".three-hour-smoke");
+                checkboxOneSmoke.checked = false;
+                checkboxOneSmoke.checked = true;
+                checkboxOneSmoke.dispatchEvent(new Event('click'));
+                checkboxTwoSmoke.checked = false;
+                checkboxThreeSmoke.checked = false;
             }
         }
     }
@@ -1165,9 +1330,9 @@
         "<pubDate>Mon, 06 Dec 2021 16:12:50 CDT</pubDate></item>";
 
     // initialize map and base layer
-    var map = L.map('map',{ zoomControl: false, renderer: L.canvas() }).setView([30.356635, -97.701180], 12);
+    var map = L.map('map',{ preferCanvas:true, zoomControl: false, renderer: L.canvas() }).setView([30.356635, -97.701180], 12);
 
-    new L.Control.Zoom({ position: 'topright' }).addTo(map);
+    new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
 
     addMapLayer(map);
 
@@ -1185,6 +1350,65 @@
     addShapefileRadioListener(map);
     buildSelectBar(map);
     buildDropdownMenu(map);
+
+    // add clusters
+
+    map._layersMaxZoom = 19;
+
+
+    var markers = L.markerClusterGroup({
+        showCoverageOnHover: false,
+        //zoomToBoundsOnClick: false,
+        iconCreateFunction: function(cluster) {
+            var childCount = cluster.getChildCount();
+
+            var markers = cluster.getAllChildMarkers();
+            var sum = 0;
+            for (var i = 0; i < markers.length; i++) {
+                //console.log(markers[i]);
+                sum += markers[i].options.title;
+            }
+            var avg = sum / markers.length;
+
+    var c = ' marker-cluster-';
+    if (avg < 10) {
+        c += 'small';
+    } else if (avg < 100) {
+        c += 'medium';
+    } else {
+        c += 'large';
+    }
+
+    return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) });
+        }
+    });
+    map.addLayer(markers);
+
+
+    // add zostera legend
+    L.control.legend({
+        position: 'bottomleft',
+        items: [
+            {color: 'white', label: '<b>Fire Risk</b>'},
+            {color: 'red', label: 'Highest'},
+            {color: 'orange', label: 'Elevated'},
+            {color: 'yellow', label: 'Low'},
+            {color: 'white', label: ''},
+            {color: 'white', label: '<b>Smoke Levels</b>'},
+            {color: '#9cd74e', label: 'Good'},
+            {color: '#facf39', label: 'Moderate'},
+            {color: '#f68f47', label: 'Unhealthy for Sensitive Groups'},
+            {color: '#f55e5f', label: 'Unhealthy'},
+            {color: '#a070b5', label: 'Very Unhealthy'},
+            {color: '#a06a7b', label: 'Hazardous'},
+        ],
+        collapsed: true,
+        // insert different label for the collapsed legend button.
+        buttonHtml: 'Legend'
+    }).addTo(map);
+
+    document.getElementsByClassName("leaflet-left")[1].style.left = "5px"
+    document.getElementsByClassName("leaflet-legend-list")[0].style = "text-align: left;"
 
     // add geolocator for address
     //const provider = new GeoSearch.OpenStreetMapProvider();
@@ -1205,6 +1429,12 @@
         })
         ]
     }).addTo(map);
+
+
+    //document.getElementsByClassName("geocoder-control")[0].children[0].style = "background-color: transparent; border-color: transparent; background-image:url(assets/images/search.png);"
+    //document.getElementsByClassName("geocoder-control")[0].style = "position: fixed;top: 2.5px;right: -4.5px;"
+
+    console.log(searchControl)
 
     // create an empty layer group to store the results and add it to the map
     var results = L.layerGroup().addTo(map);
@@ -1243,7 +1473,7 @@
         }
     
         container.innerHTML = `
-        <div class=\"geocoder-control-input leaflet-bar\" title=\"Check My Location\" style=\"background-image: url(https://smartcity.tacc.utexas.edu/FireIncident/assets/images/location.png)\"></div><div class=\"geocoder-control-suggestions leaflet-bar\"><div class=\"\"></div></div>\r\n
+        <div class=\"geocoder-control-input leaflet-bar\" title=\"Check My Location\" style=\"position:absolute;top:0px; background-image: url(https://smartcity.tacc.utexas.edu/FireIncident/assets/images/location.png)\"></div><div class=\"geocoder-control-suggestions leaflet-bar\"><div class=\"\"></div></div>\r\n
         `;
 
         return container;
@@ -1258,7 +1488,7 @@ L.control.watermark = function(opts) {
     return new L.Control.Watermark(opts);
 }
 
-L.control.watermark({ position: 'topright' }).addTo(map);
+L.control.watermark({ position: 'bottomright' }).addTo(map);
 
 
 L.Control.Watermark = L.Control.extend({
@@ -1287,7 +1517,9 @@ L.Control.Watermark = L.Control.extend({
         };
     
         container.innerHTML = `
-        <div class=\"geocoder-control-input leaflet-bar\" title=\"Stats\" style=\"background-image: url(https://smartcity.tacc.utexas.edu/FireIncident/assets/images/goodsystems.svg); width:50px; \"><b>Stats</b></div><div class=\"geocoder-control-suggestions leaflet-bar\"><div class=\"\"></div></div>\r\n
+        <div class=\"geocoder-control-input leaflet-bar\" title=\"Stats\" style=\"    
+
+        background-image: url(); width:35px; \"><img src="assets/images/stats1.png" style="width: 20px;height: 20px;position: absolute;left: 5px;"></div><div class=\"geocoder-control-suggestions leaflet-bar\"><div class=\"\"></div></div>\r\n
         `;
 
         return container;
@@ -1304,6 +1536,57 @@ L.control.watermark = function(opts) {
 
 
 L.control.watermark({ position: 'bottomright' }).addTo(map);
+
+//document.getElementsByClassName("geocoder-control")[0].style = "position:fixed;width: 10px;top: 2.5px;right: 29.5px;"
+
+
+L.Control.Watermark = L.Control.extend({
+    onAdd: function (map) {
+        var container = L.DomUtil.create('div');
+        container.type="button";
+        container.title="No cat";
+        container.value = "42";
+        container.classList = ["geocoder-control leaflet-control"]
+    
+        /*container.style.backgroundColor = 'white';     
+        //container.style.backgroundImage = "url(https://t1.gstatic.com/images?q=tbn:ANd9GcR6FCUMW5bPn8C4PbKak2BJQQsmC-K9-mbYBeFZm1ZM2w2GRy40Ew)";
+        container.style.backgroundSize = "30px 30px";
+        container.style.width = '30px';
+        container.style.height = '30px'; 
+        
+        container.onmouseover = function(){
+          container.style.backgroundColor = 'pink'; 
+        }
+        container.onmouseout = function(){
+          container.style.backgroundColor = 'white'; 
+        } */
+    
+        //container.onclick = function() {
+         //   stats();
+        //};
+    
+        container.innerHTML = `
+        <div class=\"dropdown-check-list geocoder-control-input leaflet-bar\" title=\"Layers\" style=\"    background-color: transparent;
+        border-color: transparent; background-image: url(); width:35px; \"><img src="assets/images/layers.png" style="width: 20px;height: 20px;position: absolute;left: 5px;"></div><div class=\"geocoder-control-suggestions leaflet-bar\"><div class=\"\"></div></div>\r\n
+        `;
+
+        return container;
+      },
+
+    onRemove: function(map) {
+        // Nothing to do here
+    }
+});
+
+L.control.watermark = function(opts) {
+    return new L.Control.Watermark(opts);
+}
+
+
+L.control.watermark({ position: 'bottomright' }).addTo(map);
+
+//document.getElementsByClassName("geocoder-control")[0].style = "position:fixed;width: 10px;top: 2.5px;right: 67.5px;"
+
 
     var spinner = document.getElementById('spinner');
     spinner.style.display = 'none';

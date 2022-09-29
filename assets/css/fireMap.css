@@ -424,7 +424,7 @@ body {
     background-color: white;
     position: absolute;
     z-index: 1000;
-    width: 150px;
+    width: 200px;
     /* border-top: none; */
     text-align: left;
 
@@ -540,4 +540,13 @@ body {
 
 .hvi-legend div span {
     padding: 10px;
+}
+
+/* Mobile support for the legend */
+
+@media only screen and (max-width: 600px) {
+    h2 {
+        vertical-align: middle;
+        font-size: 2rem;
+    }
 }
