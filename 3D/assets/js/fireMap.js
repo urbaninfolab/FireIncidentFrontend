@@ -264,9 +264,13 @@ function toggleLayerCustom(ids, bool) {
     var threehourForecastGroup = [];
 
     function addSmokeRegions(map, KMLstring) {
+        try {
         addForecastedSmoke(map, KMLstring + ".fbx", onehourForecastGroup);
         addForecastedSmoke(map, KMLstring + ".fbx2", twohourForecastGroup);
         addForecastedSmoke(map, KMLstring + ".fbx3", threehourForecastGroup);
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     function addForecastedSmoke(map, KMLstring, forecastGroup) {
@@ -328,7 +332,7 @@ function toggleLayerCustom(ids, bool) {
                         }
                     }
                     //forecastGroup.addLayer(track);
-                    map.on('load', function () {
+                    //map.on('load', function () {
                         console.log("LOAD....");
                         map.addLayer(track);
                         try {
@@ -338,7 +342,7 @@ function toggleLayerCustom(ids, bool) {
                             console.log(e);
                         }
                         //map.addLayer(forecastGroup);
-                    });
+                    //});
                     /*
                     map.addLayer({
                         id: 'custom_layer',
@@ -1003,37 +1007,66 @@ function toggleLayerCustom(ids, bool) {
             var description = colorNDes[1];
 
             var title = pm10Mins;
-            /*var circleMarker = L.circleMarker([popupData.latitude, popupData.longitude], { 
-                title: title,
-                icon: L.divIcon({
-                    className: 'my-custom-icon',
-                    html: popupData.stats["pm2.5_10minute"],
-                }),
-                color: color,
-                fillColor: color,
-                fillOpacity: 0.5,
-                radius: 15,
-             })*/
-            //circleMarker.bindPopup(title);
+            // var circleMarker = L.marker([popupData.latitude, popupData.longitude], { 
+            //     id: sensorKey,
+            //     type: "air",
+            //     source: "purpleair",
+            //     title: title,
+            //     icon: L.divIcon({
+            //         className: 'my-custom-icon',
+            //         html: popupData.stats["pm2.5_10minute"],
+            //     }),
+            //     color: color,
+            //     fillColor: color,
+            //     fillOpacity: 0.5,
+            //     radius: 15,
+            //  })
+            // circleMarker.bindPopup(title);
 
             var c = ' marker-cluster-';
             if (color == "#00e400") {
                 c += 'small';
+                // set color to markercluster green
+                color = "#00ff00";
             } else if (color == "#fdff01") {
                 c += 'medium';
+                // set color to markercluster yellow
+                color = "#ffff00";
             } else {
                 c += 'large';
+                // set color to markercluster red
+                color = "#ff0000";
             }
+
+            // Add Mapbox marker 
+            var airMarker = new mapboxgl.Marker({
+                color: color,
+                draggable: false,
+                id: sensorKey,
+                type: "air",
+                source: "purpleair",
+                title: title,
+                radius: 15,
+            })
+            .setLngLat([popupData.longitude, popupData.latitude])
+            .setPopup(new mapboxgl.Popup({ offset: 25 }) // add popups
+            .setHTML(buildAirDataPopup(airMarker, popupData, description)))
+            .addTo(map);
+
+            airMarker.getElement().children[0].innerHTML = ` \
+            <circle cx="12" cy="12" r="12" fill="${color}" stroke="white" stroke-width="1" /> \
+            `;
+
             
-            var circleMarker = new L.marker([popupData.latitude, popupData.longitude],
-            { 
-                icon: L.divIcon({
-                    html: '<div><span><b>' + pm10Mins + '</b></span></div>',
-                    className: 'marker-cluster' + c, 
-                    iconSize: new L.Point(40, 40)
-                }),
-                title:pm10Mins,
-             });
+            // var circleMarker = new L.marker([popupData.latitude, popupData.longitude],
+            // { 
+            //     icon: L.divIcon({
+            //         html: '<div><span><b>' + pm10Mins + '</b></span></div>',
+            //         className: 'marker-cluster' + c, 
+            //         iconSize: new L.Point(40, 40)
+            //     }),
+            //     title:pm10Mins,
+
 
             /*var circleMarker = L.circleMarker([popupData.latitude, popupData.longitude], {
                 color: color,
@@ -1041,13 +1074,14 @@ function toggleLayerCustom(ids, bool) {
                 radius: 15,
                 title:pm10Mins,
             }) */
-            markers.addLayer(circleMarker);
+            //markers.addLayer(circleMarker);
 
 
-            buildAirDataPopup(circleMarker, popupData, description);
+            //buildAirDataPopup(circleMarker, popupData, description);
         }
 
 
+        //map.addLayer(markers);
 
 
 
@@ -1102,7 +1136,7 @@ function toggleLayerCustom(ids, bool) {
             color: grey;
             position: absolute;
             top: 50px;
-            right: 40px;
+            right: 30px;
         "> μg/m <sup>3</sup>
         </span>`
 
@@ -1121,7 +1155,7 @@ function toggleLayerCustom(ids, bool) {
         </div>
         `;
 
-
+        return airMarkerPopup;
 
         marker.bindPopup(airMarkerPopup, {
             maxWidth : 201
@@ -1290,6 +1324,22 @@ function toggleLayerCustom(ids, bool) {
                 radius: 15,
             }).addTo(map);  */
 
+            // add mapboxgl marker
+            // var el = document.createElement('div');
+            // el.className = 'marker';
+            // el.style.backgroundColor = color;
+            // el.style.width = '20px';
+            // el.style.height = '20px';
+            // el.style.borderRadius = '50%';
+            // el.style.border = '2px solid #FFFFFF';
+            // el.style.boxShadow = '0 0 0 2px #FFFFFF';
+            // el.style.cursor = 'pointer';
+
+            // var marker = new mapboxgl.Marker(el)
+            //     .setLngLat([popupData.Longitude, popupData.Latitude])
+            //     .addTo(map);
+
+
 
             var c = ' marker-cluster-';
             if (color == "#00e400") {
@@ -1300,17 +1350,17 @@ function toggleLayerCustom(ids, bool) {
                 c += 'large';
             }
 
-            var circleMarker = new L.marker([popupData.Latitude, popupData.Longitude],
-                { 
-                    icon: L.divIcon({
-                        html: '<div><span><b>' + (Math.round(pm10Mins * 100) / 100).toFixed(2) + '</b></span></div>',
-                        className: 'marker-cluster' + c, 
-                        iconSize: new L.Point(40, 40)
-                    }),
-                    title:pm10Mins,
-                 });
+            // var circleMarker = new L.marker([popupData.Latitude, popupData.Longitude],
+            //     { 
+            //         icon: L.divIcon({
+            //             html: '<div><span><b>' + (Math.round(pm10Mins * 100) / 100).toFixed(2) + '</b></span></div>',
+            //             className: 'marker-cluster' + c, 
+            //             iconSize: new L.Point(40, 40)
+            //         }),
+            //         title:pm10Mins,
+            //      });
 
-            markers.addLayer(circleMarker);
+            // markers.addLayer(circleMarker);
 
             buildMicrosoftAirDataPopup(circleMarker, popupData, description);
         }
@@ -1498,7 +1548,7 @@ function toggleLayerCustom(ids, bool) {
     //var map = L.map('map',{ preferCanvas:true, zoomControl: false, renderer: L.canvas() }).setView([30.356635, -97.701180], 12);
     // make a mapbox map instead
     mapboxgl.accessToken = 'pk.eyJ1IjoicnlhbmhsZXdpcyIsImEiOiJjbDhkcWZzcHowbGhiM3VrOWJ3ZmtzcnZyIn0.ipWAZK-oipctMjaHytOUKQ';
-    const map = new mapboxgl.Map({
+    var map = new mapboxgl.Map({
     container: 'map',
     // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
     style: 'mapbox://styles/ryanhlewis/cl8dqj4dc000p14qij147mmi2',
@@ -1507,6 +1557,7 @@ function toggleLayerCustom(ids, bool) {
     pitch: 60,
     antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
     });
+
 
 
     //new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
@@ -1523,17 +1574,16 @@ function toggleLayerCustom(ids, bool) {
     let shapefile_display_flag = "fire-risk-radio";
     let purple_air_diaplay_flag = true;
     let microsoft_air_display_flag = true;
-    mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
-    addShapefileRadioListener(map);
-    buildSelectBar(map);
-    buildDropdownMenu(map);
-
-    // add clusters
-
-    map._layersMaxZoom = 19;
 
 
     var markers = L.markerClusterGroup({
+        //add mapbox support
+        spiderfyOnMaxZoom: false,
+        id: 'markers',
+        type: 'marker',
+        source: 'markers',
+
+
         showCoverageOnHover: false,
         //zoomToBoundsOnClick: false,
         iconCreateFunction: function(cluster) {
@@ -1559,13 +1609,25 @@ function toggleLayerCustom(ids, bool) {
     return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) });
         }
     });
+
+
+    map.on('load', function () {
+        addShapefileRadioListener(map);
+        buildSelectBar(map);
+        buildDropdownMenu(map);
+        mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
+    });
+    //mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
+    //addShapefileRadioListener(map);
+    //buildSelectBar(map);
+    //buildDropdownMenu(map);
+
+    // add clusters
+
+    map._layersMaxZoom = 19;
+
     //map.addLayer(markers); 
     // add markers layer after mapbox is loaded
-    map.on('load', function() {
-        // add markers layer
-        //map.addLayer(markers);
-        // add markers
-    });
 
 
     // add zostera legend

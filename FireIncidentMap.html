@@ -182,8 +182,8 @@ Check My Location button code leaflet
 
 
 		<!-- Modal -->
-		  <div class="modal fade" id="infoModal" role="dialog">
-			<div class="modal-dialog">
+		  <div class="modal fade" id="infoModal" role="dialog" >
+			<div id="InfoBox" class="modal-dialog">
 			
 			  <!-- Modal content-->
 			  <div class="modal-content">
@@ -222,7 +222,7 @@ Check My Location button code leaflet
 
 		  		<!-- Modal -->
 		<div class="modal fade" id="creditsModal" role="dialog">
-			<div class="modal-dialog">
+			<div id="InfoBox1" class="modal-dialog">
 			
 				<!-- Modal content-->
 				<div class="modal-content">
@@ -265,7 +265,7 @@ Check My Location button code leaflet
 		</script>
 
 <section>
-    <div style="display: block; background-color: #bf1d00; height: 40px; text-align: center;">
+    <div style="display: block; background-color: #bf1d00; height: 40px; text-align: center; user-select: none;" >
 		
 		<div  onclick="info()">
 		<!-- Fire Logo -->
@@ -278,7 +278,7 @@ Check My Location button code leaflet
 		<!-- Fire Toggles -->
 
 
-			<h2 style="float: left; margin-right: 1rem; margin-top:5px; color: white;"><b><a style="color:white" href="#">Active Fire Incidents Map</a></b></h2>
+			<h2 id="MapTitle" style="float: left; margin-right: 1rem; margin-top:5px; color: white;"><b><a style="color:white" href="#">Active Fire Incidents Map</a></b></h2>
 			</div>
 								<!--
                                 <div id="get-help">
@@ -287,82 +287,8 @@ Check My Location button code leaflet
                                 </div>
 								-->
 
-			<div style="float: left; margin-left: 20rem; margin-right: 1rem; margin-top:-10px;" class="date-bar">
 
-				<div class="select-bar">
-					<div class="bar bar-grey">
-						<div class="option">Today</div>
-						<div class="option">Yesterday</div>
-						<div class="option">Past 3 Days</div>
-						<div class="option">Custom</div>
-					</div>
-					<div class="bar-outer">
-						<div class="bar bar-purple">
-							<div class="option">Today</div>
-							<div class="option">Yesterday</div>
-							<div class="option">Past 3 Days</div>
-							<div class="option">Custom</div>
-						</div>
-					</div>
-				</div>
-	
-				<div class="date-picker">
-					<!--<label for="start">Start date:</label>-->
-					<input type="date" id="start" name="trip-start" min="2022-01-31">
-				</div>
-	
-				<!-- <div class="status-toggle"> </div> -->
-	
-				<div id="filter-menu" class="dropdown-check-list" tabindex="100">
-					<span class="anchor">Data Filter</span>
-					
-					<ul class="items">
-						<b><li>Fire Data</li></b>
-						<li><input style="margin-left: 15px;" type="checkbox" class="active-fire" checked />  Inactive Fire </li>
-						<b><li>Smoke Data</li></b>
-						<li><input style="margin-left: 15px;" type="checkbox" class="one-hour-smoke" checked />  1 Hour Forecast </li>
-						<li><input style="margin-left: 15px;" type="checkbox" class="two-hour-smoke" checked />  2 Hour Forecast </li>
-						<li><input style="margin-left: 15px;" type="checkbox" class="three-hour-smoke" checked />  3 Hour Forecast </li>
-						<b><li>Air Data</li></b>
-						<li><input style="margin-left: 15px;" type="checkbox" class="purple-air" checked />  PurpleAir Data</li>
-						<li><input style="margin-left: 15px;" type="checkbox" class="microsoft-air" checked />  MSR Air Quality Sensors </li>
-						<b><li>Shapefile</li></b>
-						<li><input style="margin-left: 15px;" type="radio" id="test-risk-radio" name="shapefile-radio" value="test-risk-radio"
-								checked />
-								<label for="test-risk-radio">Fire Risk</label>
-							</li>
-						<li><input style="margin-left: 15px;" type="radio" id="afd-radio" name="shapefile-radio" value="afd-radio" />
-								<label for="afd-radio">AFD Converage</label>
-						</li>
-						<li style="display:none"><input style="margin-left: 15px;"type="radio" id="hvi-radio" name="shapefile-radio" value="hvi-radio" />
-							<label for="hvi-radio">HVI Map</label>
-						</li>
-						<li><input style="margin-left: 15px;" type="radio" id="fire-risk-radio" name="shapefile-radio" value="fire-risk-radio" />
-							<label for="fire-risk-radio">Vulnerability Map</label>
-						</li>
-						<li ><input style="margin-left: 15px;" type="radio" id="no-shapefile" name="shapefile-radio" value="none-radio" />
-							<label for="none-radio">None</label>
-						</li>
-					</ul>
-				</div>
-	
-				<!--
-				<div class="select-bar" width="10%" style="margin-left:100px; width: 300px;">
-					<div class="bar bar-grey" style="width: 300px;">
-						<div class="option2" style="width: 300px;">Check my Location</div>
-					</div>
-					<div class="bar-outer2" style="width: 300px;">
-						<div class="bar bar-purple bar-purple2" style="width: 300px;">
-							<div class="option2" style="width: 300px;">Check my Location</div>
-						</div>
-					</div>
-				</div> -->
-			
-
-			</div>
-			
-
-
+								
 		<!-- College/Project Branding -->
         <a href="http://www.utexas.edu" style="float: right; margin-right: 1rem; margin-top:0;">
             <span style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;color: #fff">University of Texas at Austin</span> 
@@ -451,6 +377,130 @@ Check My Location button code leaflet
                 </svg>
             </span>
         </a>
+
+
+
+			<div style="float: right; margin-right: 2rem; margin-top:-10px;" class="date-bar">
+								<!--
+
+				<div class="select-bar" style="opacity: 0;">
+					<div class="bar bar-grey">
+						<div class="option">Today</div>
+						<div class="option">Yesterday</div>
+						<div class="option">Past 3 Days</div>
+						<div class="option">Custom</div>
+					</div>
+					<div class="bar-outer">
+						<div class="bar bar-purple">
+							<div class="option">Today</div>
+							<div class="option">Yesterday</div>
+							<div class="option">Past 3 Days</div>
+							<div class="option">Custom</div>
+						</div>
+					</div>
+				</div>
+									-->
+
+				<div class="date-picker">
+					<!--<label for="start">Start date:</label>-->
+					<input type="date" id="start" name="trip-start" min="2022-01-31">
+				</div>
+	
+				<!-- <div class="status-toggle"> </div> -->
+	
+				<div id="filter-menu" class="dropdown-check-list" tabindex="100">
+					<span class="anchor">᠎⠀ ⠀᠎⠀ ⠀</span>
+					
+					<ul class="items">
+						<b><li>Fire Data</li></b>
+						<li><input style="margin-left: 15px;" type="checkbox" class="active-fire" checked />  Inactive Fire </li>
+						<b><li>Smoke Data</li></b>
+						<li><input style="margin-left: 15px;" type="checkbox" class="one-hour-smoke" checked />  1 Hour Forecast </li>
+						<li><input style="margin-left: 15px;" type="checkbox" class="two-hour-smoke" checked />  2 Hour Forecast </li>
+						<li><input style="margin-left: 15px;" type="checkbox" class="three-hour-smoke" checked />  3 Hour Forecast </li>
+						<b><li>Air Data</li></b>
+						<li><input style="margin-left: 15px;" type="checkbox" class="purple-air" checked />  PurpleAir Data</li>
+						<li><input style="margin-left: 15px;" type="checkbox" class="microsoft-air" checked />  MSR Air Quality Sensors </li>
+						<b><li>Shapefile</li></b>
+						<li><input style="margin-left: 15px;" type="radio" id="test-risk-radio" name="shapefile-radio" value="test-risk-radio"
+								checked />
+								<label for="test-risk-radio">Fire Risk</label>
+							</li>
+						<li><input style="margin-left: 15px;" type="radio" id="afd-radio" name="shapefile-radio" value="afd-radio" />
+								<label for="afd-radio">AFD Converage</label>
+						</li>
+						<li style="display:none"><input style="margin-left: 15px;"type="radio" id="hvi-radio" name="shapefile-radio" value="hvi-radio" />
+							<label for="hvi-radio">HVI Map</label>
+						</li>
+						<li><input style="margin-left: 15px;" type="radio" id="fire-risk-radio" name="shapefile-radio" value="fire-risk-radio" />
+							<label for="fire-risk-radio">Vulnerability Map</label>
+						</li>
+						<li ><input style="margin-left: 15px;" type="radio" id="no-shapefile" name="shapefile-radio" value="none-radio" />
+							<label for="none-radio">None</label>
+						</li>
+					</ul>
+				</div>
+
+				<div id="filter-menu2" class="dropdown-check-list2" tabindex="100" style="position:relative; margin-top: 17px; margin-left: 15px;">
+					<a onclick="stats()" href="#">
+					<img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/stats.png" width="25px" height="25px"  xml:space="preserve"> </img>
+				</a>
+
+				</div>
+	
+				<div class="dropdown" >
+
+				<div id="filter-menu1" class="dropdown-check-list1" tabindex="100">
+					<span id="CurrentSelectedDate" class="anchor"  type="button" data-toggle="dropdown" style="user-select: none">⠀ ⠀᠎⠀ ⠀Today</span>
+
+					<ul class="dropdown-menu" style=" user-select: none">
+						<li><a onclick="getToday()" href="#" class="option">Today</a></li>
+						<li><a onclick="getYesterday()" href="#" class="option">Yesterday</a></li>
+						<li><a onclick="get3Days()" href="#" class="option">Past 3 Days</a></li>
+						<li><a onclick="getCustom()" href="#" class="option">Custom</a></li>
+					  </ul>
+					<!--
+					<ul class="items">
+
+					<div class="select-bar">
+					<div class="bar bar-grey" style="color: black; display: block;">
+						<div class="option1">Today</div>
+						<div class="option1">Yesterday</div>
+						<div class="option1">Past 3 Days</div>
+						<div class="option1">Custom</div>
+					</div>
+					<div class="bar-outer">
+						<div class="bar bar-purple" style="color: black; display: block;">
+							<div class="option1">Today</div>
+							<div class="option1">Yesterday</div>
+							<div class="option1">Past 3 Days</div>
+							<div class="option1">Custom</div>
+						</div>
+					</div>
+				</div>
+	
+
+					</ul>
+					-->
+				</div>
+				</div>
+
+				<!--
+				<div class="select-bar" width="10%" style="margin-left:100px; width: 300px;">
+					<div class="bar bar-grey" style="width: 300px;">
+						<div class="option2" style="width: 300px;">Check my Location</div>
+					</div>
+					<div class="bar-outer2" style="width: 300px;">
+						<div class="bar bar-purple bar-purple2" style="width: 300px;">
+							<div class="option2" style="width: 300px;">Check my Location</div>
+						</div>
+					</div>
+				</div> -->
+			
+
+			</div>
+			
+
 		<a href="http://goodsystems.utexas.edu" style="display: none; float: right; margin-right: 1rem; margin-top:0;">
             <span style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;color: #fff">University of Texas at Austin</span> 
             <span style="max-height: 25px; margin-top: 9px; display: block; max-width: 100%; height: auto;">
@@ -655,32 +705,103 @@ Check My Location button code leaflet
 				</div>
 	
 			</div>
-			<!--
+			
+			
 			<div class="legend-wrapper">
-				<div class="air-quality-legend">
+				<div class="air-quality-legend" style="margin-top: -50px;">
 					<div style="background-color: white;">
 						<span>Air Quality: </span>
 					</div>
 					<div style="background-color: #9cd74e;">
-						<span>Good</span>
+						<span>0</span>
 					</div>
 					<div style="background-color: #facf39;">
-						<span>Moderate</span>
+						<span>50</span>
 					</div>
 					<div style="background-color: #f68f47;">
-						<span>Unhealthy for sensitive groups</span>
+						<span>100</span>
 					</div>
 					<div style="background-color: #f55e5f;">
-						<span>Unhealthy</span>
+						<span style="color:#ffffff">150</span>
 					</div>
 					<div style="background-color: #a070b5;">
-						<span>Very unhealthy</span>
+						<span style="color:#ffffff">200</span>
 					</div>
 					<div style="background-color: #a06a7b;">
-						<span>Hazardous</span>
+						<span style="color:#ffffff">300</span>
 					</div>
 				</div>
 			</div>
+			<div class="legend-wrapper">
+				<div class="air-quality-legend" style="margin-top: -30px;">
+					<div style="background-color: white; width:325px">
+						<!-- Get current date -->
+						<span id="date"></span>
+					</div>
+					</div>
+				</div>
+			</div>
+
+			<script>
+				// Put the date in the legend, as Month Name Day, Year, Time
+				var d = new Date();
+				var month = d.getMonth() + 1;
+				// Convert month number to month name
+				var monthName = new Array();
+				monthNames = ["January", "February", "March", "April", "May", "June",
+					"July", "August", "September", "October", "November", "December"
+				];
+				monthName = monthNames[month - 1];
+				var day = d.getDate();
+				var year = d.getFullYear();
+				var hour = d.getHours();
+				var minute = d.getMinutes();
+				var second = d.getSeconds();
+				var ampm = hour >= 12 ? 'PM' : 'AM';
+				hour = hour % 12;
+				hour = hour ? hour : 12; // the hour '0' should be '12'
+				minute = minute < 10 ? '0' + minute : minute;
+				second = second < 10 ? '0' + second : second;
+				var strTime = hour + ':' + minute + ':' + second + ' ' + ampm;
+				// Get Time Zone Acronym
+				var timeZone = d.toLocaleDateString('en-US', {day: '2-digit',timeZoneName: 'short',}).slice(4);
+
+				document.getElementById("date").innerHTML = monthName + " " + day + ", " + year + ", " + strTime + " " + timeZone;
+
+				// Make the legend update every second
+				setInterval(function() {
+					var d = new Date();
+					var month = d.getMonth() + 1;
+					// Convert month number to month name
+					var monthName = new Array();
+					monthNames = ["January", "February", "March", "April", "May", "June",
+						"July", "August", "September", "October", "November", "December"
+					];
+					monthName = monthNames[month - 1];
+					var day = d.getDate();
+					var year = d.getFullYear();
+					var hour = d.getHours();
+					var minute = d.getMinutes();
+					var second = d.getSeconds();
+					var ampm = hour >= 12 ? 'PM' : 'AM';
+					hour = hour % 12;
+					hour = hour ? hour : 12; // the hour '0' should be '12'
+					minute = minute < 10 ? '0' + minute : minute;
+					second = second < 10 ? '0' + second : second;
+					var strTime = hour + ':' + minute + ':' + second + ' ' + ampm;
+					// Get Time Zone Acronym
+					var timeZone = d.toLocaleDateString('en-US', {day: '2-digit',timeZoneName: 'short',}).slice(4);
+
+					document.getElementById("date").innerHTML = monthName + " " + day + ", " + year + ", " + strTime + " " + timeZone;
+				}, 60000);
+
+
+
+
+			</script>
+
+
+		<!--
 			<div class="legend-wrapper">
 				<div class="fire-risk-legend">
 					<div style="background-color: white;">
@@ -696,7 +817,7 @@ Check My Location button code leaflet
 						<span>Normal</span>
 					</div>
 				</div>
-			</div>
+			</div>			
 			<div class="legend-wrapper">
 				<div class="afd-legend">
 					<div style="background-color: white;">

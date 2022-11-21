@@ -5,6 +5,7 @@ body {
 
 }
 
+
 .page-wrapper {
    /* margin-top: 50px;
     margin-left: 200px;
@@ -389,13 +390,81 @@ body {
     position: relative;
     cursor: pointer;
     display: inline-block;
-    padding: 5px 50px 5px 10px;
+    /*padding: 5px 50px 5px 10px;
     border: 2px solid rgb(255, 255, 255);
     border-radius: 10px;
-    color: white;
+    color: white; */
+    /* text highlight */
+    -webkit-user-select: none; /* Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
 }
 
 .dropdown-check-list .anchor:after {
+    position: absolute;
+    content: "";
+    /*border-left: 2px solid rgb(255, 255, 255);
+    border-top: 2px solid rgb(255, 255, 255);*/
+    /* background image of layers icon */
+
+    width: 25px;
+    height: 25px;
+
+    background-image: url("../images/layer.png");
+    
+    background-size: cover;
+    
+    /* enable transparency */
+    background-color: transparent;
+    
+    background-repeat: no-repeat;
+    background-position: center;
+
+    padding: 5px;
+    right: 10px;
+    top: 20%;
+
+}
+.dropdown-check-list1 {
+    /*display: inline-block;
+    margin-left: 40px;*/
+    margin-top: 15px;
+    position: relative;
+}
+
+.dropdown-check-list1 .anchor {
+    position: relative;
+    cursor: pointer;
+    display: inline-block; 
+    padding: 5px 50px 5px 10px;
+    border-radius: 10px;
+    color: white;
+    background: #500606;
+    clip-path: polygon(480px 0,
+            480px 32px,
+            43px 32px,
+            39.775442px 31.67494px,
+            36.772078px 30.74264px,
+            34.054248px 29.26745px,
+            31.686292px 27.31371px,
+            29.732549px 24.94575px,
+            28.257359px 22.22792px,
+            27.325063px 19.22456px,
+            27px 16px,
+            27.325063px 12.77544px,
+            28.257359px 9.77208px,
+            29.732549px 7.05425px,
+            31.686292px 4.68629px,
+            34.054248px 2.73255px,
+            36.772078px 1.25736px,
+            39.775442px 0.32506px,
+            43px 0);
+    transition: clip-path 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        
+}
+
+.dropdown-check-list1 .anchor:after {
     position: absolute;
     content: "";
     border-left: 2px solid rgb(255, 255, 255);
@@ -409,13 +478,13 @@ body {
     -webkit-transform: rotate(-135deg);
     transform: rotate(-135deg);
 }
-
-.dropdown-check-list .anchor:active:after {
+.dropdown-check-list1 .anchor:active:after {
     right: 8px;
     top: 21%;
 }
 
-.dropdown-check-list ul.items {
+.dropdown-check-list1 ul.items {
+    user-select: none;
     padding: 2px;
     display: none;
     margin: 0;
@@ -425,6 +494,46 @@ body {
     position: absolute;
     z-index: 1000;
     width: 200px;
+    top: 105%;
+    /* border-top: none; */
+    text-align: left;
+
+}
+
+.dropdown-check-list1 ul.items li {
+    list-style: none;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+.dropdown-check-list1.visible .anchor {
+    color: #f4f4f4;
+}
+
+.dropdown-check-list1.visible .items {
+    display: block;
+}
+
+
+
+
+.dropdown-check-list .anchor:active:after {
+    right: 8px;
+    top: 21%;
+}
+
+.dropdown-check-list ul.items {
+    user-select: none;
+    padding: 2px;
+    display: none;
+    margin: 0;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+    background-color: white;
+    position: absolute;
+    z-index: 1000;
+    width: 200px;
+    top: 105%;
     /* border-top: none; */
     text-align: left;
 
@@ -544,9 +653,18 @@ body {
 
 /* Mobile support for the legend */
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 850px) {
     h2 {
         vertical-align: middle;
         font-size: 2rem;
+    }
+    #UTexas {
+        display: none;
+    }
+    #MapTitle {
+        display: none;
+    }
+    #InfoBox, #InfoBox1 {
+        width:400px;
     }
 }

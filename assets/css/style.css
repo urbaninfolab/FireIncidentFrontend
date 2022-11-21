@@ -64,6 +64,7 @@ body, input, button {
 
 a {
 	text-decoration: none;
+	outline: 0;
 }
 
 .property-details-link,
@@ -146,9 +147,9 @@ h5 {
 
 /* Focus */
 
-*:focus {
+/* *:focus {
 	outline: 2px dashed #0099ff;
-}
+} */
 
 #title:focus,
 #search-input:focus,

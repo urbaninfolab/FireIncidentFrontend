@@ -428,8 +428,94 @@
         });*/
     }
 
+    function getToday() {
+        document.getElementById("CurrentSelectedDate").textContent = "⠀ ⠀᠎⠀ ⠀Today";
+        var datePicker = document.querySelector('.date-picker');
+        datePicker.style.display = 'none';
+                                // clear all markers and rebuild map layer
+                                map.eachLayer(function (layer) {
+                                    map.removeLayer(layer);
+                                });
+                                addMapLayer(map);
+                                // map today's fire data
+                                dateArray = [];
+                                var today = new Date();
+                                var date = today.getFullYear() + '-' + ("0" + (today.getMonth() + 1)).slice(-2) + '-' + ("0" + today.getDate()).slice(-2);
+                                dateArray.push(date);
+                                mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
+                                // show status toggle button and uncheck checkbox
+                                //statusToggle.style.display = 'flex';
+                                //checkbox.checked = false;
+    }
+
+    function getYesterday() {
+        document.getElementById("CurrentSelectedDate").textContent = "⠀ ⠀᠎⠀ ⠀Yesterday";
+        var datePicker = document.querySelector('.date-picker');
+        datePicker.style.display = 'none';
+                        // clear all markers and rebuild map layer
+                        map.eachLayer(function (layer) {
+                            map.removeLayer(layer);
+                        });
+                        addMapLayer(map);
+                        // map yesterday's fire data
+                        dateArray = [];
+                        var today = new Date();
+                        var date = today.getFullYear() + '-' + ("0" + (today.getMonth() + 1)).slice(-2) + '-' + ("0" + (today.getDate() - 1)).slice(-2);
+                        dateArray.push(date);
+                        mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
+                        //statusToggle.style.display = 'none';
+
+                    }
+
+
+    function get3Days() {
+        document.getElementById("CurrentSelectedDate").textContent = "⠀ ⠀᠎⠀ ⠀Last 3 Days";
+        var datePicker = document.querySelector('.date-picker');
+        datePicker.style.display = 'none';
+                        // clear all markers and rebuild map layer
+                        map.eachLayer(function (layer) {
+                            map.removeLayer(layer);
+                        });
+                        addMapLayer(map);
+                        // map fire data of past 3 days 
+                        dateArray = [];
+                        var today = new Date();
+                        for (let i = 0; i < 3; i++) {
+                            var date = today.getFullYear() + '-' + ("0" + (today.getMonth() + 1)).slice(-2) + '-' + ("0" + (today.getDate() - i)).slice(-2);
+                            dateArray.push(date);
+                        }
+                        mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
+                        //statusToggle.style.display = 'none';
+
+    }
+
+    function getCustom() {
+        document.getElementById("CurrentSelectedDate").textContent = "⠀ ⠀᠎⠀ ⠀Custom";
+
+        var datePicker = document.querySelector('.date-picker');
+        datePicker.style.display = 'none';
+        // add event listener
+        datePicker.addEventListener('change', (event) => {
+            // clear all markers and rebuild map layer
+            map.eachLayer(function (layer) {
+                map.removeLayer(layer);
+            });
+            addMapLayer(map);
+            mapFireIncident(map, [event.target.value], inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag)
+        })
+                                // show date selector
+                                datePicker.style.display = 'block';
+                                //statusToggle.style.display = 'none';
+    }
 
     function buildSelectBar(map) {
+        var checkList = document.getElementById('filter-menu');
+        checkList.getElementsByClassName('anchor')[0].onclick = function (evt) {
+            if (checkList.classList.contains('visible'))
+                checkList.classList.remove('visible');
+            else
+                checkList.classList.add('visible');
+        }
         // set up value of date picker
         var dateControl = document.querySelector('input[type="date"]');
         dateControl.value = date;
@@ -583,6 +669,8 @@
                             </div>
                             
                         `;
+                        // Instead of just displaying the number in the popup, make a gradient color scale
+
                         layer.bindPopup(popupContent);
                         let fireCat = feature.properties["FIRECAT"];
                         let words = fireCat.toLowerCase().split(' ');
@@ -595,7 +683,20 @@
 
                         }
 
-                    }
+                        // make layer outline thicker
+                        layer.options.weight = 0.8;
+
+                        // makes lines thinner the further away they are depending on zoom level
+                        // attach to zoom event
+                        map.on('zoomend', function () {
+                            layer.options.weight = 0.3 * map.getZoom();
+                        });
+                        //layer.options.opacity = 1 / map.getZoom();
+
+
+                    },
+                    
+                    
                 })
                 // hide fire risk legend
                 //fireRiskLegend.style.display = 'flex';
@@ -1530,13 +1631,14 @@ L.Control.Watermark = L.Control.extend({
     }
 });
 
+/*
 L.control.watermark = function(opts) {
     return new L.Control.Watermark(opts);
 }
 
 
 L.control.watermark({ position: 'bottomright' }).addTo(map);
-
+*/
 //document.getElementsByClassName("geocoder-control")[0].style = "position:fixed;width: 10px;top: 2.5px;right: 29.5px;"
 
 
@@ -1590,6 +1692,8 @@ L.control.watermark({ position: 'bottomright' }).addTo(map);
 
     var spinner = document.getElementById('spinner');
     spinner.style.display = 'none';
+
+    document.getElementsByClassName( 'leaflet-control-attribution' )[0].style.display = 'none';
 
 
 

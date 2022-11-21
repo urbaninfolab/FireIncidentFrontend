@@ -680,11 +680,14 @@
         let sliderJsonUrl = '../../data/title_by_day.json';
         let sliderResponse = await fetch(sliderJsonUrl);
         slider_data = await sliderResponse.json();
-        let minDateString = slider_data["minDate"].split('-');
-        let maxDateString = slider_data["maxDate"].split('-');
+        //let minDateString = slider_data["minDate"].split('-');
+        //let maxDateString = slider_data["maxDate"].split('-');
         let fireTitleData = slider_data;
-        delete slider_data["minDate"];
-        delete slider_data["maxDate"];
+        //delete slider_data["minDate"];
+        //delete slider_data["maxDate"];
+        // Hacky fix, until can implement new data.
+        let minDateString = "2022-01-26".split('-');
+        let maxDateString = "2022-05-12".split('-');
 
         let minDate = new Date(minDateString[0], parseInt(minDateString[1], 10) - 1, minDateString[2]);
         let maxDate = new Date(maxDateString[0], parseInt(maxDateString[1], 10) - 1, maxDateString[2]);
