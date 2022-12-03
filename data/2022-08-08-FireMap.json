@@ -1,0 +1,163 @@
+{
+    "rss": {
+      "@version": "2.0",
+      "@xmlns:atom": "http://www.w3.org/2005/Atom",
+      "channel": {
+        "atom:link": {
+          "@href": "http://www.austintexas.gov/fact/fact_rss.cfm",
+          "@rel": "self",
+          "@type": "application/rss+xml"
+        },
+        "title": "Active Fire Incident Page",
+        "link": "http://www.austintexas.gov/fact/default.cfm",
+        "description": "This page provides information on active Austin/Travis County Fire incidents.  Data is updated every 3 minutes.",
+        "lastBuildDate": "Mon, 08 Aug 2022 23:55:03 CDT",
+        "copyright": "2022 City of Austin. All rights reserved.",
+        "language": "en-us",
+        "item": [
+          {
+            "title": "BOX -Structure Fire",
+            "link": "http://maps.google.com/maps?q=30.156647,-97.790886",
+            "guid": {
+              "@isPermaLink": "false",
+              "#text": "CF039415746BE850199EBD86652C7DAA65DABA2E"
+            },
+            "description": "9900 S Ih 35 Svrd Sb | AFD | 23:24:18",
+            "pubDate": "Mon, 08 Aug 2022 23:24:18 CDT",
+            "active_status": "no"
+          },
+          {
+            "title": "BOX -Structure Fire",
+            "link": "http://maps.google.com/maps?q=30.339315,-97.818181",
+            "guid": {
+              "@isPermaLink": "false",
+              "#text": "8F3EA2CB77AEC0BEE5DAF3047CEBD84010935952"
+            },
+            "description": "3505 Robbins Rd | AFD | 23:38:40",
+            "pubDate": "Mon, 08 Aug 2022 23:38:40 CDT",
+            "active_status": "yes"
+          },
+          {
+            "title": "BRUSH - Brush Fire",
+            "link": "http://maps.google.com/maps?q=30.394193,-97.718207",
+            "guid": {
+              "@isPermaLink": "false",
+              "#text": "050127FDFBF9608CB5B1FDF451A905A212CB7158"
+            },
+            "description": "2618 Kramer Ln | AFD | 23:34:15",
+            "pubDate": "Mon, 08 Aug 2022 23:34:15 CDT",
+            "active_status": "no"
+          },
+          {
+            "title": "BRUSH - Brush Fire",
+            "link": "http://maps.google.com/maps?q=30.301546,-97.756706",
+            "guid": {
+              "@isPermaLink": "false",
+              "#text": "52DE152CC1DC11B77BC6B18EEC24ADDB2550348A"
+            },
+            "description": "1805 Mohle Dr | AFD | 23:45:25",
+            "pubDate": "Mon, 08 Aug 2022 23:45:25 CDT",
+            "active_status": "yes"
+          },
+          {
+            "title": "UT Tower Fire",
+            "link": "http://maps.google.com/maps?q=30.285337,-97.739720",
+            "guid": {
+              "@isPermaLink": "false",
+              "#text": "52DE152CC1DC11B77BC6B18EEC24ADDB2550348B"
+            },
+            "description": "110 Inner Campus Dr | AFD | 23:45:25",
+            "pubDate": "Mon, 08 Aug 2022 22:44:24 CDT",
+            "active_status": "yes"
+          },
+          {
+            "title": "GRASS - Small Grass Fire",
+            "link": "http://maps.google.com/maps?q=30.349090,-97.542362",
+            "guid": {
+              "@isPermaLink": "false",
+              "#text": "F807C7479E9945A80ED36FCC1E70720ACA8277C6"
+            },
+            "description": "11800-11849 RING DR | ESD12 | 22:35:28",
+            "pubDate": "Tue, 09 Aug 2022 22:35:28 CDT",
+            "active_status": "no"
+          },
+          {
+            "title": "BRUSH - Brush Fire",
+            "link": "http://maps.google.com/maps?q=30.265456,-97.748257",
+            "guid": {
+              "@isPermaLink": "false",
+              "#text": "0D78675B4586507DF0EE63F19D6D49900BF30E28"
+            },
+            "description": "440 W 2nd St | AFD | 22:37:44",
+            "pubDate": "Tue, 09 Aug 2022 22:37:44 CDT",
+            "active_status": "no"
+          },
+          {
+            "title": "GRASS - Small Grass Fire",
+            "link": "http://maps.google.com/maps?q=30.244099,-97.730044",
+            "guid": {
+              "@isPermaLink": "false",
+              "#text": "8E9059AB575AFF2BC2841C6E0199239C3BFDE394"
+            },
+            "description": "1723 E RIVERSIDE DR | AFD | 22:41:31",
+            "pubDate": "Tue, 09 Aug 2022 22:41:31 CDT",
+            "active_status": "yes"
+          },
+          {
+            "title": "BRUSH - Brush Fire",
+            "link": "http://maps.google.com/maps?q=30.290668,-97.744425",
+            "guid": {
+              "@isPermaLink": "false",
+              "#text": "778406947B9C4E8978A1C547E7180F9730E321E8"
+            },
+            "description": "2600 RIO GRANDE ST | AFD | 23:03:22",
+            "pubDate": "Tue, 09 Aug 2022 23:03:22 CDT",
+            "active_status": "no"
+          },      {
+            "title": "GRASS - Small Grass Fire",
+            "link": "http://maps.google.com/maps?q=30.535504,-97.780121",
+            "guid": {
+              "@isPermaLink": "false",
+              "#text": "D1C897660064E632399109B0FC5A9C4F7F5F64A5"
+            },
+            "description": "3200 E WHITESTONE BLVD | NON - ADVISED INCIDENT | 22:25:37",
+            "pubDate": "Fri, 19 Aug 2022 22:25:37 CDT",
+            "active_status": "no"
+          },
+          {
+            "title": "BOX -Structure Fire",
+            "link": "http://maps.google.com/maps?q=30.110241,-97.544298",
+            "guid": {
+              "@isPermaLink": "false",
+              "#text": "D4CFF825274D4B4486F469056F8F58DB05E43BE7"
+            },
+            "description": "573 Thousand Oaks Dr | NON - ADVISED INCIDENT | 22:27:42",
+            "pubDate": "Fri, 19 Aug 2022 22:27:42 CDT",
+            "active_status": "no"
+          },
+          {
+            "title": "BOX -Structure Fire",
+            "link": "http://maps.google.com/maps?q=30.294556,-97.824614",
+            "guid": {
+              "@isPermaLink": "false",
+              "#text": "0A1B9AD7E4D3BE56174BD6AD61DA8CF9869F17BE"
+            },
+            "description": "5656 BEE CAVES RD | ESD09 | 22:54:15",
+            "pubDate": "Fri, 19 Aug 2022 22:54:15 CDT",
+            "active_status": "yes"
+          },
+          {
+            "title": "Traffic Fire",
+            "link": "http://maps.google.com/maps?q=30.330028,-97.706170",
+            "guid": {
+              "@isPermaLink": "false",
+              "#text": "CE15B50798B02E4C02169C9A575F89C7C13D728B"
+            },
+            "description": "E Huntland Dr / N Ih 35 Sb To Huntland Ramp | AFD | 23:50:13",
+            "pubDate": "Fri, 19 Aug 2022 23:50:13 CDT",
+            "active_status": "yes"
+          }
+        ]
+      }
+    }
+  }

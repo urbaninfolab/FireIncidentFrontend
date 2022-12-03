@@ -1,0 +1,6 @@
+var dataInfoContent = `<h5>Note: properties may have changed ownership since the data was initially collected. There may also be some inaccuracies due to the large size of the dataset – to flag an issue, please <a href=https://github.com/funkonaut/find-my-landlord-atx/issues/new>file it on Github according to the below guidelines</a>.</h5>
+
+<p>There are three types of issues you can file on github: Incorrect Landlord Affiliation, Incorrect Unit Count, and Missing Property. Please label your issues appropriately. If a label does not fit your issue file it under other. Please include the address as it appears on the app (ie in the search bar when the property is clicked) in the title of your issue. Please write a brief description of the issue. If data is missing or incorrectly grouped and you know the missing information please include it as well </p>
+
+<p>The property taxpayer and address for buildings in Travis County were downloaded from the <a href="https://www.traviscad.org">assessor website</a> in August of 2020, and filtered to exclude properties not zoned for residence. Properties were matched based on the name and address of the property taxpayer, to find the <b>number of units</b> sharing the same taxpayer.</p>`
+

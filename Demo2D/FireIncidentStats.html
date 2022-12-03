@@ -1,0 +1,5715 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin="" />
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://smartcity.tacc.utexas.edu/FireIncident/assets/js/leaflet-rotatedMarker.js"></script>
+    <script src="https://smartcity.tacc.utexas.edu/FireIncident/assets/js/leaflet.shpfile.js"></script>
+    <script src="https://smartcity.tacc.utexas.edu/FireIncident/assets/js/shp.js"></script>
+
+    <link rel="stylesheet" href="https://uicdn.toast.com/chart/latest/toastui-chart.min.css" />
+    <script src="https://uicdn.toast.com/chart/latest/toastui-chart.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" />
+    <script src="https://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+
+</head>
+
+<body>
+    
+    <div class="page-wrapper">
+
+        <p class="page-description">We built weekly sum chart, hourly chart, and weekday chart using fire incident data.
+            Charts are updated weekly.
+        </p>
+
+        <div class="charts">
+            <div id="week-line-chart"></div>
+            <div id="per-hour-chart"></div>
+        </div>
+        <div class="charts">
+            <div id="week-column-chart"></div>
+            <div>
+                <div id="title-by-day-chart"></div>
+                <div class="slider">
+                    <div id="slider-range"></div>
+                    <p class="slider-text">
+                        <label for="amount">Date:</label>
+                        <input type="text" id="amount"
+                            style="border: 0; color: #f6931f; font-weight: bold; font-size: 20px;" size="100" />
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        margin-top: 50px;
+        margin-left: 200px;
+        margin-right: 200px;
+    }
+
+    .page-title {
+        font-size: 22px;
+        font-weight: bold;
+        margin-top: 30px;
+    }
+
+    .page-description {
+        font-size: 20px;
+        font-weight: 500;
+    }
+
+
+    /* --------------------------Style of Chart-------------------------- */
+
+    .charts {
+        display: flex;
+        flex-direction: row;
+        margin-bottom: 100px;
+    }
+
+    #week-line-chart {
+        width: 700px !important;
+        height: 400px !important;
+    }
+
+    #per-hour-chart {
+        width: 700px !important;
+        height: 400px !important;
+    }
+
+    #week-column-chart {
+        width: 700px !important;
+        height: 400px !important;
+        margin-bottom: 50px;
+
+    }
+
+    .slider {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-top: -45px;
+        margin-left: 60px;
+    }
+
+    .slider-text {
+        font-size: 15px;
+        margin-left: 20px;
+        padding-left: 20px;
+        border-left: solid 1px grey;
+    }
+
+    #slider-range {
+        width: 400px;
+    }
+
+    #slider-range .ui-slider-handle {
+        outline: 0;
+        background: #579e81;
+        border-radius: 50%;
+    }
+
+    #slider-range.ui-slider-horizontal {
+        height: 10px;
+        border-radius: 30px;
+        background: #A3CD99;
+    }
+</style>
+
+<script>
+    async function buildWeeklyLineChart() {
+        let response_data = {};
+        response_data = {
+            "weekly_sum_categories": [
+                "02/07~02/13",
+                "02/14~02/20",
+                "02/21~02/27",
+                "02/28~03/06",
+                "03/07~03/13",
+                "03/14~03/20",
+                "03/21~03/27",
+                "03/28~04/03",
+                "04/04~04/10",
+                "04/11~04/17",
+                "04/18~04/24",
+                "04/25~04/26"
+            ],
+            "weekly_sum_series": [{
+                "name": "Fire Case",
+                "data": [
+                    361,
+                    867,
+                    811,
+                    789,
+                    736,
+                    830,
+                    882,
+                    794,
+                    895,
+                    853,
+                    767,
+                    181
+                ]
+            }],
+            "title": "Weekly Fire Case",
+            "xAxisLabel": "Week",
+            "yAxisLabel": "Number of case"
+        };
+
+        let jsonUrl = '../data/weeklySumChart.json';
+        let response = await fetch(jsonUrl);
+        response_data = await response.json();
+
+        const el = document.getElementById('week-line-chart');
+        const data = {
+            categories: response_data.weekly_sum_categories,
+            series: response_data.weekly_sum_series,
+        };
+        const options = {
+            chart: { title: response_data.title, width: 700, height: 400 },
+            xAxis: { pointOnColumn: false, title: { text: response_data.xAxisLabel } },
+            yAxis: { title: response_data.yAxisLabel },
+            series: {
+                selectable: false,
+                dataLabels: {
+                    visible: true,
+                    anchor: 'center',
+                    stackTotal: {
+                        visible: true,
+                    },
+                },
+            },
+            legend: {
+                align: 'bottom',
+                visible: false,
+            }
+        };
+
+        const chart = toastui.Chart.columnChart({ el, data, options });
+
+    }
+
+    async function buildWeeklyColumnChart() {
+        let response_data = {};
+        response_data = {
+            "weekday_categories": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday"
+            ],
+            "weekday_series": [
+                {
+                    "name": "02/07~02/13",
+                    "data": [
+                        3,
+                        5,
+                        4,
+                        10,
+                        133,
+                        85,
+                        121
+                    ]
+                },
+                {
+                    "name": "02/14~02/20",
+                    "data": [
+                        125,
+                        126,
+                        104,
+                        117,
+                        133,
+                        159,
+                        103
+                    ]
+                },
+                {
+                    "name": "02/21~02/27",
+                    "data": [
+                        114,
+                        109,
+                        127,
+                        131,
+                        118,
+                        94,
+                        118
+                    ]
+                },
+                {
+                    "name": "02/28~03/06",
+                    "data": [
+                        129,
+                        127,
+                        127,
+                        115,
+                        99,
+                        94,
+                        98
+                    ]
+                },
+                {
+                    "name": "03/07~03/13",
+                    "data": [
+                        102,
+                        105,
+                        109,
+                        115,
+                        90,
+                        99,
+                        116
+                    ]
+                },
+                {
+                    "name": "03/14~03/20",
+                    "data": [
+                        116,
+                        101,
+                        111,
+                        121,
+                        109,
+                        132,
+                        140
+                    ]
+                },
+                {
+                    "name": "03/21~03/27",
+                    "data": [
+                        143,
+                        104,
+                        113,
+                        132,
+                        123,
+                        133,
+                        134
+                    ]
+                },
+                {
+                    "name": "03/28~04/03",
+                    "data": [
+                        107,
+                        106,
+                        120,
+                        111,
+                        103,
+                        129,
+                        118
+                    ]
+                },
+                {
+                    "name": "04/04~04/10",
+                    "data": [
+                        100,
+                        128,
+                        136,
+                        135,
+                        156,
+                        144,
+                        96
+                    ]
+                },
+                {
+                    "name": "04/11~04/17",
+                    "data": [
+                        94,
+                        132,
+                        170,
+                        138,
+                        106,
+                        104,
+                        109
+                    ]
+                },
+                {
+                    "name": "04/18~04/24",
+                    "data": [
+                        99,
+                        103,
+                        130,
+                        109,
+                        124,
+                        110,
+                        92
+                    ]
+                }
+            ],
+            "title": "Monday to Friday Fire Case",
+            "xAxisLabel": "Date",
+            "yAxisLabel": "Number of case"
+        };
+        let jsonUrl = '../../data/weekdayChart.json';
+        let response = await fetch(jsonUrl);
+        response_data = await response.json();
+
+        const el = document.getElementById('week-column-chart');
+        const data = {
+            categories: response_data.weekday_categories,
+            series: response_data.weekday_series
+        };
+        const options = {
+            chart: { title: response_data.title, width: 700, height: 490 },
+            xAxis: { pointOnColumn: false, title: { text: response_data.xAxisLabel } },
+            yAxis: { title: response_data.yAxisLabel },
+            series: {
+                stack: {
+                    type: 'normal'
+                },
+                selectable: false,
+                dataLabels: {
+                    visible: true,
+                    anchor: 'center',
+                    stackTotal: {
+                        visible: true,
+                    },
+                },
+            },
+            legend: {
+                align: 'bottom',
+            }
+        };
+
+        const chart = toastui.Chart.columnChart({ el, data, options });
+
+    }
+
+    async function buildPerHourBoxChart() {
+        let response_data = {};
+        response_data = {
+            "per_hour_categories": [
+                "12:00 AM",
+                "1:00 AM",
+                "2:00 AM",
+                "3:00 AM",
+                "4:00 AM",
+                "5:00 AM",
+                "6:00 AM",
+                "7:00 AM",
+                "8:00 AM",
+                "9:00 AM",
+                "10:00 AM",
+                "11:00 AM",
+                "12:00 PM",
+                "1:00 PM",
+                "2:00 PM",
+                "3:00 PM",
+                "4:00 PM",
+                "5:00 PM",
+                "6:00 PM",
+                "7:00 PM",
+                "8:00 PM",
+                "9:00 PM",
+                "10:00 PM",
+                "11:00 PM"
+            ],
+            "per_hour_series": [{
+                "name": "04/19~04/25",
+                "data": [
+                    [
+                        4.0,
+                        11.0,
+                        14.0,
+                        21.5,
+                        24.0
+                    ],
+                    [
+                        1.0,
+                        4.0,
+                        7.0,
+                        10.0,
+                        15.0
+                    ],
+                    [
+                        2.0,
+                        6.0,
+                        7.0,
+                        12.5,
+                        19.0
+                    ],
+                    [
+                        0.0,
+                        4.0,
+                        7.0,
+                        11.0,
+                        14.0
+                    ],
+                    [
+                        0.0,
+                        2.5,
+                        3.0,
+                        6.0,
+                        7.0
+                    ],
+                    [
+                        0.0,
+                        3.5,
+                        6.0,
+                        7.5,
+                        8.0
+                    ],
+                    [
+                        1.0,
+                        7.0,
+                        8.0,
+                        11.0,
+                        16.0
+                    ],
+                    [
+                        4.0,
+                        14.5,
+                        24.0,
+                        26.5,
+                        33.0
+                    ],
+                    [
+                        6.0,
+                        16.0,
+                        23.0,
+                        29.0,
+                        34.0
+                    ],
+                    [
+                        7.0,
+                        12.5,
+                        18.0,
+                        24.5,
+                        36.0
+                    ],
+                    [
+                        6.0,
+                        16.5,
+                        23.0,
+                        28.0,
+                        43.0
+                    ],
+                    [
+                        11.0,
+                        15.5,
+                        25.0,
+                        28.5,
+                        39.0
+                    ],
+                    [
+                        6.0,
+                        17.5,
+                        26.0,
+                        37.0,
+                        51.0
+                    ],
+                    [
+                        6.0,
+                        14.5,
+                        21.0,
+                        35.5,
+                        49.0
+                    ],
+                    [
+                        1.0,
+                        11.5,
+                        24.0,
+                        30.5,
+                        42.0
+                    ],
+                    [
+                        5.0,
+                        11.5,
+                        29.0,
+                        36.5,
+                        44.0
+                    ],
+                    [
+                        5.0,
+                        18.0,
+                        40.0,
+                        45.0,
+                        54.0
+                    ],
+                    [
+                        8.0,
+                        22.5,
+                        36.0,
+                        44.5,
+                        57.0
+                    ],
+                    [
+                        9.0,
+                        16.0,
+                        27.0,
+                        38.0,
+                        51.0
+                    ],
+                    [
+                        7.0,
+                        16.0,
+                        24.0,
+                        28.5,
+                        36.0
+                    ],
+                    [
+                        5.0,
+                        13.5,
+                        18.0,
+                        31.0,
+                        41.0
+                    ],
+                    [
+                        5.0,
+                        16.0,
+                        25.0,
+                        33.5,
+                        36.0
+                    ],
+                    [
+                        4.0,
+                        13.0,
+                        19.0,
+                        27.0,
+                        33.0
+                    ],
+                    [
+                        0.0,
+                        4.5,
+                        12.0,
+                        19.0,
+                        25.0
+                    ]
+                ]
+            }],
+            "title": "Avarage Hourly Fire Case",
+            "xAxisLabel": "Hour",
+            "yAxisLabel": "Number of case"
+        };
+        let jsonUrl = '../../data/perHourChart.json';
+        let response = await fetch(jsonUrl);
+        response_data = await response.json();
+
+        const el = document.getElementById('per-hour-chart');
+        const data = {
+            categories: response_data.per_hour_categories,
+            series: response_data.per_hour_series,
+        };
+        const options = {
+            chart: { title: response_data.title, width: 700, height: 400 },
+            xAxis: { pointOnColumn: false, title: { text: response_data.xAxisLabel } },
+            yAxis: { title: response_data.yAxisLabel },
+            series: {
+                selectable: false,
+                dataLabels: {
+                    visible: true,
+                    anchor: 'center',
+                    stackTotal: {
+                        visible: true,
+                    },
+                },
+            },
+            legend: {
+                align: 'bottom',
+                visible: false,
+            }
+        };
+
+        const chart = toastui.Chart.boxPlotChart({ el, data, options });
+    }
+
+    function buildTitleByPerDayChart() {
+        let response_data = {
+            "per_hour_categories": [
+                "ALARM - Fire Alarm",
+                "SMOKE - Smoke Investigation1",
+                "Traffic Injury Pri 4F",
+                "RESQV - Vehicle Rescue",
+                "HC - Hazardous Condition",
+                "UNK - Unknown Condition",
+                "GRASS - Small Grass Fire",
+                "ODOR - Odor Investigation",
+            ],
+            "per_hour_series": [
+                {
+                    "name": "2022-02-10",
+                    "data": [3, 3, 2, 1, 1, 1, 1, 1],
+                }
+            ],
+            "title": "Fire Title by Day",
+            "xAxisLabel": "Number of Case",
+            "yAxisLabel": "Fire Title"
+        };
+        const el = document.getElementById('title-by-day-chart');
+        const data = {
+            categories: response_data.per_hour_categories,
+            series: response_data.per_hour_series,
+        };
+        const options = {
+            chart: { title: response_data.title, width: 700, height: 450 },
+            xAxis: { pointOnColumn: false, title: { text: response_data.xAxisLabel } },
+            yAxis: { title: response_data.yAxisLabel },
+            series: {
+                selectable: false,
+                dataLabels: {
+                    visible: true,
+                    anchor: 'center',
+                    stackTotal: {
+                        visible: true,
+                    },
+                },
+            },
+            legend: {
+                align: 'bottom',
+                visible: false,
+            }
+        };
+
+        const chart = toastui.Chart.barChart({ el, data, options });
+        return chart;
+    }
+
+    async function buildSlider() {
+        let sliderJsonUrl = '../../data/title_by_day.json';
+        let sliderResponse = await fetch(sliderJsonUrl);
+        slider_data = await sliderResponse.json();
+        //let minDateString = slider_data["minDate"].split('-');
+        //let maxDateString = slider_data["maxDate"].split('-');
+        let fireTitleData = slider_data;
+        //delete slider_data["minDate"];
+        //delete slider_data["maxDate"];
+        // Hacky fix, until can implement new data.
+        let minDateString = "2022-01-26".split('-');
+        let maxDateString = "2022-05-12".split('-');
+
+        let minDate = new Date(minDateString[0], parseInt(minDateString[1], 10) - 1, minDateString[2]);
+        let maxDate = new Date(maxDateString[0], parseInt(maxDateString[1], 10) - 1, maxDateString[2]);
+        let initialData = slider_data[Object.keys(slider_data)[0]];
+        barChart.setData(initialData);
+
+        $(function () {
+            $("#slider-range").slider({
+                min: minDate.getTime() / 1000,
+                max: maxDate.getTime() / 1000,
+                values: minDate.getTime() / 1000,
+                slide: function (event, ui) {
+                    let pickedDate = new Date(ui.value * 1000);
+                    $("#amount").val((pickedDate.toDateString()));
+                    // console.log(pickedDate);
+                    let month = parseInt(pickedDate.getMonth(), 10) + 1;
+                    month = ('0' + month).slice(-2);
+                    let date = ('0' + pickedDate.getDate()).slice(-2);
+                    let pickedDateString = pickedDate.getFullYear() + '-' + month + '-' + date;
+                    let newData = fireTitleData[pickedDateString];
+                    barChart.setData(newData);
+                }
+            });
+            $("#amount").val((new Date($("#slider-range").slider("value") * 1000).toDateString()));
+        });
+    }
+
+    let slider_data = {
+        "2022-01-26": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "BOX -Structure Fire",
+                "SMOKE - Smoke Investigation",
+                "PS - Elevator/Person Stuck",
+                "ODOR - Odor Investigation",
+                "TRASH - Trash Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-01-26",
+                    "data": [
+                        4,
+                        4,
+                        2,
+                        2,
+                        2,
+                        2
+                    ]
+                }
+            ]
+        },
+        "2022-02-01": {
+            "categories": [
+                "RESQT - Rescue Task Force",
+                "BOX -Structure Fire",
+                "HC - Hazardous Condition",
+                "ODOR - Odor Investigation"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-01",
+                    "data": [
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-03": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "PS - Elevator/Person Stuck",
+                "SPILL - Liquid < 5 Gallons",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "AUTO - Auto Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-03",
+                    "data": [
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-04": {
+            "categories": [
+                "ALARM - Fire Alarm"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-04",
+                    "data": [
+                        5
+                    ]
+                }
+            ]
+        },
+        "2022-02-05": {
+            "categories": [
+                "TRASH - Trash Fire",
+                "HC - Hazardous Condition",
+                "Traffic Injury Pri 2",
+                "CO - Carbon Monoxide Alarm",
+                "ALARM - Fire Alarm",
+                "ELEC - Electrical Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-05",
+                    "data": [
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-06": {
+            "categories": [
+                "ELEC - Electrical Fire",
+                "GRASS - Small Grass Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-06",
+                    "data": [
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-07": {
+            "categories": [
+                "RESQV - Vehicle Rescue",
+                "Traffic Injury Pri 2",
+                "ALARM - Fire Alarm"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-07",
+                    "data": [
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-09": {
+            "categories": [
+                "Traffic Injury Pri 4F",
+                "SPILL - Liquid < 5 Gallons",
+                "HC - Hazardous Condition",
+                "TRASH - Trash Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-09",
+                    "data": [
+                        2,
+                        2,
+                        2,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-10": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "SMOKE - Smoke Investigation",
+                "Traffic Injury Pri 4F",
+                "RESQV - Vehicle Rescue",
+                "HC - Hazardous Condition",
+                "UNK - Unknown Condition",
+                "GRASS - Small Grass Fire",
+                "ODOR - Odor Investigation"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-10",
+                    "data": [
+                        3,
+                        3,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-11": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "GRASS - Small Grass Fire",
+                "Traffic Injury Pri 2",
+                "ODOR - Odor Investigation",
+                "HC - Hazardous Condition",
+                "SPILL - Liquid < 5 Gallons",
+                "BWP - Broken Water Pipe",
+                "PS - Elevator/Person Stuck",
+                "SMOKE - Smoke Investigation",
+                "AUTO - Auto Fire",
+                "WDOWN - Wires Down",
+                "CO - Carbon Monoxide Alarm",
+                "HMI - Hazmat Investigation",
+                "BOX -Structure Fire",
+                "UNLOCK - Vehicle or Building",
+                "Traffic Injury Pri 1",
+                "DUMP - Dumpster Fire",
+                "BOXL- Structure Fire",
+                "RESQV - Vehicle Rescue",
+                "RESQC - Rescue Condition"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-11",
+                    "data": [
+                        39,
+                        14,
+                        12,
+                        12,
+                        11,
+                        9,
+                        8,
+                        4,
+                        4,
+                        4,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-12": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "GRASS - Small Grass Fire",
+                "TRASH - Trash Fire",
+                "PS - Elevator/Person Stuck",
+                "HC - Hazardous Condition",
+                "Traffic Injury Pri 2",
+                "ELEC - Electrical Fire",
+                "RESQV - Vehicle Rescue",
+                "BWP - Broken Water Pipe",
+                "UNK - Unknown Condition",
+                "ODOR - Odor Investigation",
+                "UNLOCK - Vehicle or Building",
+                "CO - Carbon Monoxide Alarm",
+                "WDOWN - Wires Down",
+                "BRSHL - Brush Alarm / Light",
+                "SMOKE - Smoke Investigation",
+                "WARC - Wires Arcing",
+                "BOXL- Structure Fire",
+                "AUTO - Auto Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-12",
+                    "data": [
+                        22,
+                        12,
+                        8,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-13": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "SMOKE - Smoke Investigation",
+                "GRASS - Small Grass Fire",
+                "HC - Hazardous Condition",
+                "ODOR - Odor Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "Traffic Injury Pri 2",
+                "BOX -Structure Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "DUMP - Dumpster Fire",
+                "PS - Elevator/Person Stuck",
+                "ELEC - Electrical Fire",
+                "BBQ - Unsafe Cooking",
+                "UNLOCK - Vehicle or Building",
+                "BWP - Broken Water Pipe",
+                "UNK - Unknown Condition",
+                "WDOWN - Wires Down",
+                "BOXL- Structure Fire",
+                "AUTO - Auto Fire",
+                "RESQV - Vehicle Rescue"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-13",
+                    "data": [
+                        27,
+                        12,
+                        12,
+                        12,
+                        10,
+                        8,
+                        8,
+                        7,
+                        4,
+                        4,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-14": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "GRASS - Small Grass Fire",
+                "HC - Hazardous Condition",
+                "Traffic Injury Pri 2",
+                "SMOKE - Smoke Investigation",
+                "WARC - Wires Arcing",
+                "SPILL - Liquid < 5 Gallons",
+                "UNK - Unknown Condition",
+                "ODOR - Odor Investigation",
+                "PS - Elevator/Person Stuck",
+                "BWP - Broken Water Pipe",
+                "BOX -Structure Fire",
+                "BRUSH - Brush Fire",
+                "DUMP - Dumpster Fire",
+                "ELEC - Electrical Fire",
+                "UNLOCK - Vehicle or Building",
+                "WDOWN - Wires Down",
+                "CO - Carbon Monoxide Alarm",
+                "AUTO - Auto Fire",
+                "RESQT - Rescue Task Force",
+                "BBQ - Unsafe Cooking"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-14",
+                    "data": [
+                        24,
+                        14,
+                        14,
+                        14,
+                        8,
+                        7,
+                        7,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-15": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "GRASS - Small Grass Fire",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "TRASH - Trash Fire",
+                "AUTO - Auto Fire",
+                "SMOKE - Smoke Investigation",
+                "ODOR - Odor Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "ELEC - Electrical Fire",
+                "UNLOCK - Vehicle or Building",
+                "BRSHL - Brush Alarm / Light",
+                "PS - Elevator/Person Stuck",
+                "BWP - Broken Water Pipe",
+                "SPILL - Liquid < 5 Gallons",
+                "RESQV - Vehicle Rescue",
+                "DUMP - Dumpster Fire",
+                "BOXL- Structure Fire",
+                "WARC - Wires Arcing",
+                "BOX -Structure Fire",
+                "WDOWN - Wires Down",
+                "Traffic Injury Pri 2",
+                "UNK - Unknown Condition",
+                "BBQ - Unsafe Cooking"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-15",
+                    "data": [
+                        28,
+                        12,
+                        12,
+                        11,
+                        7,
+                        7,
+                        6,
+                        4,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-16": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 2",
+                "HC - Hazardous Condition",
+                "GRASS - Small Grass Fire",
+                "SMOKE - Smoke Investigation",
+                "BOXL- Structure Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "ELEC - Electrical Fire",
+                "PS - Elevator/Person Stuck",
+                "BRSHL - Brush Alarm / Light",
+                "RESQV - Vehicle Rescue",
+                "UNK - Unknown Condition",
+                "ODOR - Odor Investigation",
+                "UNLOCK - Vehicle or Building",
+                "BWP - Broken Water Pipe",
+                "PKG - Auto In Parking Garage",
+                "WDOWN - Wires Down",
+                "AUTO - Auto Fire",
+                "HMI - Hazmat Investigation",
+                "BBQ - Unsafe Cooking",
+                "ALERT2H - Aircraft Emergency"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-16",
+                    "data": [
+                        23,
+                        14,
+                        12,
+                        7,
+                        6,
+                        5,
+                        5,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-17": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "HC - Hazardous Condition",
+                "BOX -Structure Fire",
+                "GRASS - Small Grass Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "WDOWN - Wires Down",
+                "Traffic Injury Pri 2",
+                "UNLOCK - Vehicle or Building",
+                "RESQV - Vehicle Rescue",
+                "ELEC - Electrical Fire",
+                "AUTO - Auto Fire",
+                "BWP - Broken Water Pipe",
+                "UNK - Unknown Condition",
+                "PS - Elevator/Person Stuck",
+                "ALERT0 - Aircraft Standby",
+                "WARC - Wires Arcing",
+                "SMOKE - Smoke Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "DUMP - Dumpster Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-17",
+                    "data": [
+                        35,
+                        24,
+                        11,
+                        7,
+                        5,
+                        5,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-18": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "HC - Hazardous Condition",
+                "GRASS - Small Grass Fire",
+                "PS - Elevator/Person Stuck",
+                "Traffic Injury Pri 2",
+                "ODOR - Odor Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "WDOWN - Wires Down",
+                "UNLOCK - Vehicle or Building",
+                "ELEC - Electrical Fire",
+                "UNK - Unknown Condition",
+                "BOX -Structure Fire",
+                "BWP - Broken Water Pipe",
+                "SPILL - Liquid < 5 Gallons",
+                "AUTO - Auto Fire",
+                "BOXL- Structure Fire",
+                "DUMP - Dumpster Fire",
+                "SMOKE - Smoke Investigation",
+                "ALERT1 - Standby Only",
+                "RESQV - Vehicle Rescue"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-18",
+                    "data": [
+                        39,
+                        21,
+                        13,
+                        11,
+                        8,
+                        7,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-19": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "GRASS - Small Grass Fire",
+                "Traffic Injury Pri 2",
+                "PS - Elevator/Person Stuck",
+                "SMOKE - Smoke Investigation",
+                "HC - Hazardous Condition",
+                "BWP - Broken Water Pipe",
+                "ODOR - Odor Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "AUTO - Auto Fire",
+                "DUMP - Dumpster Fire",
+                "UNLOCK - Vehicle or Building",
+                "WDOWN - Wires Down",
+                "BBQ - Unsafe Cooking",
+                "BOXL- Structure Fire",
+                "ALERT0 - Aircraft Standby",
+                "ELEC - Electrical Fire",
+                "UNK - Unknown Condition",
+                "RESQV - Vehicle Rescue",
+                "HMI - Hazmat Investigation",
+                "BOX -Structure Fire",
+                "Traffic Injury Pri 1"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-19",
+                    "data": [
+                        33,
+                        20,
+                        17,
+                        12,
+                        9,
+                        8,
+                        8,
+                        7,
+                        6,
+                        5,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-20": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "UNLOCK - Vehicle or Building",
+                "Traffic Injury Pri 2",
+                "GRASS - Small Grass Fire",
+                "ODOR - Odor Investigation",
+                "HC - Hazardous Condition",
+                "BWP - Broken Water Pipe",
+                "AUTO - Auto Fire",
+                "SMOKE - Smoke Investigation",
+                "PS - Elevator/Person Stuck",
+                "SPILL - Liquid < 5 Gallons",
+                "UNK - Unknown Condition",
+                "RESQC - Rescue Condition",
+                "BOXL- Structure Fire",
+                "RESQT - Rescue Task Force",
+                "BRUSH - Brush Fire",
+                "ELEC - Electrical Fire",
+                "RESQV - Vehicle Rescue",
+                "CO - Carbon Monoxide Alarm"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-20",
+                    "data": [
+                        28,
+                        17,
+                        17,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-21": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "GRASS - Small Grass Fire",
+                "UNK - Unknown Condition",
+                "AUTO - Auto Fire",
+                "PS - Elevator/Person Stuck",
+                "ODOR - Odor Investigation",
+                "Traffic Injury Pri 2",
+                "BOX -Structure Fire",
+                "ELEC - Electrical Fire",
+                "CO - Carbon Monoxide Alarm",
+                "BWP - Broken Water Pipe",
+                "WARC - Wires Arcing",
+                "UNLOCK - Vehicle or Building",
+                "SPILL - Liquid < 5 Gallons",
+                "DUMP - Dumpster Fire",
+                "WDOWN - Wires Down",
+                "Traffic Injury Pri 1",
+                "BRSHL - Brush Alarm / Light"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-21",
+                    "data": [
+                        28,
+                        14,
+                        14,
+                        8,
+                        7,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-22": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "GRASS - Small Grass Fire",
+                "TRASH - Trash Fire",
+                "ELEC - Electrical Fire",
+                "Traffic Injury Pri 2",
+                "ODOR - Odor Investigation",
+                "UNLOCK - Vehicle or Building",
+                "SPILL - Liquid < 5 Gallons",
+                "PS - Elevator/Person Stuck",
+                "AUTO - Auto Fire",
+                "BWP - Broken Water Pipe",
+                "SMOKE - Smoke Investigation",
+                "BOX -Structure Fire",
+                "CO - Carbon Monoxide Alarm",
+                "UNK - Unknown Condition",
+                "BOXL- Structure Fire",
+                "WARC - Wires Arcing"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-22",
+                    "data": [
+                        21,
+                        14,
+                        10,
+                        9,
+                        8,
+                        8,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-23": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "Traffic Injury Pri 2",
+                "SPILL - Liquid < 5 Gallons",
+                "RESQV - Vehicle Rescue",
+                "UNLOCK - Vehicle or Building",
+                "BOX -Structure Fire",
+                "ODOR - Odor Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "PS - Elevator/Person Stuck",
+                "DUMP - Dumpster Fire",
+                "ELEC - Electrical Fire",
+                "AUTO - Auto Fire",
+                "UNK - Unknown Condition",
+                "ALERT0 - Aircraft Standby",
+                "WDOWN - Wires Down",
+                "BWP - Broken Water Pipe",
+                "BOXL- Structure Fire",
+                "PKG - Auto In Parking Garage",
+                "GRASS - Small Grass Fire",
+                "SMOKE - Smoke Investigation"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-23",
+                    "data": [
+                        44,
+                        26,
+                        11,
+                        11,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-24": {
+            "categories": [
+                "Traffic Injury Pri 4F",
+                "ALARM - Fire Alarm",
+                "UNK - Unknown Condition",
+                "TRASH - Trash Fire",
+                "HC - Hazardous Condition",
+                "SPILL - Liquid < 5 Gallons",
+                "Traffic Injury Pri 2",
+                "ELEC - Electrical Fire",
+                "CO - Carbon Monoxide Alarm",
+                "PS - Elevator/Person Stuck",
+                "UNLOCK - Vehicle or Building",
+                "BWP - Broken Water Pipe",
+                "BOXL- Structure Fire",
+                "AUTO - Auto Fire",
+                "WARC - Wires Arcing",
+                "SMOKE - Smoke Investigation",
+                "GRASS - Small Grass Fire",
+                "Traffic Injury Pri 1",
+                "BOX -Structure Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-24",
+                    "data": [
+                        36,
+                        33,
+                        11,
+                        9,
+                        8,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-25": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "GRASS - Small Grass Fire",
+                "ELEC - Electrical Fire",
+                "UNLOCK - Vehicle or Building",
+                "ODOR - Odor Investigation",
+                "SMOKE - Smoke Investigation",
+                "BOX -Structure Fire",
+                "PS - Elevator/Person Stuck",
+                "CO - Carbon Monoxide Alarm",
+                "Traffic Injury Pri 2",
+                "SPILL - Liquid < 5 Gallons",
+                "BOXL- Structure Fire",
+                "WDOWN - Wires Down",
+                "ALERT1 - Standby Only",
+                "UNK - Unknown Condition",
+                "RESQV - Vehicle Rescue"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-25",
+                    "data": [
+                        39,
+                        17,
+                        8,
+                        8,
+                        6,
+                        5,
+                        5,
+                        5,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-26": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "ELEC - Electrical Fire",
+                "Traffic Injury Pri 2",
+                "SMOKE - Smoke Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "HC - Hazardous Condition",
+                "PS - Elevator/Person Stuck",
+                "BWP - Broken Water Pipe",
+                "RESQV - Vehicle Rescue",
+                "GRASS - Small Grass Fire",
+                "UNLOCK - Vehicle or Building",
+                "SPILL - Liquid < 5 Gallons",
+                "BRSHL - Brush Alarm / Light",
+                "ODOR - Odor Investigation",
+                "RESQT - Rescue Task Force",
+                "AUTO - Auto Fire",
+                "DUMP - Dumpster Fire",
+                "BBQ - Unsafe Cooking",
+                "WARC - Wires Arcing",
+                "WDOWN - Wires Down"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-26",
+                    "data": [
+                        24,
+                        13,
+                        9,
+                        6,
+                        5,
+                        5,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-27": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "HC - Hazardous Condition",
+                "UNK - Unknown Condition",
+                "Traffic Injury Pri 2",
+                "GRASS - Small Grass Fire",
+                "PS - Elevator/Person Stuck",
+                "AUTO - Auto Fire",
+                "BWP - Broken Water Pipe",
+                "BOX -Structure Fire",
+                "ODOR - Odor Investigation",
+                "SPILL - Liquid < 5 Gallons",
+                "CO - Carbon Monoxide Alarm",
+                "DUMP - Dumpster Fire",
+                "UNLOCK - Vehicle or Building",
+                "BBQ - Unsafe Cooking",
+                "BRSHL - Brush Alarm / Light",
+                "RESQV - Vehicle Rescue",
+                "SMOKE - Smoke Investigation"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-27",
+                    "data": [
+                        30,
+                        18,
+                        14,
+                        7,
+                        7,
+                        6,
+                        5,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-02-28": {
+            "categories": [
+                "Traffic Injury Pri 4F",
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "HC - Hazardous Condition",
+                "SMOKE - Smoke Investigation",
+                "Traffic Injury Pri 2",
+                "CO - Carbon Monoxide Alarm",
+                "ELEC - Electrical Fire",
+                "ODOR - Odor Investigation",
+                "UNLOCK - Vehicle or Building",
+                "UNK - Unknown Condition",
+                "WDOWN - Wires Down",
+                "GRASS - Small Grass Fire",
+                "BOXL- Structure Fire",
+                "BWP - Broken Water Pipe",
+                "AUTO - Auto Fire",
+                "BOX -Structure Fire",
+                "DUMP - Dumpster Fire",
+                "PS - Elevator/Person Stuck",
+                "SPILL - Liquid < 5 Gallons",
+                "RESQV - Vehicle Rescue"
+            ],
+            "series": [
+                {
+                    "name": "2022-02-28",
+                    "data": [
+                        20,
+                        19,
+                        17,
+                        14,
+                        6,
+                        5,
+                        5,
+                        5,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-01": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "SMOKE - Smoke Investigation",
+                "BWP - Broken Water Pipe",
+                "PS - Elevator/Person Stuck",
+                "UNLOCK - Vehicle or Building",
+                "BOX -Structure Fire",
+                "ODOR - Odor Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "Traffic Injury Pri 2",
+                "GRASS - Small Grass Fire",
+                "UNK - Unknown Condition",
+                "BOXL- Structure Fire",
+                "RESQV - Vehicle Rescue",
+                "AUTO - Auto Fire",
+                "WDOWN - Wires Down",
+                "SPILL - Liquid < 5 Gallons",
+                "BBQ - Unsafe Cooking",
+                "ELEC - Electrical Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-01",
+                    "data": [
+                        30,
+                        23,
+                        18,
+                        11,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-02": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "GRASS - Small Grass Fire",
+                "Traffic Injury Pri 4F",
+                "Traffic Injury Pri 2",
+                "HC - Hazardous Condition",
+                "SMOKE - Smoke Investigation",
+                "AUTO - Auto Fire",
+                "ODOR - Odor Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "BOX -Structure Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "UNK - Unknown Condition",
+                "UNLOCK - Vehicle or Building",
+                "BWP - Broken Water Pipe",
+                "ELEC - Electrical Fire",
+                "RESQT - Rescue Task Force",
+                "PS - Elevator/Person Stuck",
+                "BBQ - Unsafe Cooking",
+                "BOXL- Structure Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-02",
+                    "data": [
+                        31,
+                        17,
+                        12,
+                        12,
+                        7,
+                        6,
+                        6,
+                        6,
+                        5,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-03": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "GRASS - Small Grass Fire",
+                "SMOKE - Smoke Investigation",
+                "Traffic Injury Pri 2",
+                "HC - Hazardous Condition",
+                "ODOR - Odor Investigation",
+                "BRUSH - Brush Fire",
+                "CO - Carbon Monoxide Alarm",
+                "UNLOCK - Vehicle or Building",
+                "PS - Elevator/Person Stuck",
+                "SPILL - Liquid < 5 Gallons",
+                "DUMP - Dumpster Fire",
+                "BOXL- Structure Fire",
+                "BWP - Broken Water Pipe",
+                "AUTO - Auto Fire",
+                "PKG - Auto In Parking Garage",
+                "RESQT - Rescue Task Force",
+                "ELEC - Electrical Fire",
+                "BBQ - Unsafe Cooking"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-03",
+                    "data": [
+                        31,
+                        11,
+                        11,
+                        9,
+                        7,
+                        6,
+                        6,
+                        5,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-04": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "GRASS - Small Grass Fire",
+                "ODOR - Odor Investigation",
+                "PS - Elevator/Person Stuck",
+                "UNLOCK - Vehicle or Building",
+                "Traffic Injury Pri 2",
+                "HC - Hazardous Condition",
+                "WDOWN - Wires Down",
+                "CO - Carbon Monoxide Alarm",
+                "AUTO - Auto Fire",
+                "SMOKE - Smoke Investigation",
+                "RESQC - Rescue Condition",
+                "UNK - Unknown Condition",
+                "WARC - Wires Arcing",
+                "SPILL - Liquid < 5 Gallons",
+                "ELEC - Electrical Fire",
+                "RESQV - Vehicle Rescue",
+                "BOX -Structure Fire",
+                "BBQ - Unsafe Cooking",
+                "BWP - Broken Water Pipe"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-04",
+                    "data": [
+                        20,
+                        15,
+                        13,
+                        9,
+                        8,
+                        5,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-05": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "PS - Elevator/Person Stuck",
+                "HC - Hazardous Condition",
+                "GRASS - Small Grass Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "SMOKE - Smoke Investigation",
+                "UNLOCK - Vehicle or Building",
+                "Traffic Injury Pri 2",
+                "ODOR - Odor Investigation",
+                "ELEC - Electrical Fire",
+                "DUMP - Dumpster Fire",
+                "AUTO - Auto Fire",
+                "UNK - Unknown Condition",
+                "HMI - Hazmat Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "BOXL- Structure Fire",
+                "BBQ - Unsafe Cooking"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-05",
+                    "data": [
+                        24,
+                        11,
+                        8,
+                        7,
+                        7,
+                        6,
+                        5,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-06": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 2",
+                "Traffic Injury Pri 4F",
+                "UNK - Unknown Condition",
+                "ODOR - Odor Investigation",
+                "PS - Elevator/Person Stuck",
+                "GRASS - Small Grass Fire",
+                "ALERT0 - Aircraft Standby",
+                "BWP - Broken Water Pipe",
+                "UNLOCK - Vehicle or Building",
+                "RESQV - Vehicle Rescue",
+                "AUTO - Auto Fire",
+                "WARC - Wires Arcing",
+                "ELEC - Electrical Fire",
+                "HC - Hazardous Condition",
+                "SMOKE - Smoke Investigation",
+                "SPILL - Liquid < 5 Gallons",
+                "BOXL- Structure Fire",
+                "RESQC - Rescue Condition",
+                "ALERT2H - Aircraft Emergency",
+                "WDOWN - Wires Down"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-06",
+                    "data": [
+                        25,
+                        10,
+                        8,
+                        6,
+                        6,
+                        5,
+                        5,
+                        5,
+                        5,
+                        4,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-07": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "ODOR - Odor Investigation",
+                "UNLOCK - Vehicle or Building",
+                "AUTO - Auto Fire",
+                "SMOKE - Smoke Investigation",
+                "TRASH - Trash Fire",
+                "ELEC - Electrical Fire",
+                "CO - Carbon Monoxide Alarm",
+                "SPILL - Liquid < 5 Gallons",
+                "PS - Elevator/Person Stuck",
+                "Traffic Injury Pri 2",
+                "BWP - Broken Water Pipe",
+                "GRASS - Small Grass Fire",
+                "WDOWN - Wires Down",
+                "BOXL- Structure Fire",
+                "RESQT - Rescue Task Force",
+                "ALERT2H - Aircraft Emergency"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-07",
+                    "data": [
+                        45,
+                        10,
+                        7,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-08": {
+            "categories": [
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "ALARM - Fire Alarm",
+                "PS - Elevator/Person Stuck",
+                "AUTO - Auto Fire",
+                "CO - Carbon Monoxide Alarm",
+                "ODOR - Odor Investigation",
+                "ELEC - Electrical Fire",
+                "UNLOCK - Vehicle or Building",
+                "HC - Hazardous Condition",
+                "BWP - Broken Water Pipe",
+                "BOX -Structure Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "SMOKE - Smoke Investigation",
+                "Traffic Injury Pri 2",
+                "UNK - Unknown Condition",
+                "DUMP - Dumpster Fire",
+                "GRASS - Small Grass Fire",
+                "WDOWN - Wires Down",
+                "ALERT2H - Aircraft Emergency",
+                "BRSHL - Brush Alarm / Light"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-08",
+                    "data": [
+                        26,
+                        19,
+                        16,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-09": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "SMOKE - Smoke Investigation",
+                "ODOR - Odor Investigation",
+                "Traffic Injury Pri 2",
+                "ELEC - Electrical Fire",
+                "HC - Hazardous Condition",
+                "GRASS - Small Grass Fire",
+                "UNLOCK - Vehicle or Building",
+                "AUTO - Auto Fire",
+                "TRASH - Trash Fire",
+                "DUMP - Dumpster Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "RESQC - Rescue Condition",
+                "PS - Elevator/Person Stuck",
+                "CO - Carbon Monoxide Alarm",
+                "BOX -Structure Fire",
+                "BWP - Broken Water Pipe",
+                "WARC - Wires Arcing",
+                "WDOWN - Wires Down"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-09",
+                    "data": [
+                        27,
+                        12,
+                        11,
+                        9,
+                        8,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-10": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "Traffic Injury Pri 2",
+                "TRASH - Trash Fire",
+                "HC - Hazardous Condition",
+                "GRASS - Small Grass Fire",
+                "ODOR - Odor Investigation",
+                "SMOKE - Smoke Investigation",
+                "PS - Elevator/Person Stuck",
+                "SPILL - Liquid < 5 Gallons",
+                "UNLOCK - Vehicle or Building",
+                "ELEC - Electrical Fire",
+                "BWP - Broken Water Pipe",
+                "BOX -Structure Fire",
+                "AUTO - Auto Fire",
+                "RESQT - Rescue Task Force",
+                "CO - Carbon Monoxide Alarm",
+                "AMR - Assist",
+                "RESQV - Vehicle Rescue",
+                "HMI - Hazmat Investigation",
+                "RESQC - Rescue Condition",
+                "BOXL- Structure Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-10",
+                    "data": [
+                        20,
+                        17,
+                        13,
+                        9,
+                        9,
+                        7,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-11": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "SMOKE - Smoke Investigation",
+                "HC - Hazardous Condition",
+                "AUTO - Auto Fire",
+                "PS - Elevator/Person Stuck",
+                "ODOR - Odor Investigation",
+                "UNLOCK - Vehicle or Building",
+                "Traffic Injury Pri 2",
+                "UNK - Unknown Condition",
+                "BOX -Structure Fire",
+                "BWP - Broken Water Pipe",
+                "RESQV - Vehicle Rescue",
+                "SPILL - Liquid < 5 Gallons",
+                "ALERT0 - Aircraft Standby",
+                "ELEC - Electrical Fire",
+                "ALERT2H - Aircraft Emergency"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-11",
+                    "data": [
+                        23,
+                        18,
+                        10,
+                        5,
+                        5,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-12": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "UNLOCK - Vehicle or Building",
+                "TRASH - Trash Fire",
+                "GRASS - Small Grass Fire",
+                "HC - Hazardous Condition",
+                "BWP - Broken Water Pipe",
+                "PS - Elevator/Person Stuck",
+                "SPILL - Liquid < 5 Gallons",
+                "SMOKE - Smoke Investigation",
+                "ODOR - Odor Investigation",
+                "Traffic Injury Pri 2",
+                "AUTO - Auto Fire",
+                "BBQ - Unsafe Cooking",
+                "RESQC - Rescue Condition",
+                "ELEC - Electrical Fire",
+                "UNK - Unknown Condition",
+                "CO - Carbon Monoxide Alarm",
+                "WARC - Wires Arcing",
+                "BOX -Structure Fire",
+                "BOXL- Structure Fire",
+                "RESQT - Rescue Task Force",
+                "ALERT0 - Aircraft Standby",
+                "DUMP - Dumpster Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-12",
+                    "data": [
+                        17,
+                        12,
+                        8,
+                        8,
+                        6,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-13": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "ODOR - Odor Investigation",
+                "HC - Hazardous Condition",
+                "GRASS - Small Grass Fire",
+                "Traffic Injury Pri 2",
+                "CO - Carbon Monoxide Alarm",
+                "BWP - Broken Water Pipe",
+                "PS - Elevator/Person Stuck",
+                "SMOKE - Smoke Investigation",
+                "SPILL - Liquid < 5 Gallons",
+                "WDOWN - Wires Down",
+                "UNLOCK - Vehicle or Building",
+                "AUTO - Auto Fire",
+                "UNK - Unknown Condition",
+                "BBQ - Unsafe Cooking",
+                "RESQV - Vehicle Rescue",
+                "ALERT0 - Aircraft Standby",
+                "ALERT1 - Standby Only",
+                "BOXL- Structure Fire",
+                "BRSHL - Brush Alarm / Light"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-13",
+                    "data": [
+                        20,
+                        18,
+                        12,
+                        11,
+                        8,
+                        8,
+                        5,
+                        5,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-14": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "GRASS - Small Grass Fire",
+                "PS - Elevator/Person Stuck",
+                "Traffic Injury Pri 2",
+                "SMOKE - Smoke Investigation",
+                "ALERT0 - Aircraft Standby",
+                "UNK - Unknown Condition",
+                "ODOR - Odor Investigation",
+                "BOX -Structure Fire",
+                "PKG - Auto In Parking Garage",
+                "RESQV - Vehicle Rescue",
+                "UNLOCK - Vehicle or Building",
+                "SPILL - Liquid < 5 Gallons",
+                "RESQC - Rescue Condition",
+                "WDOWN - Wires Down",
+                "DUMP - Dumpster Fire",
+                "BWP - Broken Water Pipe",
+                "AUTO - Auto Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-14",
+                    "data": [
+                        25,
+                        18,
+                        15,
+                        7,
+                        7,
+                        6,
+                        6,
+                        5,
+                        5,
+                        4,
+                        4,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-15": {
+            "categories": [
+                "Traffic Injury Pri 4F",
+                "ALARM - Fire Alarm",
+                "GRASS - Small Grass Fire",
+                "SMOKE - Smoke Investigation",
+                "PS - Elevator/Person Stuck",
+                "ODOR - Odor Investigation",
+                "TRASH - Trash Fire",
+                "ELEC - Electrical Fire",
+                "UNLOCK - Vehicle or Building",
+                "HC - Hazardous Condition",
+                "WDOWN - Wires Down",
+                "Traffic Injury Pri 2",
+                "BOXL- Structure Fire",
+                "AUTO - Auto Fire",
+                "BOX -Structure Fire",
+                "BRUSH - Brush Fire",
+                "UNK - Unknown Condition",
+                "CO - Carbon Monoxide Alarm",
+                "BRSHL - Brush Alarm / Light",
+                "SPILL - Liquid < 5 Gallons"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-15",
+                    "data": [
+                        18,
+                        17,
+                        13,
+                        7,
+                        6,
+                        6,
+                        5,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-16": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "GRASS - Small Grass Fire",
+                "HC - Hazardous Condition",
+                "UNLOCK - Vehicle or Building",
+                "BWP - Broken Water Pipe",
+                "Traffic Injury Pri 2",
+                "SMOKE - Smoke Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "AUTO - Auto Fire",
+                "PS - Elevator/Person Stuck",
+                "ODOR - Odor Investigation",
+                "ELEC - Electrical Fire",
+                "WDOWN - Wires Down",
+                "SPILL - Liquid < 5 Gallons",
+                "DUMP - Dumpster Fire",
+                "UNK - Unknown Condition"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-16",
+                    "data": [
+                        30,
+                        21,
+                        12,
+                        10,
+                        8,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-17": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "Traffic Injury Pri 2",
+                "ODOR - Odor Investigation",
+                "ALERT0 - Aircraft Standby",
+                "WARC - Wires Arcing",
+                "UNK - Unknown Condition",
+                "PS - Elevator/Person Stuck",
+                "BWP - Broken Water Pipe",
+                "ELEC - Electrical Fire",
+                "HC - Hazardous Condition",
+                "GRASS - Small Grass Fire",
+                "BOX -Structure Fire",
+                "RESQC - Rescue Condition",
+                "UNLOCK - Vehicle or Building",
+                "SPILL - Liquid < 5 Gallons",
+                "RESQV - Vehicle Rescue",
+                "CO - Carbon Monoxide Alarm",
+                "AUTO - Auto Fire",
+                "RESQT - Rescue Task Force"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-17",
+                    "data": [
+                        35,
+                        14,
+                        10,
+                        8,
+                        8,
+                        8,
+                        6,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-18": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "GRASS - Small Grass Fire",
+                "UNLOCK - Vehicle or Building",
+                "HC - Hazardous Condition",
+                "ODOR - Odor Investigation",
+                "Traffic Injury Pri 2",
+                "DUMP - Dumpster Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "RESQV - Vehicle Rescue",
+                "UNK - Unknown Condition",
+                "BOXL- Structure Fire",
+                "PS - Elevator/Person Stuck",
+                "SMOKE - Smoke Investigation",
+                "WARC - Wires Arcing",
+                "BOX -Structure Fire",
+                "BWP - Broken Water Pipe",
+                "CO - Carbon Monoxide Alarm",
+                "HMTF - Hazmat Taskforce",
+                "ELEC - Electrical Fire",
+                "BRSHL - Brush Alarm / Light"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-18",
+                    "data": [
+                        25,
+                        19,
+                        12,
+                        8,
+                        6,
+                        5,
+                        5,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-19": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "Traffic Injury Pri 2",
+                "HC - Hazardous Condition",
+                "AUTO - Auto Fire",
+                "GRASS - Small Grass Fire",
+                "ELEC - Electrical Fire",
+                "SMOKE - Smoke Investigation",
+                "UNLOCK - Vehicle or Building",
+                "ODOR - Odor Investigation",
+                "PS - Elevator/Person Stuck",
+                "BWP - Broken Water Pipe",
+                "CO - Carbon Monoxide Alarm",
+                "SPILL - Liquid < 5 Gallons",
+                "BBQ - Unsafe Cooking",
+                "BRSHL - Brush Alarm / Light",
+                "WDOWN - Wires Down",
+                "BOXL- Structure Fire",
+                "BOX -Structure Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-19",
+                    "data": [
+                        31,
+                        17,
+                        14,
+                        10,
+                        7,
+                        7,
+                        7,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-20": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "GRASS - Small Grass Fire",
+                "Traffic Injury Pri 2",
+                "HC - Hazardous Condition",
+                "AUTO - Auto Fire",
+                "UNLOCK - Vehicle or Building",
+                "SMOKE - Smoke Investigation",
+                "ELEC - Electrical Fire",
+                "CO - Carbon Monoxide Alarm",
+                "PS - Elevator/Person Stuck",
+                "SPILL - Liquid < 5 Gallons",
+                "BOX -Structure Fire",
+                "UNK - Unknown Condition",
+                "DUMP - Dumpster Fire",
+                "WARC - Wires Arcing",
+                "BOXL- Structure Fire",
+                "BRSHL - Brush Alarm / Light",
+                "ALERT2H - Aircraft Emergency",
+                "WDOWN - Wires Down",
+                "BWP - Broken Water Pipe",
+                "RESQV - Vehicle Rescue"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-20",
+                    "data": [
+                        29,
+                        27,
+                        19,
+                        14,
+                        7,
+                        7,
+                        5,
+                        5,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-21": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "WARC - Wires Arcing",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "WDOWN - Wires Down",
+                "UNLOCK - Vehicle or Building",
+                "HC - Hazardous Condition",
+                "ODOR - Odor Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "GRASS - Small Grass Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "ELEC - Electrical Fire",
+                "AUTO - Auto Fire",
+                "Traffic Injury Pri 2",
+                "BOX -Structure Fire",
+                "PS - Elevator/Person Stuck",
+                "BWP - Broken Water Pipe",
+                "UNK - Unknown Condition",
+                "BOXL- Structure Fire",
+                "SMOKE - Smoke Investigation",
+                "RESQT - Rescue Task Force",
+                "RESQV - Vehicle Rescue"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-21",
+                    "data": [
+                        41,
+                        17,
+                        11,
+                        9,
+                        8,
+                        7,
+                        6,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-22": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "PS - Elevator/Person Stuck",
+                "Traffic Injury Pri 2",
+                "UNLOCK - Vehicle or Building",
+                "CO - Carbon Monoxide Alarm",
+                "ELEC - Electrical Fire",
+                "GRASS - Small Grass Fire",
+                "HC - Hazardous Condition",
+                "ODOR - Odor Investigation",
+                "WDOWN - Wires Down",
+                "SMOKE - Smoke Investigation",
+                "WARC - Wires Arcing",
+                "BOXL- Structure Fire",
+                "BWP - Broken Water Pipe",
+                "ALERT2C - Cargo or Small Plane",
+                "BOX -Structure Fire",
+                "Traffic Injury Pri 1",
+                "BBQ - Unsafe Cooking"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-22",
+                    "data": [
+                        27,
+                        16,
+                        8,
+                        8,
+                        6,
+                        6,
+                        5,
+                        5,
+                        4,
+                        4,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-23": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "HC - Hazardous Condition",
+                "PS - Elevator/Person Stuck",
+                "ODOR - Odor Investigation",
+                "SPILL - Liquid < 5 Gallons",
+                "GRASS - Small Grass Fire",
+                "Traffic Injury Pri 2",
+                "AUTO - Auto Fire",
+                "UNK - Unknown Condition",
+                "BOXL- Structure Fire",
+                "BWP - Broken Water Pipe",
+                "UNLOCK - Vehicle or Building",
+                "RESQV - Vehicle Rescue",
+                "ELEC - Electrical Fire",
+                "Traffic Injury Pri 1",
+                "WDOWN - Wires Down",
+                "SMOKE - Smoke Investigation",
+                "BBQ - Unsafe Cooking"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-23",
+                    "data": [
+                        29,
+                        19,
+                        11,
+                        8,
+                        6,
+                        6,
+                        6,
+                        5,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-24": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "HC - Hazardous Condition",
+                "UNLOCK - Vehicle or Building",
+                "Traffic Injury Pri 2",
+                "PS - Elevator/Person Stuck",
+                "SMOKE - Smoke Investigation",
+                "ODOR - Odor Investigation",
+                "GRASS - Small Grass Fire",
+                "DUMP - Dumpster Fire",
+                "AUTO - Auto Fire",
+                "ELEC - Electrical Fire",
+                "BOXL- Structure Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "RESQV - Vehicle Rescue",
+                "UNK - Unknown Condition",
+                "WDOWN - Wires Down",
+                "RESQT - Rescue Task Force",
+                "CO - Carbon Monoxide Alarm",
+                "BOX -Structure Fire",
+                "BRSHL - Brush Alarm / Light"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-24",
+                    "data": [
+                        32,
+                        21,
+                        12,
+                        9,
+                        7,
+                        7,
+                        6,
+                        6,
+                        5,
+                        5,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-25": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "SMOKE - Smoke Investigation",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "ODOR - Odor Investigation",
+                "Traffic Injury Pri 2",
+                "HC - Hazardous Condition",
+                "UNLOCK - Vehicle or Building",
+                "GRASS - Small Grass Fire",
+                "AUTO - Auto Fire",
+                "WDOWN - Wires Down",
+                "BOXL- Structure Fire",
+                "CO - Carbon Monoxide Alarm",
+                "BWP - Broken Water Pipe",
+                "PS - Elevator/Person Stuck",
+                "SPILL - Liquid < 5 Gallons",
+                "BRSHL - Brush Alarm / Light",
+                "RESQT - Rescue Task Force",
+                "ELEC - Electrical Fire",
+                "RESQC - Rescue Condition",
+                "BOX -Structure Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-25",
+                    "data": [
+                        30,
+                        13,
+                        13,
+                        11,
+                        10,
+                        10,
+                        9,
+                        6,
+                        4,
+                        4,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-26": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "SMOKE - Smoke Investigation",
+                "PS - Elevator/Person Stuck",
+                "GRASS - Small Grass Fire",
+                "HC - Hazardous Condition",
+                "BRSHL - Brush Alarm / Light",
+                "Traffic Injury Pri 2",
+                "AUTO - Auto Fire",
+                "ODOR - Odor Investigation",
+                "UNLOCK - Vehicle or Building",
+                "BOX -Structure Fire",
+                "ELEC - Electrical Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "CO - Carbon Monoxide Alarm",
+                "BBQ - Unsafe Cooking",
+                "BOXL- Structure Fire",
+                "HMI - Hazmat Investigation",
+                "WARC - Wires Arcing",
+                "RESQT - Rescue Task Force",
+                "RESQV - Vehicle Rescue",
+                "UNK - Unknown Condition"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-26",
+                    "data": [
+                        27,
+                        19,
+                        15,
+                        10,
+                        9,
+                        7,
+                        6,
+                        6,
+                        5,
+                        5,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-27": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "GRASS - Small Grass Fire",
+                "Traffic Injury Pri 2",
+                "TRASH - Trash Fire",
+                "BRSHL - Brush Alarm / Light",
+                "UNLOCK - Vehicle or Building",
+                "AUTO - Auto Fire",
+                "SMOKE - Smoke Investigation",
+                "PS - Elevator/Person Stuck",
+                "ODOR - Odor Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "HC - Hazardous Condition",
+                "BBQ - Unsafe Cooking",
+                "RESQV - Vehicle Rescue",
+                "WDOWN - Wires Down",
+                "BOX -Structure Fire",
+                "RESQC - Rescue Condition",
+                "RESQT - Rescue Task Force",
+                "UNK - Unknown Condition",
+                "PKG - Auto In Parking Garage",
+                "BWP - Broken Water Pipe",
+                "SPILL - Liquid < 5 Gallons",
+                "WARC - Wires Arcing",
+                "ELEC - Electrical Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-27",
+                    "data": [
+                        29,
+                        16,
+                        12,
+                        9,
+                        8,
+                        7,
+                        6,
+                        6,
+                        6,
+                        5,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-28": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "UNLOCK - Vehicle or Building",
+                "HC - Hazardous Condition",
+                "PS - Elevator/Person Stuck",
+                "RESQV - Vehicle Rescue",
+                "Traffic Injury Pri 2",
+                "SPILL - Liquid < 5 Gallons",
+                "ELEC - Electrical Fire",
+                "UNK - Unknown Condition",
+                "WARC - Wires Arcing",
+                "BOXL- Structure Fire",
+                "ALERT0 - Aircraft Standby",
+                "ALERT2C - Cargo or Small Plane",
+                "AUTO - Auto Fire",
+                "DUMP - Dumpster Fire",
+                "RESQC - Rescue Condition",
+                "CO - Carbon Monoxide Alarm",
+                "SMOKE - Smoke Investigation",
+                "BWP - Broken Water Pipe",
+                "BBQ - Unsafe Cooking",
+                "ODOR - Odor Investigation"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-28",
+                    "data": [
+                        25,
+                        20,
+                        13,
+                        7,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-29": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "WARC - Wires Arcing",
+                "HC - Hazardous Condition",
+                "BWP - Broken Water Pipe",
+                "ODOR - Odor Investigation",
+                "ELEC - Electrical Fire",
+                "AUTO - Auto Fire",
+                "UNLOCK - Vehicle or Building",
+                "WDOWN - Wires Down",
+                "CO - Carbon Monoxide Alarm",
+                "SPILL - Liquid < 5 Gallons",
+                "GRASS - Small Grass Fire",
+                "BOX -Structure Fire",
+                "Traffic Injury Pri 2",
+                "BRSHL - Brush Alarm / Light",
+                "SMOKE - Smoke Investigation",
+                "BOXL- Structure Fire",
+                "PS - Elevator/Person Stuck",
+                "PS - Boat/Stranded Boat"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-29",
+                    "data": [
+                        28,
+                        11,
+                        9,
+                        7,
+                        6,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-30": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 2",
+                "CO - Carbon Monoxide Alarm",
+                "PS - Elevator/Person Stuck",
+                "ELEC - Electrical Fire",
+                "SMOKE - Smoke Investigation",
+                "GRASS - Small Grass Fire",
+                "WDOWN - Wires Down",
+                "SPILL - Liquid < 5 Gallons",
+                "UNLOCK - Vehicle or Building",
+                "BWP - Broken Water Pipe",
+                "BOX -Structure Fire",
+                "ODOR - Odor Investigation",
+                "RESQV - Vehicle Rescue",
+                "WARC - Wires Arcing",
+                "ALERT0 - Aircraft Standby",
+                "AUTO - Auto Fire",
+                "DUMP - Dumpster Fire",
+                "UNK - Unknown Condition"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-30",
+                    "data": [
+                        27,
+                        20,
+                        10,
+                        9,
+                        7,
+                        6,
+                        6,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-03-31": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "SMOKE - Smoke Investigation",
+                "UNLOCK - Vehicle or Building",
+                "ODOR - Odor Investigation",
+                "HC - Hazardous Condition",
+                "Traffic Injury Pri 2",
+                "BWP - Broken Water Pipe",
+                "GRASS - Small Grass Fire",
+                "AUTO - Auto Fire",
+                "ELEC - Electrical Fire",
+                "CO - Carbon Monoxide Alarm",
+                "PS - Elevator/Person Stuck",
+                "SPILL - Liquid < 5 Gallons",
+                "UNK - Unknown Condition",
+                "DUMP - Dumpster Fire",
+                "BRUSH - Brush Fire",
+                "RESQT - Rescue Task Force",
+                "RESQV - Vehicle Rescue"
+            ],
+            "series": [
+                {
+                    "name": "2022-03-31",
+                    "data": [
+                        29,
+                        12,
+                        9,
+                        8,
+                        7,
+                        7,
+                        6,
+                        6,
+                        6,
+                        4,
+                        4,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-01": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "HC - Hazardous Condition",
+                "UNLOCK - Vehicle or Building",
+                "UNK - Unknown Condition",
+                "Traffic Injury Pri 2",
+                "GRASS - Small Grass Fire",
+                "SMOKE - Smoke Investigation",
+                "BWP - Broken Water Pipe",
+                "PS - Elevator/Person Stuck",
+                "BOX -Structure Fire",
+                "WDOWN - Wires Down",
+                "RESQV - Vehicle Rescue",
+                "ELEC - Electrical Fire",
+                "CO - Carbon Monoxide Alarm",
+                "ODOR - Odor Investigation",
+                "SPILL - Liquid < 5 Gallons"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-01",
+                    "data": [
+                        23,
+                        18,
+                        12,
+                        11,
+                        7,
+                        6,
+                        6,
+                        5,
+                        4,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-02": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "Traffic Injury Pri 2",
+                "SMOKE - Smoke Investigation",
+                "SPILL - Liquid < 5 Gallons",
+                "GRASS - Small Grass Fire",
+                "DUMP - Dumpster Fire",
+                "UNLOCK - Vehicle or Building",
+                "AUTO - Auto Fire",
+                "HC - Hazardous Condition",
+                "ODOR - Odor Investigation",
+                "PS - Elevator/Person Stuck",
+                "BBQ - Unsafe Cooking",
+                "BRSHL - Brush Alarm / Light",
+                "UNK - Unknown Condition",
+                "RESQV - Vehicle Rescue",
+                "BOX -Structure Fire",
+                "CO - Carbon Monoxide Alarm",
+                "Traffic Injury Pri 1",
+                "BWP - Broken Water Pipe",
+                "BOXL- Structure Fire",
+                "RESQT - Rescue Task Force",
+                "ELEC - Electrical Fire",
+                "WARC - Wires Arcing"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-02",
+                    "data": [
+                        25,
+                        24,
+                        22,
+                        7,
+                        6,
+                        6,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-03": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "UNLOCK - Vehicle or Building",
+                "HC - Hazardous Condition",
+                "AUTO - Auto Fire",
+                "ALERT0 - Aircraft Standby",
+                "GRASS - Small Grass Fire",
+                "Traffic Injury Pri 2",
+                "PS - Elevator/Person Stuck",
+                "CO - Carbon Monoxide Alarm",
+                "SPILL - Liquid < 5 Gallons",
+                "BWP - Broken Water Pipe",
+                "SMOKE - Smoke Investigation",
+                "BOX -Structure Fire",
+                "BBQ - Unsafe Cooking",
+                "ODOR - Odor Investigation",
+                "RESQT - Rescue Task Force",
+                "RESQV - Vehicle Rescue",
+                "ELEC - Electrical Fire",
+                "WARC - Wires Arcing",
+                "DUMP - Dumpster Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-03",
+                    "data": [
+                        29,
+                        21,
+                        10,
+                        8,
+                        6,
+                        5,
+                        5,
+                        5,
+                        5,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-04": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "TRASH - Trash Fire",
+                "SMOKE - Smoke Investigation",
+                "PS - Elevator/Person Stuck",
+                "BWP - Broken Water Pipe",
+                "Traffic Injury Pri 2",
+                "BOX -Structure Fire",
+                "ELEC - Electrical Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "AUTO - Auto Fire",
+                "ODOR - Odor Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "DUMP - Dumpster Fire",
+                "UNLOCK - Vehicle or Building",
+                "GRASS - Small Grass Fire",
+                "BOXL- Structure Fire",
+                "UNK - Unknown Condition"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-04",
+                    "data": [
+                        26,
+                        17,
+                        9,
+                        8,
+                        6,
+                        5,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-05": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "Traffic Injury Pri 2",
+                "TRASH - Trash Fire",
+                "ODOR - Odor Investigation",
+                "HC - Hazardous Condition",
+                "GRASS - Small Grass Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "PS - Elevator/Person Stuck",
+                "RESQC - Rescue Condition",
+                "AUTO - Auto Fire",
+                "UNLOCK - Vehicle or Building",
+                "CO - Carbon Monoxide Alarm",
+                "BRSHL - Brush Alarm / Light",
+                "SMOKE - Smoke Investigation",
+                "BWP - Broken Water Pipe",
+                "DUMP - Dumpster Fire",
+                "WARC - Wires Arcing",
+                "WDOWN - Wires Down",
+                "ELEC - Electrical Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-05",
+                    "data": [
+                        42,
+                        19,
+                        9,
+                        7,
+                        6,
+                        6,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-06": {
+            "categories": [
+                "GRASS - Small Grass Fire",
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "SMOKE - Smoke Investigation",
+                "UNLOCK - Vehicle or Building",
+                "HC - Hazardous Condition",
+                "ELEC - Electrical Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "ODOR - Odor Investigation",
+                "BWP - Broken Water Pipe",
+                "WDOWN - Wires Down",
+                "Traffic Injury Pri 2",
+                "BRSHL - Brush Alarm / Light",
+                "DUMP - Dumpster Fire",
+                "PS - Elevator/Person Stuck",
+                "BRUSH - Brush Fire",
+                "CO - Carbon Monoxide Alarm",
+                "UNK - Unknown Condition"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-06",
+                    "data": [
+                        40,
+                        27,
+                        14,
+                        13,
+                        8,
+                        6,
+                        5,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-07": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "GRASS - Small Grass Fire",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "SMOKE - Smoke Investigation",
+                "Traffic Injury Pri 2",
+                "AUTO - Auto Fire",
+                "BOX -Structure Fire",
+                "ELEC - Electrical Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "DUMP - Dumpster Fire",
+                "UNLOCK - Vehicle or Building",
+                "BWP - Broken Water Pipe",
+                "RESQT - Rescue Task Force",
+                "RESQV - Vehicle Rescue",
+                "ODOR - Odor Investigation",
+                "BRSHL - Brush Alarm / Light",
+                "UNK - Unknown Condition",
+                "BEE - Bee/Swarm Attack",
+                "RESQC - Rescue Condition",
+                "Traffic Injury Pri 1"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-07",
+                    "data": [
+                        25,
+                        23,
+                        14,
+                        10,
+                        9,
+                        7,
+                        7,
+                        6,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-08": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "GRASS - Small Grass Fire",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "HC - Hazardous Condition",
+                "Traffic Injury Pri 2",
+                "ODOR - Odor Investigation",
+                "AUTO - Auto Fire",
+                "UNLOCK - Vehicle or Building",
+                "SMOKE - Smoke Investigation",
+                "BOXL- Structure Fire",
+                "WDOWN - Wires Down",
+                "PS - Elevator/Person Stuck",
+                "ELEC - Electrical Fire",
+                "BRUSH - Brush Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "DUMP - Dumpster Fire",
+                "BOX -Structure Fire",
+                "BWP - Broken Water Pipe",
+                "HMTF - Hazmat Taskforce",
+                "UNK - Unknown Condition",
+                "ALERT0 - Aircraft Standby",
+                "CO - Carbon Monoxide Alarm",
+                "PS - Boat/Stranded Boat",
+                "RESQT - Rescue Task Force"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-08",
+                    "data": [
+                        33,
+                        20,
+                        18,
+                        14,
+                        11,
+                        10,
+                        8,
+                        5,
+                        5,
+                        5,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-09": {
+            "categories": [
+                "TRASH - Trash Fire",
+                "GRASS - Small Grass Fire",
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "Traffic Injury Pri 2",
+                "UNLOCK - Vehicle or Building",
+                "SMOKE - Smoke Investigation",
+                "ODOR - Odor Investigation",
+                "PS - Elevator/Person Stuck",
+                "ELEC - Electrical Fire",
+                "AUTO - Auto Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "BOX -Structure Fire",
+                "BBQ - Unsafe Cooking",
+                "CO - Carbon Monoxide Alarm",
+                "ALERT2H - Aircraft Emergency",
+                "WDOWN - Wires Down",
+                "DUMP - Dumpster Fire",
+                "UNK - Unknown Condition",
+                "BOXL- Structure Fire",
+                "BWP - Broken Water Pipe",
+                "WARC - Wires Arcing",
+                "RESQV - Vehicle Rescue",
+                "RESQT - Rescue Task Force"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-09",
+                    "data": [
+                        23,
+                        23,
+                        22,
+                        12,
+                        8,
+                        8,
+                        7,
+                        5,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-10": {
+            "categories": [
+                "GRASS - Small Grass Fire",
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "SMOKE - Smoke Investigation",
+                "WARC - Wires Arcing",
+                "UNLOCK - Vehicle or Building",
+                "Traffic Injury Pri 2",
+                "DUMP - Dumpster Fire",
+                "PS - Elevator/Person Stuck",
+                "WDOWN - Wires Down",
+                "ODOR - Odor Investigation",
+                "ELEC - Electrical Fire",
+                "AUTO - Auto Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "CO - Carbon Monoxide Alarm",
+                "UNK - Unknown Condition",
+                "BBQ - Unsafe Cooking",
+                "Traffic Injury Pri 1",
+                "BWP - Broken Water Pipe"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-10",
+                    "data": [
+                        19,
+                        19,
+                        14,
+                        9,
+                        5,
+                        5,
+                        4,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-11": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "HC - Hazardous Condition",
+                "GRASS - Small Grass Fire",
+                "SMOKE - Smoke Investigation",
+                "Traffic Injury Pri 2",
+                "BWP - Broken Water Pipe",
+                "ALERT0 - Aircraft Standby",
+                "UNLOCK - Vehicle or Building",
+                "ODOR - Odor Investigation",
+                "BBQ - Unsafe Cooking",
+                "CO - Carbon Monoxide Alarm",
+                "BOX -Structure Fire",
+                "PS - Elevator/Person Stuck",
+                "AUTO - Auto Fire",
+                "BRUSH - Brush Fire",
+                "DUMP - Dumpster Fire",
+                "WARC - Wires Arcing",
+                "WDOWN - Wires Down",
+                "RESQV - Vehicle Rescue"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-11",
+                    "data": [
+                        27,
+                        14,
+                        9,
+                        7,
+                        6,
+                        4,
+                        4,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-12": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "GRASS - Small Grass Fire",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "CO - Carbon Monoxide Alarm",
+                "TRASH - Trash Fire",
+                "UNLOCK - Vehicle or Building",
+                "AUTO - Auto Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "BWP - Broken Water Pipe",
+                "SMOKE - Smoke Investigation",
+                "ODOR - Odor Investigation",
+                "ELEC - Electrical Fire",
+                "RESQV - Vehicle Rescue",
+                "PS - Elevator/Person Stuck",
+                "WDOWN - Wires Down",
+                "Traffic Injury Pri 2",
+                "BOX -Structure Fire",
+                "WARC - Wires Arcing",
+                "UNK - Unknown Condition",
+                "ALERT0 - Aircraft Standby",
+                "BOXL- Structure Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-12",
+                    "data": [
+                        38,
+                        21,
+                        18,
+                        10,
+                        7,
+                        6,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-13": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "GRASS - Small Grass Fire",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "SMOKE - Smoke Investigation",
+                "ALERT0 - Aircraft Standby",
+                "HC - Hazardous Condition",
+                "ODOR - Odor Investigation",
+                "PS - Elevator/Person Stuck",
+                "SPILL - Liquid < 5 Gallons",
+                "DUMP - Dumpster Fire",
+                "Traffic Injury Pri 2",
+                "BOX -Structure Fire",
+                "CO - Carbon Monoxide Alarm",
+                "UNK - Unknown Condition",
+                "UNLOCK - Vehicle or Building",
+                "WARC - Wires Arcing",
+                "BOXL- Structure Fire",
+                "ELEC - Electrical Fire",
+                "RESQV - Vehicle Rescue",
+                "AUTO - Auto Fire",
+                "BWP - Broken Water Pipe",
+                "WDOWN - Wires Down",
+                "BBQ - Unsafe Cooking"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-13",
+                    "data": [
+                        30,
+                        27,
+                        24,
+                        20,
+                        8,
+                        6,
+                        6,
+                        6,
+                        5,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-14": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 4F",
+                "SMOKE - Smoke Investigation",
+                "GRASS - Small Grass Fire",
+                "Traffic Injury Pri 2",
+                "BOX -Structure Fire",
+                "HC - Hazardous Condition",
+                "ODOR - Odor Investigation",
+                "AUTO - Auto Fire",
+                "UNLOCK - Vehicle or Building",
+                "SPILL - Liquid < 5 Gallons",
+                "CO - Carbon Monoxide Alarm",
+                "PS - Elevator/Person Stuck",
+                "DUMP - Dumpster Fire",
+                "ELEC - Electrical Fire",
+                "UNK - Unknown Condition",
+                "WDOWN - Wires Down",
+                "BOXL- Structure Fire",
+                "RESQV - Vehicle Rescue"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-14",
+                    "data": [
+                        34,
+                        16,
+                        14,
+                        11,
+                        10,
+                        8,
+                        6,
+                        5,
+                        5,
+                        5,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-15": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 2",
+                "SMOKE - Smoke Investigation",
+                "HC - Hazardous Condition",
+                "UNLOCK - Vehicle or Building",
+                "AUTO - Auto Fire",
+                "GRASS - Small Grass Fire",
+                "WARC - Wires Arcing",
+                "PS - Elevator/Person Stuck",
+                "UNK - Unknown Condition",
+                "CO - Carbon Monoxide Alarm",
+                "BWP - Broken Water Pipe",
+                "WDOWN - Wires Down",
+                "BBQ - Unsafe Cooking",
+                "RESQT - Rescue Task Force",
+                "ODOR - Odor Investigation",
+                "SPILL - Liquid < 5 Gallons",
+                "RESQV - Vehicle Rescue"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-15",
+                    "data": [
+                        23,
+                        15,
+                        13,
+                        10,
+                        7,
+                        6,
+                        5,
+                        5,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-16": {
+            "categories": [
+                "Traffic Injury Pri 4F",
+                "ALARM - Fire Alarm",
+                "PS - Elevator/Person Stuck",
+                "Traffic Injury Pri 2",
+                "TRASH - Trash Fire",
+                "UNLOCK - Vehicle or Building",
+                "UNK - Unknown Condition",
+                "SMOKE - Smoke Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "HC - Hazardous Condition",
+                "BBQ - Unsafe Cooking",
+                "GRASS - Small Grass Fire",
+                "ODOR - Odor Investigation",
+                "BWP - Broken Water Pipe",
+                "AUTO - Auto Fire",
+                "RESQV - Vehicle Rescue",
+                "Traffic Injury Pri 1",
+                "RESQT - Rescue Task Force",
+                "WDOWN - Wires Down",
+                "BRSHL - Brush Alarm / Light"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-16",
+                    "data": [
+                        22,
+                        18,
+                        8,
+                        8,
+                        7,
+                        6,
+                        5,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-17": {
+            "categories": [
+                "Traffic Injury Pri 4F",
+                "ALARM - Fire Alarm",
+                "TRASH - Trash Fire",
+                "AUTO - Auto Fire",
+                "BWP - Broken Water Pipe",
+                "CO - Carbon Monoxide Alarm",
+                "ELEC - Electrical Fire",
+                "BBQ - Unsafe Cooking",
+                "SMOKE - Smoke Investigation",
+                "UNLOCK - Vehicle or Building",
+                "GRASS - Small Grass Fire",
+                "ODOR - Odor Investigation",
+                "PS - Elevator/Person Stuck",
+                "UNK - Unknown Condition",
+                "BOX -Structure Fire",
+                "HC - Hazardous Condition",
+                "PS - Boat/Stranded Boat",
+                "ALERT0 - Aircraft Standby",
+                "BOXL- Structure Fire",
+                "RESQV - Vehicle Rescue",
+                "Traffic Injury Pri 2",
+                "RESQT - Rescue Task Force",
+                "DUMP - Dumpster Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-17",
+                    "data": [
+                        24,
+                        21,
+                        10,
+                        6,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-18": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "SMOKE - Smoke Investigation",
+                "AUTO - Auto Fire",
+                "BOX -Structure Fire",
+                "Traffic Injury Pri 2",
+                "HC - Hazardous Condition",
+                "PS - Elevator/Person Stuck",
+                "GRASS - Small Grass Fire",
+                "CO - Carbon Monoxide Alarm",
+                "UNLOCK - Vehicle or Building",
+                "BWP - Broken Water Pipe",
+                "ODOR - Odor Investigation",
+                "WDOWN - Wires Down",
+                "RESQV - Vehicle Rescue",
+                "UNK - Unknown Condition",
+                "RESQT - Rescue Task Force",
+                "Traffic Injury Pri 1",
+                "ELEC - Electrical Fire",
+                "SPILL - Liquid < 5 Gallons"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-18",
+                    "data": [
+                        28,
+                        13,
+                        12,
+                        9,
+                        5,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-19": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 2",
+                "HC - Hazardous Condition",
+                "GRASS - Small Grass Fire",
+                "CO - Carbon Monoxide Alarm",
+                "PS - Elevator/Person Stuck",
+                "SPILL - Liquid < 5 Gallons",
+                "UNLOCK - Vehicle or Building",
+                "SMOKE - Smoke Investigation",
+                "BWP - Broken Water Pipe",
+                "ODOR - Odor Investigation",
+                "ELEC - Electrical Fire",
+                "BOX -Structure Fire",
+                "AUTO - Auto Fire",
+                "WDOWN - Wires Down",
+                "UNK - Unknown Condition"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-19",
+                    "data": [
+                        26,
+                        14,
+                        14,
+                        7,
+                        7,
+                        7,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-20": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "WARC - Wires Arcing",
+                "Traffic Injury Pri 4F",
+                "UNLOCK - Vehicle or Building",
+                "GRASS - Small Grass Fire",
+                "TRASH - Trash Fire",
+                "HC - Hazardous Condition",
+                "PS - Elevator/Person Stuck",
+                "ELEC - Electrical Fire",
+                "Traffic Injury Pri 2",
+                "CO - Carbon Monoxide Alarm",
+                "BOX -Structure Fire",
+                "ODOR - Odor Investigation",
+                "WDOWN - Wires Down",
+                "BOXL- Structure Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "SMOKE - Smoke Investigation",
+                "AUTO - Auto Fire",
+                "UNK - Unknown Condition",
+                "BWP - Broken Water Pipe",
+                "BBQ - Unsafe Cooking"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-20",
+                    "data": [
+                        27,
+                        17,
+                        17,
+                        11,
+                        9,
+                        8,
+                        6,
+                        5,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-21": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "Traffic Injury Pri 2",
+                "TRASH - Trash Fire",
+                "AUTO - Auto Fire",
+                "GRASS - Small Grass Fire",
+                "BWP - Broken Water Pipe",
+                "SPILL - Liquid < 5 Gallons",
+                "HC - Hazardous Condition",
+                "WDOWN - Wires Down",
+                "SMOKE - Smoke Investigation",
+                "UNLOCK - Vehicle or Building",
+                "ODOR - Odor Investigation",
+                "BOXL- Structure Fire",
+                "RESQT - Rescue Task Force",
+                "RESQV - Vehicle Rescue",
+                "ALERT2C - Cargo or Small Plane",
+                "RESQC - Rescue Condition",
+                "BBQ - Unsafe Cooking",
+                "CO - Carbon Monoxide Alarm"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-21",
+                    "data": [
+                        35,
+                        15,
+                        12,
+                        9,
+                        5,
+                        5,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-22": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "GRASS - Small Grass Fire",
+                "SMOKE - Smoke Investigation",
+                "AUTO - Auto Fire",
+                "PS - Elevator/Person Stuck",
+                "UNLOCK - Vehicle or Building",
+                "TRASH - Trash Fire",
+                "ELEC - Electrical Fire",
+                "ODOR - Odor Investigation",
+                "Traffic Injury Pri 2",
+                "BWP - Broken Water Pipe",
+                "CO - Carbon Monoxide Alarm",
+                "SPILL - Liquid < 5 Gallons",
+                "HC - Hazardous Condition",
+                "WARC - Wires Arcing",
+                "WDOWN - Wires Down",
+                "BBQ - Unsafe Cooking",
+                "Traffic Injury Pri 1"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-22",
+                    "data": [
+                        30,
+                        17,
+                        12,
+                        9,
+                        6,
+                        6,
+                        6,
+                        6,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-23": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "GRASS - Small Grass Fire",
+                "PS - Elevator/Person Stuck",
+                "SMOKE - Smoke Investigation",
+                "Traffic Injury Pri 2",
+                "BWP - Broken Water Pipe",
+                "AUTO - Auto Fire",
+                "RESQV - Vehicle Rescue",
+                "UNK - Unknown Condition",
+                "BOX -Structure Fire",
+                "UNLOCK - Vehicle or Building",
+                "CO - Carbon Monoxide Alarm",
+                "ODOR - Odor Investigation",
+                "RESQC - Rescue Condition",
+                "DUMP - Dumpster Fire",
+                "HC - Hazardous Condition",
+                "WARC - Wires Arcing",
+                "WDOWN - Wires Down",
+                "ELEC - Electrical Fire",
+                "BOXL- Structure Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-23",
+                    "data": [
+                        33,
+                        16,
+                        12,
+                        12,
+                        6,
+                        5,
+                        5,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-24": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "UNLOCK - Vehicle or Building",
+                "ALERT0 - Aircraft Standby",
+                "Traffic Injury Pri 2",
+                "RESQV - Vehicle Rescue",
+                "PS - Elevator/Person Stuck",
+                "HC - Hazardous Condition",
+                "UNK - Unknown Condition",
+                "GRASS - Small Grass Fire",
+                "BBQ - Unsafe Cooking",
+                "AUTO - Auto Fire",
+                "ELEC - Electrical Fire",
+                "SMOKE - Smoke Investigation",
+                "ODOR - Odor Investigation",
+                "BOX -Structure Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "BWP - Broken Water Pipe",
+                "PS - Boat/Stranded Boat",
+                "BOXL- Structure Fire",
+                "ALERT1 - Standby Only",
+                "BRSHL - Brush Alarm / Light",
+                "WDOWN - Wires Down",
+                "RESQT - Rescue Task Force"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-24",
+                    "data": [
+                        18,
+                        9,
+                        8,
+                        6,
+                        6,
+                        5,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-25": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "WARC - Wires Arcing",
+                "TRASH - Trash Fire",
+                "ELEC - Electrical Fire",
+                "PS - Elevator/Person Stuck",
+                "BWP - Broken Water Pipe",
+                "Traffic Injury Pri 2",
+                "ODOR - Odor Investigation",
+                "HC - Hazardous Condition",
+                "AUTO - Auto Fire",
+                "GRASS - Small Grass Fire",
+                "UNK - Unknown Condition",
+                "CO - Carbon Monoxide Alarm",
+                "BOXL- Structure Fire",
+                "BOX -Structure Fire",
+                "ALERT0 - Aircraft Standby",
+                "WDOWN - Wires Down",
+                "SMOKE - Smoke Investigation",
+                "RESQC - Rescue Condition",
+                "SPILL - Liquid < 5 Gallons",
+                "RESQV - Vehicle Rescue",
+                "Traffic Injury Pri 1",
+                "UNLOCK - Vehicle or Building"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-25",
+                    "data": [
+                        36,
+                        21,
+                        7,
+                        7,
+                        7,
+                        6,
+                        5,
+                        5,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-26": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "ODOR - Odor Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "PS - Elevator/Person Stuck",
+                "UNK - Unknown Condition",
+                "HC - Hazardous Condition",
+                "ELEC - Electrical Fire",
+                "SMOKE - Smoke Investigation",
+                "BWP - Broken Water Pipe",
+                "SPILL - Liquid < 5 Gallons",
+                "AUTO - Auto Fire",
+                "UNLOCK - Vehicle or Building",
+                "BOXL- Structure Fire",
+                "Traffic Injury Pri 2",
+                "WARC - Wires Arcing",
+                "GRASS - Small Grass Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-26",
+                    "data": [
+                        27,
+                        12,
+                        7,
+                        7,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-27": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "UNLOCK - Vehicle or Building",
+                "HC - Hazardous Condition",
+                "AUTO - Auto Fire",
+                "ODOR - Odor Investigation",
+                "Traffic Injury Pri 2",
+                "SMOKE - Smoke Investigation",
+                "GRASS - Small Grass Fire",
+                "BOXL- Structure Fire",
+                "ELEC - Electrical Fire",
+                "PS - Elevator/Person Stuck",
+                "WDOWN - Wires Down",
+                "TRASH - Trash Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "CO - Carbon Monoxide Alarm",
+                "RESQV - Vehicle Rescue"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-27",
+                    "data": [
+                        29,
+                        17,
+                        7,
+                        6,
+                        6,
+                        5,
+                        5,
+                        5,
+                        5,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-28": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 2",
+                "HC - Hazardous Condition",
+                "CO - Carbon Monoxide Alarm",
+                "UNLOCK - Vehicle or Building",
+                "UNK - Unknown Condition",
+                "WDOWN - Wires Down",
+                "ODOR - Odor Investigation",
+                "BWP - Broken Water Pipe",
+                "AUTO - Auto Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "PS - Elevator/Person Stuck",
+                "BOXL- Structure Fire",
+                "SMOKE - Smoke Investigation",
+                "RESQT - Rescue Task Force",
+                "ELEC - Electrical Fire",
+                "DUMP - Dumpster Fire",
+                "WARC - Wires Arcing"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-28",
+                    "data": [
+                        28,
+                        12,
+                        11,
+                        10,
+                        7,
+                        5,
+                        5,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-29": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "PS - Elevator/Person Stuck",
+                "Traffic Injury Pri 2",
+                "ODOR - Odor Investigation",
+                "BWP - Broken Water Pipe",
+                "TRASH - Trash Fire",
+                "CO - Carbon Monoxide Alarm",
+                "UNLOCK - Vehicle or Building",
+                "SPILL - Liquid < 5 Gallons",
+                "ELEC - Electrical Fire",
+                "WDOWN - Wires Down",
+                "GRASS - Small Grass Fire",
+                "HC - Hazardous Condition",
+                "SMOKE - Smoke Investigation",
+                "BBQ - Unsafe Cooking",
+                "RESQT - Rescue Task Force",
+                "RESQV - Vehicle Rescue"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-29",
+                    "data": [
+                        20,
+                        17,
+                        9,
+                        6,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-04-30": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "Traffic Injury Pri 2",
+                "TRASH - Trash Fire",
+                "CO - Carbon Monoxide Alarm",
+                "PS - Elevator/Person Stuck",
+                "BWP - Broken Water Pipe",
+                "SMOKE - Smoke Investigation",
+                "GRASS - Small Grass Fire",
+                "ELEC - Electrical Fire",
+                "UNLOCK - Vehicle or Building",
+                "AUTO - Auto Fire",
+                "UNK - Unknown Condition",
+                "ODOR - Odor Investigation",
+                "DUMP - Dumpster Fire",
+                "BOX -Structure Fire",
+                "WDOWN - Wires Down",
+                "HC - Hazardous Condition",
+                "RESQT - Rescue Task Force"
+            ],
+            "series": [
+                {
+                    "name": "2022-04-30",
+                    "data": [
+                        28,
+                        17,
+                        12,
+                        10,
+                        7,
+                        6,
+                        5,
+                        4,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-05-01": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "UNLOCK - Vehicle or Building",
+                "HC - Hazardous Condition",
+                "ELEC - Electrical Fire",
+                "PS - Elevator/Person Stuck",
+                "CO - Carbon Monoxide Alarm",
+                "BOX -Structure Fire",
+                "SMOKE - Smoke Investigation",
+                "Traffic Injury Pri 2",
+                "RESQT - Rescue Task Force",
+                "TRASH - Trash Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "GRASS - Small Grass Fire",
+                "BRUSH - Brush Fire",
+                "WARC - Wires Arcing",
+                "AUTO - Auto Fire",
+                "ALERT0 - Aircraft Standby",
+                "RESQC - Rescue Condition",
+                "BWP - Broken Water Pipe"
+            ],
+            "series": [
+                {
+                    "name": "2022-05-01",
+                    "data": [
+                        24,
+                        14,
+                        8,
+                        8,
+                        6,
+                        6,
+                        5,
+                        5,
+                        5,
+                        4,
+                        3,
+                        3,
+                        3,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-05-02": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "Traffic Injury Pri 2",
+                "HC - Hazardous Condition",
+                "AUTO - Auto Fire",
+                "UNLOCK - Vehicle or Building",
+                "DUMP - Dumpster Fire",
+                "PS - Elevator/Person Stuck",
+                "SMOKE - Smoke Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "SPILL - Liquid < 5 Gallons",
+                "BOXL- Structure Fire",
+                "GRASS - Small Grass Fire",
+                "TRASH - Trash Fire",
+                "UNK - Unknown Condition",
+                "BWP - Broken Water Pipe",
+                "BOX -Structure Fire",
+                "ODOR - Odor Investigation",
+                "ELEC - Electrical Fire",
+                "RESQT - Rescue Task Force",
+                "BBQ - Unsafe Cooking",
+                "HMI - Hazmat Investigation"
+            ],
+            "series": [
+                {
+                    "name": "2022-05-02",
+                    "data": [
+                        30,
+                        9,
+                        7,
+                        6,
+                        5,
+                        5,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-05-03": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "CO - Carbon Monoxide Alarm",
+                "UNLOCK - Vehicle or Building",
+                "Traffic Injury Pri 2",
+                "TRASH - Trash Fire",
+                "PS - Elevator/Person Stuck",
+                "AUTO - Auto Fire",
+                "SMOKE - Smoke Investigation",
+                "BOX -Structure Fire",
+                "WDOWN - Wires Down",
+                "GRASS - Small Grass Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "RESQT - Rescue Task Force",
+                "BOXL- Structure Fire",
+                "ELEC - Electrical Fire",
+                "ALERT2C - Cargo or Small Plane",
+                "RESQC - Rescue Condition",
+                "BWP - Broken Water Pipe",
+                "UNK - Unknown Condition",
+                "RESQV - Vehicle Rescue"
+            ],
+            "series": [
+                {
+                    "name": "2022-05-03",
+                    "data": [
+                        41,
+                        14,
+                        9,
+                        9,
+                        8,
+                        8,
+                        6,
+                        4,
+                        4,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-05-04": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "Traffic Injury Pri 2",
+                "TRASH - Trash Fire",
+                "SMOKE - Smoke Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "UNLOCK - Vehicle or Building",
+                "PS - Elevator/Person Stuck",
+                "BOX -Structure Fire",
+                "GRASS - Small Grass Fire",
+                "HC - Hazardous Condition",
+                "ELEC - Electrical Fire",
+                "UNK - Unknown Condition",
+                "AUTO - Auto Fire",
+                "WDOWN - Wires Down",
+                "ODOR - Odor Investigation",
+                "DUMP - Dumpster Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "RESQC - Rescue Condition",
+                "WARC - Wires Arcing",
+                "BWP - Broken Water Pipe"
+            ],
+            "series": [
+                {
+                    "name": "2022-05-04",
+                    "data": [
+                        23,
+                        12,
+                        7,
+                        6,
+                        5,
+                        5,
+                        5,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-05-05": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "ELEC - Electrical Fire",
+                "WDOWN - Wires Down",
+                "WARC - Wires Arcing",
+                "SMOKE - Smoke Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "TRASH - Trash Fire",
+                "UNK - Unknown Condition",
+                "PS - Elevator/Person Stuck",
+                "ODOR - Odor Investigation",
+                "GRASS - Small Grass Fire",
+                "ALERT0 - Aircraft Standby",
+                "Traffic Injury Pri 2",
+                "AUTO - Auto Fire",
+                "HC - Hazardous Condition",
+                "BOX -Structure Fire",
+                "BOXL- Structure Fire",
+                "UNLOCK - Vehicle or Building",
+                "BWP - Broken Water Pipe"
+            ],
+            "series": [
+                {
+                    "name": "2022-05-05",
+                    "data": [
+                        29,
+                        13,
+                        8,
+                        8,
+                        7,
+                        7,
+                        6,
+                        5,
+                        5,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-05-06": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "UNLOCK - Vehicle or Building",
+                "Traffic Injury Pri 2",
+                "BWP - Broken Water Pipe",
+                "SMOKE - Smoke Investigation",
+                "CO - Carbon Monoxide Alarm",
+                "TRASH - Trash Fire",
+                "AUTO - Auto Fire",
+                "WDOWN - Wires Down",
+                "SPILL - Liquid < 5 Gallons",
+                "PS - Elevator/Person Stuck",
+                "ELEC - Electrical Fire",
+                "ODOR - Odor Investigation",
+                "UNK - Unknown Condition",
+                "BOXL- Structure Fire",
+                "BOX -Structure Fire",
+                "RESQC - Rescue Condition",
+                "WARC - Wires Arcing"
+            ],
+            "series": [
+                {
+                    "name": "2022-05-06",
+                    "data": [
+                        47,
+                        19,
+                        9,
+                        8,
+                        8,
+                        6,
+                        6,
+                        6,
+                        5,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-05-07": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "UNLOCK - Vehicle or Building",
+                "TRASH - Trash Fire",
+                "Traffic Injury Pri 2",
+                "SMOKE - Smoke Investigation",
+                "GRASS - Small Grass Fire",
+                "BWP - Broken Water Pipe",
+                "HC - Hazardous Condition",
+                "PS - Elevator/Person Stuck",
+                "AUTO - Auto Fire",
+                "ODOR - Odor Investigation",
+                "UNK - Unknown Condition",
+                "BOXL- Structure Fire",
+                "CO - Carbon Monoxide Alarm",
+                "ELEC - Electrical Fire",
+                "BBQ - Unsafe Cooking",
+                "BOX -Structure Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "RESQT - Rescue Task Force",
+                "WDOWN - Wires Down"
+            ],
+            "series": [
+                {
+                    "name": "2022-05-07",
+                    "data": [
+                        36,
+                        18,
+                        10,
+                        8,
+                        8,
+                        6,
+                        6,
+                        5,
+                        5,
+                        5,
+                        5,
+                        4,
+                        4,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-05-08": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "TRASH - Trash Fire",
+                "SMOKE - Smoke Investigation",
+                "UNLOCK - Vehicle or Building",
+                "PS - Elevator/Person Stuck",
+                "CO - Carbon Monoxide Alarm",
+                "AUTO - Auto Fire",
+                "Traffic Injury Pri 2",
+                "HC - Hazardous Condition",
+                "ELEC - Electrical Fire",
+                "ODOR - Odor Investigation",
+                "BBQ - Unsafe Cooking",
+                "BWP - Broken Water Pipe",
+                "BOX -Structure Fire",
+                "RESQT - Rescue Task Force",
+                "GRASS - Small Grass Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "RESQV - Vehicle Rescue"
+            ],
+            "series": [
+                {
+                    "name": "2022-05-08",
+                    "data": [
+                        38,
+                        24,
+                        10,
+                        7,
+                        7,
+                        5,
+                        5,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-05-09": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "Traffic Injury Pri 2",
+                "SPILL - Liquid < 5 Gallons",
+                "PS - Elevator/Person Stuck",
+                "GRASS - Small Grass Fire",
+                "BOX -Structure Fire",
+                "UNLOCK - Vehicle or Building",
+                "CO - Carbon Monoxide Alarm",
+                "WDOWN - Wires Down",
+                "BWP - Broken Water Pipe",
+                "AUTO - Auto Fire",
+                "ODOR - Odor Investigation",
+                "TRASH - Trash Fire",
+                "SMOKE - Smoke Investigation",
+                "DUMP - Dumpster Fire",
+                "UNK - Unknown Condition",
+                "Traffic Injury Pri 1",
+                "ELEC - Electrical Fire",
+                "BOXL- Structure Fire",
+                "WARC - Wires Arcing"
+            ],
+            "series": [
+                {
+                    "name": "2022-05-09",
+                    "data": [
+                        31,
+                        15,
+                        8,
+                        7,
+                        6,
+                        5,
+                        4,
+                        3,
+                        3,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-05-10": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "BWP - Broken Water Pipe",
+                "TRASH - Trash Fire",
+                "PS - Elevator/Person Stuck",
+                "BOXL- Structure Fire",
+                "UNLOCK - Vehicle or Building",
+                "UNK - Unknown Condition",
+                "CO - Carbon Monoxide Alarm",
+                "SMOKE - Smoke Investigation",
+                "Traffic Injury Pri 2",
+                "AUTO - Auto Fire",
+                "ELEC - Electrical Fire",
+                "SPILL - Liquid < 5 Gallons",
+                "WARC - Wires Arcing",
+                "ODOR - Odor Investigation",
+                "GRASS - Small Grass Fire",
+                "WDOWN - Wires Down",
+                "RESQC - Rescue Condition",
+                "BOX -Structure Fire",
+                "BBQ - Unsafe Cooking"
+            ],
+            "series": [
+                {
+                    "name": "2022-05-10",
+                    "data": [
+                        40,
+                        12,
+                        8,
+                        6,
+                        6,
+                        5,
+                        5,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-05-11": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "Traffic Injury Pri 4F",
+                "HC - Hazardous Condition",
+                "TRASH - Trash Fire",
+                "ELEC - Electrical Fire",
+                "Traffic Injury Pri 2",
+                "CO - Carbon Monoxide Alarm",
+                "SPILL - Liquid < 5 Gallons",
+                "ODOR - Odor Investigation",
+                "PS - Elevator/Person Stuck",
+                "SMOKE - Smoke Investigation",
+                "BOX -Structure Fire",
+                "BOXL- Structure Fire",
+                "UNK - Unknown Condition",
+                "WDOWN - Wires Down",
+                "BWP - Broken Water Pipe",
+                "HMI - Hazmat Investigation",
+                "RESQC - Rescue Condition",
+                "AUTO - Auto Fire",
+                "UNLOCK - Vehicle or Building",
+                "WARC - Wires Arcing",
+                "GRASS - Small Grass Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-05-11",
+                    "data": [
+                        30,
+                        16,
+                        11,
+                        8,
+                        7,
+                        6,
+                        4,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        3,
+                        2,
+                        2,
+                        2,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "2022-05-12": {
+            "categories": [
+                "ALARM - Fire Alarm",
+                "BOX -Structure Fire"
+            ],
+            "series": [
+                {
+                    "name": "2022-05-12",
+                    "data": [
+                        1,
+                        1
+                    ]
+                }
+            ]
+        },
+        "minDate": "2022-01-26",
+        "maxDate": "2022-05-12"
+    }
+
+
+    let barChart = null;
+    buildWeeklyLineChart();
+    buildWeeklyColumnChart();
+    buildPerHourBoxChart();
+    barChart = buildTitleByPerDayChart();
+    buildSlider();
+
+</script>
+
+</html>
