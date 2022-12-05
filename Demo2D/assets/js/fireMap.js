@@ -814,6 +814,8 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                             
                         `;
                         layer.bindPopup(popupContent);
+                        layer.options.weight = 0.8;
+
                         let numIncidents = parseInt(feature.properties["incidents"]);
                         let numResponses = parseInt(feature.properties["num_8min"]);
                         let percent = numResponses / numIncidents;
@@ -1484,6 +1486,8 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
         var fireDept = document.querySelector(".firedept").checked;
         var policeDept = document.querySelector(".policedept").checked;
+        var hospital = document.querySelector(".hospital").checked;
+
 
         console.log("POI radio button clicked");
         // display csv file from POI.csv
@@ -1514,25 +1518,48 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
             for (var i = 0; i < jsonResult.length; i++) {
                 console.log(jsonResult[i]);
 
-                var isFireDept = jsonResult[i]["Jurisdiction Name"] == "AFD"
+                var iconLink = "assets/images/firedept.png";
+                var type = "Fire";
+                if(jsonResult[i]["Jurisdiction Name"] == "APD") {
+                    iconLink = "assets/images/policedept.png";
+                    type = "Police";
+                }
+                else if(jsonResult[i]["Jurisdiction Name"] == "AHD") {
+                    iconLink = "assets/images/hospital.png";
+                    type = "Medical";
+                }
 
-                if(!fireDept && !policeDept)
+                console.log("Type: " + type);
+
+                // Perform checkbox booleans
+                if(!fireDept && !policeDept && !hospital)
                     continue
-                else if (!isFireDept && fireDept && !policeDept)
+                else if(!fireDept && !policeDept && hospital && type != "Medical")
                     continue
-                else if (isFireDept && policeDept && !fireDept)
+                else if(!fireDept && policeDept && !hospital && type != "Police")
                     continue
+                else if(!fireDept && policeDept && hospital && type != "Police" && type != "Medical")
+                    continue
+                else if(fireDept && !policeDept && !hospital && type != "Fire")
+                    continue
+                else if(fireDept && !policeDept && hospital && type != "Fire" && type != "Medical")
+                    continue
+                else if(fireDept && policeDept && !hospital && type != "Fire" && type != "Police")
+                    continue
+                else if(fireDept && policeDept && hospital && type != "Fire" && type != "Police" && type != "Medical")
+                    continue
+                
 
                 var marker = L.marker([jsonResult[i].Y, jsonResult[i].X]).addTo(map);
                 // Change the icon to a custom icon
                 marker.setIcon(L.icon({
-                    iconUrl: isFireDept ? './assets/images/firedept.png' : './assets/images/policedept.png',
+                    iconUrl: iconLink,
                     iconSize: [70, 70],
                     iconAnchor: [10, 10],
                     popupAnchor: [25, -10]
                 }));
 
-                marker.bindPopup( (isFireDept ? "Fire" : "Police") + " Station: " + jsonResult[i].Name);
+                marker.bindPopup( type + " Station: " + jsonResult[i].Name);
 
                 // store marker in array to be deleted later
                 poiMarkers.push(marker);
@@ -1560,6 +1587,10 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
         });
 
         document.querySelector(".policedept").addEventListener('click', function () {
+            buildPOIMap();
+        });
+
+        document.querySelector(".hospital").addEventListener('click', function () {
             buildPOIMap();
         });
 
