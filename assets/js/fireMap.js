@@ -1,5 +1,59 @@
+/*
+Real-Time Fire Incident Map
+
+Created under Dr. Jiao's Urban Information Lab
+*/
+
+var activeFires = new L.FeatureGroup();
+var inactiveFires = new L.FeatureGroup();
+var purpleAirMonitors = new L.FeatureGroup();
+var microsoftAirMonitors = new L.FeatureGroup();
+var currentShapefile = null;
+var markers = L.markerClusterGroup({
+    showCoverageOnHover: false,
+    //zoomToBoundsOnClick: false,
+    iconCreateFunction: function(cluster) {
+        var childCount = cluster.getChildCount();
+
+        var markers = cluster.getAllChildMarkers();
+        var sum = 0;
+        for (var i = 0; i < markers.length; i++) {
+            //console.log(markers[i]);
+            sum += markers[i].options.title;
+        }
+        var avg = sum / markers.length;
+
+var c = ' marker-cluster-';
+if (avg < 10) {
+    c += 'small';
+} else if (avg < 100) {
+    c += 'medium';
+} else {
+    c += 'large';
+}
+
+return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) });
+    }
+});
+    
     //Input: map instance and an array of string
     async function mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag) {
+        
+        // Remove all fires from map
+        if(map != null) {
+            map.removeLayer(activeFires);
+            map.removeLayer(inactiveFires);
+
+            activeFires.clearLayers();
+            inactiveFires.clearLayers();
+            onehourForecastGroup.clearLayers();
+            twohourForecastGroup.clearLayers();
+            threehourForecastGroup.clearLayers();
+
+            addMapLayer(map)
+
+        }
+
 
         let sampleData = [
             {
@@ -50,7 +104,7 @@
 
         let rawData = [];
         let cities = ["", "Dallas", "Houston","SanAntonio","OklahomaCity","LosAngeles","Riverside","ElPaso","SanDiego","Seattle"];
-
+        console.log(date)
         for(city in cities) {
         for (let i = 0; i < dateArray.length; i++) {
             try{
@@ -84,7 +138,7 @@
             } else {
                 // loop through each data point
                 fireData.forEach(data => {
-                    if ((inactive_flag === false && data.active_status === "yes") || inactive_flag === true) {
+                  //  if ((inactive_flag === false && data.active_status === "yes") || inactive_flag === true) {
                         try { 
                         processData(data)
                         }
@@ -93,11 +147,14 @@
                         }
                     }
 
-                });
+                //}
+                );
             }
         }
 
-        buildShapefile(map, shapefile_display_flag);
+        if(currentShapefile == null) {
+            buildShapefile(map, shapefile_display_flag);
+        }
 
         if (purple_air_diaplay_flag == true) {
             mapPurpleAirData(map);
@@ -139,11 +196,18 @@
 
         weatherDataAPI = 'https://api.weather.gov/points/' + longNLatString;
 
+        var marker = L.marker(longNLatArray).addTo(map);
+
         let icon = activeFireIcon;
         if (data.active_status != "yes") {
             icon = deactiveFireIcon
+            inactiveFires.addLayer(marker);
+        } else {
+            activeFires.addLayer(marker);
         }
-        var marker = L.marker(longNLatArray, { icon: icon }).addTo(map);
+
+        marker.setIcon(icon);
+
         getWeatherAPI(weatherDataAPI, marker, data, windDirectionIcon, windDirections, angles, longNLatArray, longNLatString);
     }
 
@@ -293,6 +357,17 @@
         L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=GiZ6x9ufTTvbNzpIWAX8', {
             attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
         }).addTo(map);
+        console.log("BEING CALLED");
+        map.addLayer(activeFires)
+        if(inactive_flag)
+        map.addLayer(inactiveFires)
+        if(purple_air_diaplay_flag && microsoft_air_display_flag)
+        map.addLayer(markers);
+        else if(purple_air_diaplay_flag)
+        map.addLayer(purpleAirMonitors)
+        else
+        map.addLayer(microsoftAirMonitors)
+    
     }
 
     // placeholders for the L.marker and L.circle representing user's current position and accuracy
@@ -433,10 +508,10 @@
         var datePicker = document.querySelector('.date-picker');
         datePicker.style.display = 'none';
                                 // clear all markers and rebuild map layer
-                                map.eachLayer(function (layer) {
+                                /*map.eachLayer(function (layer) {
                                     map.removeLayer(layer);
                                 });
-                                addMapLayer(map);
+                                addMapLayer(map);*/
                                 // map today's fire data
                                 dateArray = [];
                                 var today = new Date();
@@ -453,10 +528,10 @@
         var datePicker = document.querySelector('.date-picker');
         datePicker.style.display = 'none';
                         // clear all markers and rebuild map layer
-                        map.eachLayer(function (layer) {
+                        /*map.eachLayer(function (layer) {
                             map.removeLayer(layer);
                         });
-                        addMapLayer(map);
+                        addMapLayer(map);*/
                         // map yesterday's fire data
                         dateArray = [];
                         var today = new Date();
@@ -473,10 +548,10 @@
         var datePicker = document.querySelector('.date-picker');
         datePicker.style.display = 'none';
                         // clear all markers and rebuild map layer
-                        map.eachLayer(function (layer) {
+                        /*map.eachLayer(function (layer) {
                             map.removeLayer(layer);
                         });
-                        addMapLayer(map);
+                        addMapLayer(map);*/
                         // map fire data of past 3 days 
                         dateArray = [];
                         var today = new Date();
@@ -497,10 +572,10 @@
         // add event listener
         datePicker.addEventListener('change', (event) => {
             // clear all markers and rebuild map layer
-            map.eachLayer(function (layer) {
+            /*map.eachLayer(function (layer) {
                 map.removeLayer(layer);
             });
-            addMapLayer(map);
+            addMapLayer(map);*/
             mapFireIncident(map, [event.target.value], inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag)
         })
                                 // show date selector
@@ -526,10 +601,10 @@
         // add event listener
         datePicker.addEventListener('change', (event) => {
             // clear all markers and rebuild map layer
-            map.eachLayer(function (layer) {
+            /*map.eachLayer(function (layer) {
                 map.removeLayer(layer);
             });
-            addMapLayer(map);
+            addMapLayer(map);*/
             mapFireIncident(map, [event.target.value], inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag)
         })
 
@@ -556,10 +631,10 @@
                     // Today Button
                     case 1:
                         // clear all markers and rebuild map layer
-                        map.eachLayer(function (layer) {
+                        /*map.eachLayer(function (layer) {
                             map.removeLayer(layer);
                         });
-                        addMapLayer(map);
+                        addMapLayer(map);*/
                         // map today's fire data
                         dateArray = [];
                         var today = new Date();
@@ -574,10 +649,10 @@
                     // Yesterday Button
                     case 2:
                         // clear all markers and rebuild map layer
-                        map.eachLayer(function (layer) {
+                        /*map.eachLayer(function (layer) {
                             map.removeLayer(layer);
                         });
-                        addMapLayer(map);
+                        addMapLayer(map);*/
                         // map yesterday's fire data
                         dateArray = [];
                         var today = new Date();
@@ -590,10 +665,10 @@
                     // Past 3 days Button
                     case 3:
                         // clear all markers and rebuild map layer
-                        map.eachLayer(function (layer) {
+                        /*map.eachLayer(function (layer) {
                             map.removeLayer(layer);
                         });
-                        addMapLayer(map);
+                        addMapLayer(map);*/
                         // map fire data of past 3 days 
                         dateArray = [];
                         var today = new Date();
@@ -616,6 +691,17 @@
     }
 
     function buildStatusToggleButton(map, checkbox) {
+        
+        if (checkbox.checked) {
+            inactive_flag = true;
+            map.addLayer(inactiveFires)
+        } else {
+            inactive_flag = false;
+            map.removeLayer(inactiveFires);
+        }
+
+
+        /*
         checkbox.addEventListener('click', function (e) {
             // checkbox checked => all fire
             if (checkbox.checked) {
@@ -636,7 +722,11 @@
             mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
 
         })
+        */
     }
+
+
+    var cachedShapefile = null 
 
     function buildShapefile(map, shapefile_display_flag) {
         let shapefileName = "";
@@ -689,7 +779,7 @@
                         // makes lines thinner the further away they are depending on zoom level
                         // attach to zoom event
                         map.on('zoomend', function () {
-                            layer.options.weight = 0.3 * map.getZoom();
+                            //layer.options.weight = 0.5 * map.getZoom();
                         });
                         //layer.options.opacity = 1 / map.getZoom();
 
@@ -703,6 +793,7 @@
                 //afdLegend.style.display = 'none';
                 //hviLegend.style.display = 'none';
                 shpfile.addTo(map);
+                currentShapefile = shpfile;
                 break;
             case 'afd-radio':
                 shapefileName = "../data/AFD Standard of Cover.zip";
@@ -720,6 +811,8 @@
                             
                         `;
                         layer.bindPopup(popupContent);
+                        layer.options.weight = 0.8;
+
                         let numIncidents = parseInt(feature.properties["incidents"]);
                         let numResponses = parseInt(feature.properties["num_8min"]);
                         let percent = numResponses / numIncidents;
@@ -740,10 +833,11 @@
                         // }
                     }
                 })
-                afdLegend.style.display = 'flex';
-                fireRiskLegend.style.display = 'none';
-                hviLegend.style.display = 'none';
+                //afdLegend.style.display = 'flex';
+                //fireRiskLegend.style.display = 'none';
+                //hviLegend.style.display = 'none';
                 shpfile.addTo(map);
+                currentShapefile = shpfile;
                 break;
             case 'hvi-radio':
                 shapefileName = "../data/HVI_Map.zip";
@@ -779,11 +873,52 @@
                 // color by exposure, color map by 5 colors
 
 
-                hviLegend.style.display = 'flex';
-                afdLegend.style.display = 'none';
-                fireRiskLegend.style.display = 'none';
+                //hviLegend.style.display = 'flex';
+                //afdLegend.style.display = 'none';
+                //fireRiskLegend.style.display = 'none';
                 shpfile.addTo(map);
+                currentShapefile = shpfile;
                 break;
+            /*
+            case 'fireStations':
+                // display CSV file of fire stations as points and add popups
+                // use fetch to get the data
+                fetch('../data/Fire_Stations.csv')
+                    .then(response => response.text())
+                    .then(text => {
+                        // parse the CSV file
+                        let stations = Papa.parse(text, {
+                            header: true,
+                            dynamicTyping: true,
+                            skipEmptyLines: true
+                        }).data;
+                        //console.log(stations);
+                        // loop through the stations and add them to the map
+                        for (let station of stations) {
+                            //console.log(station);
+                            let marker = L.marker([station.LATITUDE, station.LONGITUDE]);
+                            marker.bindPopup(`
+                                <div class="basic-info
+                                    <span>Station ID: ${station.STATION_ID}</span><BR>
+                                    <span>Station Name: ${station.STATION_NAME}</span><BR>
+                                    <span>Address: ${station.ADDRESS}</span><BR>
+                                    <span>City: ${station.CITY}</span><BR>
+                                    <span>Zip Code: ${station.ZIP_CODE}</span><BR>
+                                    <span>Phone: ${station.PHONE}</span><BR>
+                                    <span>Station Type: ${station.STATION_TYPE}</span><BR>
+                                    <span>Station Status: ${station.STATION_STATUS}</span><BR>
+                                    <span>Station Open Date: ${station.STATION_OPEN_DATE}</span><BR>
+                                    <span>Station Close Date: ${station.STATION_CLOSE_DATE}</span><BR>
+                                    <span>Station Area: ${station.STATION_AREA}</span><BR>
+                                    <span>Station District: ${station.STATION_DISTRICT}</span><BR>
+                                    <span>Station Division: ${station.STATION_DIVISION}</span><BR>
+
+                                </div>
+                            `);
+                            marker.addTo(map);
+                        }
+                    })
+                break; */
 
             case 'test-risk-radio':
                 shapefileName = "../data/firerisk.shp.zip";
@@ -803,6 +938,7 @@
                     return response.json();
                 })
                 .then(jsondata => result = jsondata);
+                if(cachedShapefile == null) {
                 shpfile = new L.Shapefile(shapefileName, {
                     onEachFeature: function (feature, layer) {
 
@@ -831,15 +967,11 @@
                             <div class="basic-info">
                                 <span>TRCTNAME: ${feature.properties["NAME"]}</span><BR>
                             </div>
-                            <div class="stats-info">
-                                <span>Families in Poverty: ${feature.properties["p_poverty"]} </span><BR>
-                                <span>People Under 5: ${feature.properties["p_children"]} </span><BR>
-                                <span>People Over 65: ${feature.properties["p_elderly"]} </span><BR>
-                                <span>People With Disability: ${feature.properties["p_disability"]}</span>
-                            </div>
                             
                         `;
                         layer.bindPopup(popupContent);
+                        layer.options.weight = 0.8;
+
                         //let fireCat = feature.properties["FIRECAT"];
                         let words = fireCat.toLowerCase().split(' ');
                         if (words.includes("highest")) {
@@ -853,23 +985,39 @@
                         }
 
                     }
-                })
+                })}
+                else {
+                    shpfile = cachedShapefile;
+                }
                 // hide fire risk legend
-                fireRiskLegend.style.display = 'flex';
-                afdLegend.style.display = 'none';
-                hviLegend.style.display = 'none';
+                //fireRiskLegend.style.display = 'flex';
+                //afdLegend.style.display = 'none';
+                //hviLegend.style.display = 'none';
                 shpfile.addTo(map);
+                cachedShapefile = shpfile;
+                currentShapefile = shpfile;
                 break;
 
 
             case 'none-radio':
-                fireRiskLegend.style.display = 'none';
-                afdLegend.style.display = 'none';
+                //fireRiskLegend.style.display = 'none';
+                //afdLegend.style.display = 'none';
+                currentShapefile = null;
+                break;
 
         }
     }
 
+    var runGetPurpleAirOnce = false;
+    var runGetMicrosoftAirOnce = false;
+
     async function mapPurpleAirData(map) {
+
+        if (runGetPurpleAirOnce) {
+            return;
+        }
+        runGetPurpleAirOnce = true;
+
         let sampleData = [
             {
                 "link": "https://map.purpleair.com/1/mAQI/a10/p604800/cC0?key=4Z0L6SM6TMMYSTX0&select=27519#14/30.28559/-97.73693",
@@ -985,6 +1133,7 @@
                 title:pm10Mins,
             }) */
             markers.addLayer(circleMarker);
+            purpleAirMonitors.addLayer(circleMarker);
 
 
             buildAirDataPopup(circleMarker, popupData, description);
@@ -1155,6 +1304,12 @@
     }
 
     async function mapMicrosoftAirData(map) {
+
+        if(runGetMicrosoftAirOnce) {
+            return;
+        }
+        runGetMicrosoftAirOnce = true;
+
         let microsoftSerialNumber = [
             {
                 serial_number: 2032,
@@ -1254,6 +1409,8 @@
                  });
 
             markers.addLayer(circleMarker);
+            microsoftAirMonitors.addLayer(circleMarker);
+
 
             buildMicrosoftAirDataPopup(circleMarker, popupData, description);
         }
@@ -1315,6 +1472,99 @@
         return table;
     }
 
+    var poiMarkers = [];
+
+    function buildPOIMap() {
+
+        // Delete all markers
+        for (var i = 0; i < poiMarkers.length; i++) {
+            poiMarkers[i].remove();
+        }
+
+        var fireDept = document.querySelector(".firedept").checked;
+        var policeDept = document.querySelector(".policedept").checked;
+        var hospital = document.querySelector(".hospital").checked;
+
+
+        console.log("POI radio button clicked");
+        // display csv file from POI.csv
+        var filePath = '../data/POI.csv';
+        var result;
+        fetch(filePath)
+            .then(response => {
+            return response.text();
+        })
+        .then(data => {
+            result = data;
+            var lines = result.replace("\\", "").replace("\\\r","").split('\n');
+            var headers = lines[0].split(',');
+            var jsonResult = [];
+            for (var i = 1; i < lines.length; i++) {
+                var obj = {};
+                var currentline = lines[i].split(',');
+                var valid = true;
+                for (var j = 0; j < headers.length; j++) {
+                    if (currentline[j] == undefined) 
+                        valid = false;
+                    obj[headers[j]] = currentline[j];
+                }
+                if (valid) 
+                jsonResult.push(obj);
+            }
+            //console.log(jsonResult);
+            for (var i = 0; i < jsonResult.length; i++) {
+                console.log(jsonResult[i]);
+
+                var iconLink = "assets/images/firedept.png";
+                var type = "Fire";
+                if(jsonResult[i]["Jurisdiction Name"] == "APD") {
+                    iconLink = "assets/images/policedept.png";
+                    type = "Police";
+                }
+                else if(jsonResult[i]["Jurisdiction Name"] == "AHD") {
+                    iconLink = "assets/images/hospital.png";
+                    type = "Medical";
+                }
+
+                console.log("Type: " + type);
+
+                // Perform checkbox booleans
+                if(!fireDept && !policeDept && !hospital)
+                    continue
+                else if(!fireDept && !policeDept && hospital && type != "Medical")
+                    continue
+                else if(!fireDept && policeDept && !hospital && type != "Police")
+                    continue
+                else if(!fireDept && policeDept && hospital && type != "Police" && type != "Medical")
+                    continue
+                else if(fireDept && !policeDept && !hospital && type != "Fire")
+                    continue
+                else if(fireDept && !policeDept && hospital && type != "Fire" && type != "Medical")
+                    continue
+                else if(fireDept && policeDept && !hospital && type != "Fire" && type != "Police")
+                    continue
+                else if(fireDept && policeDept && hospital && type != "Fire" && type != "Police" && type != "Medical")
+                    continue
+                
+
+                var marker = L.marker([jsonResult[i].Y, jsonResult[i].X]).addTo(map);
+                // Change the icon to a custom icon
+                marker.setIcon(L.icon({
+                    iconUrl: iconLink,
+                    iconSize: [70, 70],
+                    iconAnchor: [10, 10],
+                    popupAnchor: [25, -10]
+                }));
+
+                marker.bindPopup( type + " Station: " + jsonResult[i].Name);
+
+                // store marker in array to be deleted later
+                poiMarkers.push(marker);
+                
+            }
+        });
+    }
+
     function buildDropdownMenu(map) {
         var checkList = document.getElementById('filter-menu');
         checkList.getElementsByClassName('anchor')[0].onclick = function (evt) {
@@ -1327,6 +1577,18 @@
         var checkboxActiveFire = document.querySelector(".active-fire");
         checkboxActiveFire.addEventListener('click', function () {
             buildStatusToggleButton(map, checkboxActiveFire);
+        });
+
+        document.querySelector(".firedept").addEventListener('click', function () {
+            buildPOIMap();
+        });
+
+        document.querySelector(".policedept").addEventListener('click', function () {
+            buildPOIMap();
+        });
+
+        document.querySelector(".hospital").addEventListener('click', function () {
+            buildPOIMap();
         });
 
         var checkboxOneSmoke = document.querySelector(".one-hour-smoke");
@@ -1362,41 +1624,71 @@
 
         changeSmokeForecast(checkboxOneSmoke, onehourForecastGroup);
 
-        var checkLocation = document.querySelector(".option2");
+        /*var checkLocation = document.querySelector(".option2");
         checkLocation.addEventListener('click', function () {
             console.log("Checking location");
             getUserLocation();
-        });
+        }); */
 
         var checkboxPurpleAir = document.querySelector(".purple-air");
         checkboxPurpleAir.addEventListener('click', function () {
             if (checkboxPurpleAir.checked) {
                 purple_air_diaplay_flag = true
+                if(microsoft_air_display_flag) {
+                    map.removeLayer(purpleAirMonitors)
+                    map.removeLayer(microsoftAirMonitors)
+                    map.addLayer(markers)
+                }
+                else 
+                    map.addLayer(purpleAirMonitors)
             } else {
                 purple_air_diaplay_flag = false
+                if(microsoft_air_display_flag) {
+                    map.removeLayer(markers)
+                    map.addLayer(microsoftAirMonitors)
+                }
+                else 
+                    map.removeLayer(purpleAirMonitors)
             }
             // console.log(purple_air_diaplay_flag);
             // clear all markers and rebuild map layer
-            map.eachLayer(function (layer) {
+            /*map.eachLayer(function (layer) {
                 map.removeLayer(layer);
             });
             addMapLayer(map);
             mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
+        */
+
         });
 
         var checkboxMicrosoftAir = document.querySelector(".microsoft-air");
         checkboxMicrosoftAir.addEventListener('click', function () {
             if (checkboxMicrosoftAir.checked) {
                 microsoft_air_display_flag = true
+                if(purple_air_diaplay_flag) {
+                    map.removeLayer(microsoftAirMonitors)
+                    map.removeLayer(purpleAirMonitors)
+                    map.addLayer(markers)
+                }
+                else
+                    map.addLayer(microsoftAirMonitors)
             } else {
                 microsoft_air_display_flag = false
+                if(purple_air_diaplay_flag) {
+                    map.removeLayer(markers)
+                    map.addLayer(purpleAirMonitors)
+                }
+                else
+                    map.removeLayer(microsoftAirMonitors)
             }
             // clear all markers and rebuild map layer
-            map.eachLayer(function (layer) {
+            /*map.eachLayer(function (layer) {
                 map.removeLayer(layer);
             });
             addMapLayer(map);
             mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
+        */
+
         });
     }
 
@@ -1407,11 +1699,16 @@
                 shapefile_display_flag = this.value;
                 // console.log(shapefile_display_flag)
                 // clear all markers and rebuild map layer
-                map.eachLayer(function (layer) {
+                /*map.eachLayer(function (layer) {
                     map.removeLayer(layer);
                 });
                 addMapLayer(map);
                 mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
+                */
+               if(currentShapefile != null) 
+                    map.removeLayer(currentShapefile)
+                buildShapefile(map, shapefile_display_flag)
+
                 var checkboxOneSmoke = document.querySelector(".one-hour-smoke");
                 var checkboxTwoSmoke = document.querySelector(".two-hour-smoke");
                 var checkboxThreeSmoke = document.querySelector(".three-hour-smoke");
@@ -1435,6 +1732,10 @@
 
     new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
 
+    let inactive_flag = true;
+    let purple_air_diaplay_flag = true;
+    let microsoft_air_display_flag = true;
+
     addMapLayer(map);
 
     // map today's dp
@@ -1443,10 +1744,7 @@
     var today = new Date();
     var date = today.getFullYear() + '-' + ("0" + (today.getMonth() + 1)).slice(-2) + '-' + ("0" + today.getDate()).slice(-2);
     dateArray.push(date);
-    let inactive_flag = true;
     let shapefile_display_flag = "fire-risk-radio";
-    let purple_air_diaplay_flag = true;
-    let microsoft_air_display_flag = true;
     mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
     addShapefileRadioListener(map);
     buildSelectBar(map);
@@ -1457,33 +1755,6 @@
     map._layersMaxZoom = 19;
 
 
-    var markers = L.markerClusterGroup({
-        showCoverageOnHover: false,
-        //zoomToBoundsOnClick: false,
-        iconCreateFunction: function(cluster) {
-            var childCount = cluster.getChildCount();
-
-            var markers = cluster.getAllChildMarkers();
-            var sum = 0;
-            for (var i = 0; i < markers.length; i++) {
-                //console.log(markers[i]);
-                sum += markers[i].options.title;
-            }
-            var avg = sum / markers.length;
-
-    var c = ' marker-cluster-';
-    if (avg < 10) {
-        c += 'small';
-    } else if (avg < 100) {
-        c += 'medium';
-    } else {
-        c += 'large';
-    }
-
-    return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) });
-        }
-    });
-    map.addLayer(markers);
 
 
     // add zostera legend

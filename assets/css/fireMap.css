@@ -533,7 +533,7 @@ body {
     position: absolute;
     z-index: 1000;
     width: 200px;
-    top: 105%;
+    top: 57%;
     /* border-top: none; */
     text-align: left;
 
@@ -555,7 +555,9 @@ body {
 
 /* --------------------------Style of Air Quality Legend-------------------------- */
 .legend-wrapper {
-    position: relative;
+    position: absolute;
+    left: 0;
+    bottom: 0%;
 }
 
 .air-quality-legend {
@@ -580,9 +582,6 @@ body {
 }
 
 /* --------------------------Style of Fire Risk Legend-------------------------- */
-.legend-wrapper {
-    position: relative;
-}
 
 .fire-risk-legend {
     display: flex;
@@ -605,9 +604,6 @@ body {
 }
 
 /* --------------------------Style of Fire Risk Legend-------------------------- */
-.legend-wrapper {
-    position: relative;
-}
 
 .afd-legend {
     display: flex;

@@ -71,7 +71,7 @@
 		/>
 		<script src="https://unpkg.com/esri-leaflet-geocoder"></script>
 
-		<link rel="stylesheet" href="https://smartcity.tacc.utexas.edu/FireIncident/assets/css/style.css">
+		<link rel="stylesheet" href="assets/css/style.css">
 		<link rel="shortcut icon" href="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/favicon.ico">
 
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
@@ -423,21 +423,27 @@ Check My Location button code leaflet
 						<li><input style="margin-left: 15px;" type="checkbox" class="microsoft-air" checked />  MSR Air Quality Sensors </li>
 						<b><li>Shapefile</li></b>
 						<li><input style="margin-left: 15px;" type="radio" id="test-risk-radio" name="shapefile-radio" value="test-risk-radio"
-								checked />
+								 />
 								<label for="test-risk-radio">Fire Risk</label>
 							</li>
 						<li><input style="margin-left: 15px;" type="radio" id="afd-radio" name="shapefile-radio" value="afd-radio" />
-								<label for="afd-radio">AFD Converage</label>
+								<label for="afd-radio">AFD Coverage</label>
 						</li>
 						<li style="display:none"><input style="margin-left: 15px;"type="radio" id="hvi-radio" name="shapefile-radio" value="hvi-radio" />
 							<label for="hvi-radio">HVI Map</label>
 						</li>
-						<li><input style="margin-left: 15px;" type="radio" id="fire-risk-radio" name="shapefile-radio" value="fire-risk-radio" />
+						<li><input style="margin-left: 15px;" type="radio" id="fire-risk-radio" name="shapefile-radio" value="fire-risk-radio" checked />
 							<label for="fire-risk-radio">Vulnerability Map</label>
 						</li>
 						<li ><input style="margin-left: 15px;" type="radio" id="no-shapefile" name="shapefile-radio" value="none-radio" />
 							<label for="none-radio">None</label>
 						</li>
+						<b><li>Points of Interest</li></b>
+						<li><input style="margin-left: 15px;" type="checkbox" class="firedept"  />  Fire Departments </li>
+						<li><input style="margin-left: 15px;" type="checkbox" class="policedept"  />  Police Departments </li>
+						<li><input style="margin-left: 15px;" type="checkbox" class="hospital"  />  Hospitals </li>
+
+
 					</ul>
 				</div>
 
@@ -497,6 +503,11 @@ Check My Location button code leaflet
 					</div>
 				</div> -->
 			
+				<div id="filter-menu2" class="dropdown-check-list2" tabindex="100" style="position:relative; margin-top: 17px; margin-left: 15px;">
+					<a href="https://smartcity.tacc.utexas.edu/FireIncident/3D" style="text-decoration:none;">
+						<h3 style="position:relative; top: -20px; color:white"><b>3D</b></h3>
+					<!--<img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/stats.png" width="25px" height="25px"  xml:space="preserve"> </img>-->
+				</a>
 
 			</div>
 			
@@ -629,83 +640,6 @@ Check My Location button code leaflet
 		</div>
 -->
 		
-		<div class="page-wrapper">
-			<p class="page-title">Smart and community aware real time fire incident visualization and impact prediction</p>
-	
-			<p class="page-title">Active Fire Incident Map</p>
-			<p class="page-description">This page provides live weather information of active fire incident as an
-				interactive
-				map. Data is updated from <a href="https://www.austintexas.gov/fact/default.cfm">Austin Fire Incident
-					page</a>
-			</p>
-	
-			<div class="date-bar">
-				<div class="select-bar">
-					<div class="bar bar-grey">
-						<div class="option">Today</div>
-						<div class="option">Yesterday</div>
-						<div class="option">Past 3 Days</div>
-						<div class="option">Custom</div>
-					</div>
-					<div class="bar-outer">
-						<div class="bar bar-purple">
-							<div class="option">Today</div>
-							<div class="option">Yesterday</div>
-							<div class="option">Past 3 Days</div>
-							<div class="option">Custom</div>
-						</div>
-					</div>
-				</div>
-	
-				<div class="date-picker">
-					<label for="start">Start date:</label>
-					<input type="date" id="start" name="trip-start" min="2022-01-31">
-				</div>
-	
-				<!-- <div class="status-toggle"> </div> -->
-	
-				<div id="filter-menu" class="dropdown-check-list" tabindex="100">
-					<span class="anchor">Data Filter</span>
-					<ul class="items">
-						<li>- Fire Data -</li>
-						<li><input type="checkbox" class="active-fire" checked />Inactive Fire </li>
-						<li>- Smoke Data -</li>
-						<li><input type="checkbox" class="one-hour-smoke" checked />1 Hour Forecast </li>
-						<li><input type="checkbox" class="two-hour-smoke" checked />2 Hour Forecast </li>
-						<li><input type="checkbox" class="three-hour-smoke" checked />3 Hour Forecast </li>
-						<li>- Air Data -</li>
-						<li><input type="checkbox" class="purple-air" checked />PurpleAir Data</li>
-						<li><input type="checkbox" class="microsoft-air" checked />MSR Air Quality Sensors </li>
-						<li>- Shapefile -</li>
-						<li><input type="radio" id="fire-risk-radio" name="shapefile-radio" value="fire-risk-radio"
-								checked />
-							<label for="fire-risk-radio">Fire Vulnerability</label>
-						</li>
-						<li><input type="radio" id="afd-radio" name="shapefile-radio" value="afd-radio" />
-							<label for="afd-radio">AFD Converage</label>
-						</li>
-						<li><input type="radio" id="hvi-radio" name="shapefile-radio" value="hvi-radio" />
-							<label for="hvi-radio">HVI Map</label>
-						</li>
-						<li><input type="radio" id="no-shapefile" name="shapefile-radio" value="none-radio" />
-							<label for="none-radio">None</label>
-						</li>
-					</ul>
-				</div>
-	
-				<div class="select-bar" width="10%" style="margin-left:100px; width: 300px;">
-					<div class="bar bar-grey" style="width: 300px;">
-						<div class="option2" style="width: 300px;">Check my Location</div>
-					</div>
-					<div class="bar-outer2" style="width: 300px;">
-						<div class="bar bar-purple bar-purple2" style="width: 300px;">
-							<div class="option2" style="width: 300px;">Check my Location</div>
-						</div>
-					</div>
-				</div>
-	
-			</div>
-			
 			
 			<div class="legend-wrapper">
 				<div class="air-quality-legend" style="margin-top: -50px;">
@@ -867,9 +801,9 @@ Check My Location button code leaflet
 
 		<link
 		rel="stylesheet"
-		href="https://smartcity.tacc.utexas.edu/FireIncident/assets/css/fireMap.css"
+		href="assets/css/fireMap.css"
 		/>
-		<script src="https://smartcity.tacc.utexas.edu/FireIncident/assets/js/fireMap.js"></script>
+		<script src="assets/js/fireMap.js"></script>
 
 		<!-- Google Cloud Firebase
 		<script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>

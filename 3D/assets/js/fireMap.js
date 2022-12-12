@@ -1,3 +1,7 @@
+
+var activeFires = []
+var inactiveFires = []
+
 // Mapbox GL Support- layer groups
 function toggleLayerCustom(ids, bool) {
     console.log(ids);
@@ -8,9 +12,36 @@ function toggleLayerCustom(ids, bool) {
             //if (visibility === 'visible') {
                 try{
             if(bool){
-                map.setLayoutProperty(ids[layers], 'visibility', 'visible');
+                ids[layers]._element.style.visibility = "visible";
+                //map.setLayoutProperty(ids[layers], 'visibility', 'visible');
             } else {
-                map.setLayoutProperty(ids[layers], 'visibility', 'none');
+                ids[layers]._element.style.visibility = "hidden";
+
+                //map.setLayoutProperty(ids[layers], 'visibility', 'none');
+            }
+                } catch (err) {
+                    console.log(err);
+                }
+         }
+    };
+
+// Mapbox GL Support- layer groups
+function toggleLayerCustom1(ids, bool) {
+    console.log(ids);
+    console.log(bool);
+        for (layers in ids){
+            //var visibility = map.getLayoutProperty(ids[layers], 'visibility');
+            //console.log(visibility);
+            //if (visibility === 'visible') {
+                try{
+            if(bool){
+                ids[layers].world.visible = true;
+                ids[layers].update();
+                //map.setLayoutProperty(ids[layers], 'visibility', 'visible');
+            } else {
+                ids[layers].world.visible = false;
+                ids[layers].update();
+                //map.setLayoutProperty(ids[layers], 'visibility', 'none');
             }
                 } catch (err) {
                     console.log(err);
@@ -25,6 +56,7 @@ function toggleLayerCustom(ids, bool) {
     .then(function (csv) {
         console.log(csv);
         proxyURL = csv;
+        proxyURL = "../data/generated/"
         return csv;
     })
 
@@ -87,9 +119,13 @@ function toggleLayerCustom(ids, bool) {
         for (let i = 0; i < dateArray.length; i++) {
             try{
                 let date = dateArray[i];
-                let jsonUrl = 'https://smartcity.tacc.utexas.edu/data/' + date + '-FireMap' + cities[city] + '.json';
+                //let jsonUrl = 'https://smartcity.tacc.utexas.edu/data/' + date + '-FireMap' + cities[city] + '.json';
+                //let jsonUrl = 'demoFireMap.json';
+                let jsonUrl = '../../data/' + date + '-FireMap.json';
                 let response = await fetch(jsonUrl);
                 let currentData = await response.json();
+
+                console.log(currentData);
 
                 
                 // console.log(i);
@@ -116,7 +152,7 @@ function toggleLayerCustom(ids, bool) {
             } else {
                 // loop through each data point
                 fireData.forEach(data => {
-                    if ((inactive_flag === false && data.active_status === "yes") || inactive_flag === true) {
+                    //if ((inactive_flag === false && data.active_status === "yes") || inactive_flag === true) {
                         try { 
                         processData(data)
                         }
@@ -125,7 +161,8 @@ function toggleLayerCustom(ids, bool) {
                         }
                     }
 
-                });
+                //}
+                );
             }
         }
 
@@ -171,17 +208,24 @@ function toggleLayerCustom(ids, bool) {
 
         weatherDataAPI = 'https://api.weather.gov/points/' + longNLatString;
 
+        const el = document.createElement('div');
+
         let icon = activeFireIcon;
         if (data.active_status != "yes") {
             icon = deactiveFireIcon
+            el.className = 'marker1';
+        } else {
+            el.className = 'marker';
         }
-        //var marker = L.marker(longNLatArray, { icon: icon }).addTo(map);
-        // add mapbox marker
-        const el = document.createElement('div');
-        el.className = 'marker';
         var marker = new mapboxgl.Marker(el)
         .setLngLat(longNLatArray.reverse())
         .addTo(map);
+
+        if (data.active_status != "yes") {
+            inactiveFires.push(marker);
+        } else {
+            activeFires.push(marker);
+        }
 
 
         getWeatherAPI(weatherDataAPI, marker, data, windDirectionIcon, windDirections, angles, longNLatArray, longNLatString);
@@ -288,22 +332,23 @@ function toggleLayerCustom(ids, bool) {
                 // });
 
                     console.log("STYLE LOAD");
-                    forecastGroup.push(KMLstring)
+                    //forecastGroup.push(KMLstring)
                     var track = {
                         id: KMLstring,
                         type: 'custom',
                         renderingMode: '3d',
                         onAdd: function (map, mbxContext) {
         
-                            window.tb = new Threebox(
+                            tb = new Threebox(
                                 map,
                                 mbxContext,
                                 { defaultLights: true }
                             );
                             console.log("ADDED :3")
+                            forecastGroup.push(tb)
         
                             var options = {
-                                obj: proxyURL + KMLstring.substring(KMLstring.indexOf("data/") + 5),
+                                obj:  "../data/generated/" + KMLstring.substring(KMLstring.indexOf("data/") + 5),
                                 type: 'fbx',
                                 scale: 0.006,
                                 units: 'meters',
@@ -335,8 +380,9 @@ function toggleLayerCustom(ids, bool) {
                     //map.on('load', function () {
                         console.log("LOAD....");
                         map.addLayer(track);
+                        console.log(track)
                         try {
-                        changeSmokeForecast(document.querySelector(".one-hour-smoke"), onehourForecastGroup);
+                        //changeSmokeForecast(document.querySelector(".one-hour-smoke"), onehourForecastGroup);
                         }
                         catch (e) {
                             console.log(e);
@@ -590,6 +636,87 @@ function toggleLayerCustom(ids, bool) {
         });*/
     }
 
+    
+    function getToday() {
+        document.getElementById("CurrentSelectedDate").textContent = "⠀ ⠀᠎⠀ ⠀Today";
+        var datePicker = document.querySelector('.date-picker');
+        datePicker.style.display = 'none';
+                                // clear all markers and rebuild map layer
+                                /*map.eachLayer(function (layer) {
+                                    map.removeLayer(layer);
+                                });
+                                addMapLayer(map);*/
+                                // map today's fire data
+                                dateArray = [];
+                                var today = new Date();
+                                var date = today.getFullYear() + '-' + ("0" + (today.getMonth() + 1)).slice(-2) + '-' + ("0" + today.getDate()).slice(-2);
+                                dateArray.push(date);
+                                mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
+                                // show status toggle button and uncheck checkbox
+                                //statusToggle.style.display = 'flex';
+                                //checkbox.checked = false;
+    }
+
+    function getYesterday() {
+        document.getElementById("CurrentSelectedDate").textContent = "⠀ ⠀᠎⠀ ⠀Yesterday";
+        var datePicker = document.querySelector('.date-picker');
+        datePicker.style.display = 'none';
+                        // clear all markers and rebuild map layer
+                        /*map.eachLayer(function (layer) {
+                            map.removeLayer(layer);
+                        });
+                        addMapLayer(map);*/
+                        // map yesterday's fire data
+                        dateArray = [];
+                        var today = new Date();
+                        var date = today.getFullYear() + '-' + ("0" + (today.getMonth() + 1)).slice(-2) + '-' + ("0" + (today.getDate() - 1)).slice(-2);
+                        dateArray.push(date);
+                        mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
+                        //statusToggle.style.display = 'none';
+
+                    }
+
+
+    function get3Days() {
+        document.getElementById("CurrentSelectedDate").textContent = "⠀ ⠀᠎⠀ ⠀Last 3 Days";
+        var datePicker = document.querySelector('.date-picker');
+        datePicker.style.display = 'none';
+                        // clear all markers and rebuild map layer
+                        /*map.eachLayer(function (layer) {
+                            map.removeLayer(layer);
+                        });
+                        addMapLayer(map);*/
+                        // map fire data of past 3 days 
+                        dateArray = [];
+                        var today = new Date();
+                        for (let i = 0; i < 3; i++) {
+                            var date = today.getFullYear() + '-' + ("0" + (today.getMonth() + 1)).slice(-2) + '-' + ("0" + (today.getDate() - i)).slice(-2);
+                            dateArray.push(date);
+                        }
+                        mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
+                        //statusToggle.style.display = 'none';
+
+    }
+
+    function getCustom() {
+        document.getElementById("CurrentSelectedDate").textContent = "⠀ ⠀᠎⠀ ⠀Custom";
+
+        var datePicker = document.querySelector('.date-picker');
+        datePicker.style.display = 'none';
+        // add event listener
+        datePicker.addEventListener('change', (event) => {
+            // clear all markers and rebuild map layer
+            /*map.eachLayer(function (layer) {
+                map.removeLayer(layer);
+            });
+            addMapLayer(map);*/
+            mapFireIncident(map, [event.target.value], inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag)
+        })
+                                // show date selector
+                                datePicker.style.display = 'block';
+                                //statusToggle.style.display = 'none';
+    }
+
 
     function buildSelectBar(map) {
         // set up value of date picker
@@ -692,12 +819,14 @@ function toggleLayerCustom(ids, bool) {
     }
 
     function buildStatusToggleButton(map, checkbox) {
-        checkbox.addEventListener('click', function (e) {
+        //checkbox.addEventListener('click', function (e) {
             // checkbox checked => all fire
             if (checkbox.checked) {
                 inactive_flag = true;
+                toggleLayerCustom(inactiveFires, inactive_flag);
             } else {
                 inactive_flag = false;
+                toggleLayerCustom(inactiveFires, inactive_flag);
             }
             // clear all markers and rebuild map layer
             map.eachLayer(function (layer) {
@@ -711,7 +840,7 @@ function toggleLayerCustom(ids, bool) {
             dateArray.push(date);
             mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
 
-        })
+        //})
     }
 
     function buildShapefile(map, shapefile_display_flag) {
@@ -922,6 +1051,37 @@ function toggleLayerCustom(ids, bool) {
                 shpfile.addTo(map);
                 break;
 
+            case 'POI-radio':
+                // display csv file from POI.csv
+                var filePath = '../data/POI.csv';
+                var result;
+                fetch(filePath)
+                    .then(response => {
+                    return response.text();
+                })
+                .then(data => {
+                    result = data;
+                    var lines = result.split(' ');
+                    var headers = lines[0].split(',');
+                    var jsonResult = [];
+                    for (var i = 1; i < lines.length; i++) {
+                        var obj = {};
+                        var currentline = lines[i].split(',');
+                        for (var j = 0; j < headers.length; j++) {
+                            obj[headers[j]] = currentline[j];
+                        }
+                        jsonResult.push(obj);
+                    }
+                    //console.log(jsonResult);
+                    for (var i = 0; i < jsonResult.length; i++) {
+                        var marker = L.marker([jsonResult[i].lat, jsonResult[i].lon]).addTo(map);
+                        marker.bindPopup(jsonResult[i].name);
+                    }
+                });
+                break;
+
+
+
 
             case 'none-radio':
                 fireRiskLegend.style.display = 'none';
@@ -929,6 +1089,9 @@ function toggleLayerCustom(ids, bool) {
 
         }
     }
+
+    // make mapbox marker group
+    var airMarkers = [];
 
     async function mapPurpleAirData(map) {
         let sampleData = [
@@ -1053,9 +1216,16 @@ function toggleLayerCustom(ids, bool) {
             .setHTML(buildAirDataPopup(airMarker, popupData, description)))
             .addTo(map);
 
+            if(!purple_air_diaplay_flag)
+            airMarker._element.style.visibility = "hidden";
+
             airMarker.getElement().children[0].innerHTML = ` \
             <circle cx="12" cy="12" r="12" fill="${color}" stroke="white" stroke-width="1" /> \
             `;
+
+            // Add to marker cluster group
+            //markers.addLayer(airMarker);
+            airMarkers.push(airMarker);
 
             
             // var circleMarker = new L.marker([popupData.latitude, popupData.longitude],
@@ -1362,7 +1532,7 @@ function toggleLayerCustom(ids, bool) {
 
             // markers.addLayer(circleMarker);
 
-            buildMicrosoftAirDataPopup(circleMarker, popupData, description);
+            //buildMicrosoftAirDataPopup(circleMarker, popupData, description);
         }
     }
     function buildMicrosoftAirDataPopup(marker, popupData, description) {
@@ -1442,52 +1612,54 @@ function toggleLayerCustom(ids, bool) {
 
         checkboxOneSmoke.addEventListener('click', function () {
             changeSmokeForecast(checkboxOneSmoke, onehourForecastGroup);
+            console.log("one hour smoke");
         });
         checkboxTwoSmoke.addEventListener('click', function () {
             changeSmokeForecast(checkboxTwoSmoke, twohourForecastGroup);
+            console.log("two hour smoke");
         });
         checkboxThreeSmoke.addEventListener('click', function () {
             changeSmokeForecast(checkboxThreeSmoke, threehourForecastGroup);
+            console.log("three hour smoke");
         });
 
-        function changeSmokeForecast(checkbox, forecastGroup) {
+        function changeSmokeForecast(checkbox, forecastGroup1) {
             // Clear other smoke forecast layers,
             // add relevant KML for current forecast
-            console.log(forecastGroup);
 
             if (checkbox.checked) {
-                //map.removeLayer(onehourForecastGroup);
-                toggleLayerCustom(onehourForecastGroup, false)
-                //map.removeLayer(twohourForecastGroup);
-                toggleLayerCustom(twohourForecastGroup, false)
-                //map.removeLayer(threehourForecastGroup);
-                toggleLayerCustom(threehourForecastGroup, false)
+                toggleLayerCustom1(onehourForecastGroup, false)
+                toggleLayerCustom1(twohourForecastGroup, false)
+                toggleLayerCustom1(threehourForecastGroup, false)
                 checkboxOneSmoke.checked = false;
                 checkboxTwoSmoke.checked = false;
                 checkboxThreeSmoke.checked = false;
                 checkbox.checked = true;
-                //forecastGroup.addTo(map);
-                toggleLayerCustom(forecastGroup, true)
+                toggleLayerCustom1(forecastGroup1, true)
             } else {
-                //map.removeLayer(forecastGroup);
-                toggleLayerCustom(forecastGroup, false)
+                toggleLayerCustom1(forecastGroup1, false)
             }
+
         }
 
-        changeSmokeForecast(checkboxOneSmoke, onehourForecastGroup);
+        changeSmokeForecast(checkboxThreeSmoke, onehourForecastGroup);
 
-        var checkLocation = document.querySelector(".option2");
+        /*var checkLocation = document.querySelector(".option2");
         checkLocation.addEventListener('click', function () {
             console.log("Checking location");
             getUserLocation();
-        });
+        });*/
 
         var checkboxPurpleAir = document.querySelector(".purple-air");
         checkboxPurpleAir.addEventListener('click', function () {
             if (checkboxPurpleAir.checked) {
                 purple_air_diaplay_flag = true
+                console.log("Toggle purple air on");
+                toggleLayerCustom(airMarkers, true)
             } else {
                 purple_air_diaplay_flag = false
+                console.log("Toggle purple air off");
+                toggleLayerCustom(airMarkers, false)
             }
             // console.log(purple_air_diaplay_flag);
             // clear all markers and rebuild map layer
@@ -1498,7 +1670,7 @@ function toggleLayerCustom(ids, bool) {
             mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
         });
 
-        var checkboxMicrosoftAir = document.querySelector(".microsoft-air");
+        /*var checkboxMicrosoftAir = document.querySelector(".microsoft-air");
         checkboxMicrosoftAir.addEventListener('click', function () {
             if (checkboxMicrosoftAir.checked) {
                 microsoft_air_display_flag = true
@@ -1511,7 +1683,7 @@ function toggleLayerCustom(ids, bool) {
             });
             addMapLayer(map);
             mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
-        });
+        });*/
     }
 
     function addShapefileRadioListener(map) {
@@ -1611,13 +1783,15 @@ function toggleLayerCustom(ids, bool) {
     });
 
 
-    map.on('load', function () {
+    /*map.on('load', function () {
         addShapefileRadioListener(map);
         buildSelectBar(map);
         buildDropdownMenu(map);
         mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
-    });
-    //mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
+    });*/
+    mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
+    buildDropdownMenu(map);
+
     //addShapefileRadioListener(map);
     //buildSelectBar(map);
     //buildDropdownMenu(map);
@@ -1862,8 +2036,32 @@ L.control.watermark({ position: 'bottomright' }).addTo(map);
     var spinner = document.getElementById('spinner');
     spinner.style.display = 'none';
 
+    document.getElementsByClassName( 'mapboxgl-ctrl-attrib' )[0].style.display = 'none';
+    document.getElementsByClassName( 'mapboxgl-ctrl-logo' )[0].style.display = 'none';
+    document.getElementsByClassName( 'mapboxgl-ctrl-scale' )[0].style.display = 'none';
+
+    // wait until the page load
+    window.onload = function() {
+        // get the element
+        while (document.getElementById('labelCanvas')) {
+            document.getElementById('labelCanvas').remove();
+        }
+    }
+    // while there still exist elements
+    // with id 'labelCanvas', remove them
+    while (document.getElementById('labelCanvas')) {
+        document.getElementById('labelCanvas').remove();
+    }
+
+    map.on('load', function () {
+        while (document.getElementById('labelCanvas')) {
+            document.getElementById('labelCanvas').remove();
+        }
+    });
 
 
+    var datePicker = document.querySelector('.date-picker');
+    datePicker.style.display = 'none';
     //buildWeeklyLineChart();
     //buildWeeklyColumnChart();
     //buildPerHourBoxChart();
