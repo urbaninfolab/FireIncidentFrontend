@@ -936,7 +936,11 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                 }
                 fetch(filePath)
                     .then(response => {
-                    return response.json();
+                    
+                    // Replace all instances of "NaN" with 0
+                    var text = response.text().replace(/NaN/g, 0);
+                    return text;
+//                    return response.json();
                 })
                 .then(jsondata => result = jsondata);
                 if(cachedShapefile == null) {
@@ -1759,7 +1763,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
     let inactive_flag = true;
     let purple_air_diaplay_flag = true;
-    let microsoft_air_display_flag = true;
+    let microsoft_air_display_flag = false;
 
     addMapLayer(map);
 
