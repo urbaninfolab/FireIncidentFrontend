@@ -924,7 +924,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
             case 'test-risk-radio':
                 shapefileName = "../data/firerisk.shp.zip";
                 var filePath = '../data/AverageFire.json';
-                var result;
+                var result = window.AverageFire;
                 cities = {
                     '48453' : '',  // Austin
                     '48113' : 'Dallas',
@@ -934,15 +934,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                     '98101' : 'Seattle',
                     '48503' : 'ElPaso'
                 }
-                fetch(filePath)
-                    .then(response => {
-                    
-                    // Replace all instances of "NaN" with 0
-                    var text = response.text().replace(/NaN/g, 0);
-                    return text;
-//                    return response.json();
-                })
-                .then(jsondata => result = jsondata);
+
                 if(cachedShapefile == null) {
                 shpfile = new L.Shapefile(shapefileName, {
                     onEachFeature: function (feature, layer) {
@@ -951,6 +943,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                         //console.log(cities[feature.properties["ctid"].substring(0, 5)] + " average " + averageNum)
 
                         if (averageNum == undefined) {
+                            console.log("undefined")
                             averageNum = 0;
                         }
 
@@ -994,6 +987,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                 else {
                     shpfile = cachedShapefile;
                 }
+           
                 // hide fire risk legend
                 document.getElementById('fireRiskType').innerHTML = "Urban Fire Risk: "
                 fireRiskLegend.style.display = 'flex';
@@ -1125,7 +1119,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
             let airApiUrl = 'https://api.purpleair.com/v1/sensors/' + sensorKey + '?api_key=81D9ACDC-966F-11EC-B9BF-42010A800003';
 
-            console.log(airApiUrl);
+            //console.log(airApiUrl);
             // Hit URL when user clicks on marker
             circleMarker.on('click', async function (e) {
                 
@@ -2000,4 +1994,15 @@ L.control.watermark({ position: 'bottomright' }).addTo(map);
     //buildWeeklyLineChart();
     //buildWeeklyColumnChart();
     //buildPerHourBoxChart();
+
+    fetch('../data/AverageFire.json').then(response => {
+        // Replace all instances of "NaN" with 0
+        return response.text().then(text => text.replace(/NaN/g, 0));
+        }).then(jsondata => {
+
+        result = JSON.parse(jsondata)
+        console.log(result)
+
+        window.AverageFire = result;
+    });
 
