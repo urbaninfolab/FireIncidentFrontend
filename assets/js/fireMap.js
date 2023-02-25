@@ -789,9 +789,10 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                     
                 })
                 // hide fire risk legend
-                //fireRiskLegend.style.display = 'flex';
-                //afdLegend.style.display = 'none';
-                //hviLegend.style.display = 'none';
+                document.getElementById('fireRiskType').innerHTML = "Wildfire Fire Risk: "
+                fireRiskLegend.style.display = 'flex';
+                afdLegend.style.display = 'none';
+                hviLegend.style.display = 'none';
                 shpfile.addTo(map);
                 currentShapefile = shpfile;
                 break;
@@ -833,9 +834,9 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                         // }
                     }
                 })
-                //afdLegend.style.display = 'flex';
-                //fireRiskLegend.style.display = 'none';
-                //hviLegend.style.display = 'none';
+                afdLegend.style.display = 'flex';
+                fireRiskLegend.style.display = 'none';
+                hviLegend.style.display = 'none';
                 shpfile.addTo(map);
                 currentShapefile = shpfile;
                 break;
@@ -873,9 +874,9 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                 // color by exposure, color map by 5 colors
 
 
-                //hviLegend.style.display = 'flex';
-                //afdLegend.style.display = 'none';
-                //fireRiskLegend.style.display = 'none';
+                hviLegend.style.display = 'flex';
+                afdLegend.style.display = 'none';
+                fireRiskLegend.style.display = 'none';
                 shpfile.addTo(map);
                 currentShapefile = shpfile;
                 break;
@@ -990,9 +991,10 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                     shpfile = cachedShapefile;
                 }
                 // hide fire risk legend
-                //fireRiskLegend.style.display = 'flex';
-                //afdLegend.style.display = 'none';
-                //hviLegend.style.display = 'none';
+                document.getElementById('fireRiskType').innerHTML = "Urban Fire Risk: "
+                fireRiskLegend.style.display = 'flex';
+                afdLegend.style.display = 'none';
+                hviLegend.style.display = 'none';
                 shpfile.addTo(map);
                 cachedShapefile = shpfile;
                 currentShapefile = shpfile;
@@ -1003,6 +1005,9 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                 //fireRiskLegend.style.display = 'none';
                 //afdLegend.style.display = 'none';
                 currentShapefile = null;
+                fireRiskLegend.style.display = 'none';
+                afdLegend.style.display = 'none';
+                hviLegend.style.display = 'none';
                 break;
 
         }
@@ -1049,7 +1054,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
             for(city in cities) {
                 let latlng = cities[city];
                 let jsonUrl = 'https://api.purpleair.com/v1/sensors?api_key=81D9ACDC-966F-11EC-B9BF-42010A800003&nwlat=' + 
-                latlng[0] + '&selat=' + latlng[1] + '&nwlng=' + latlng[2] + '&selng=' + latlng[3] + '&fields=latitude,longitude,altitude';
+                latlng[0] + '&selat=' + latlng[1] + '&nwlng=' + latlng[2] + '&selng=' + latlng[3] + '&fields=latitude,longitude,altitude,pm2.5_10minute';
                 let response = await fetch(jsonUrl);
                 let currentData = await response.json();
 
@@ -1081,31 +1086,11 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
         for (let i = 0; i < airData.length; i++) {
             let data = airData[i];
             let sensorKey = data[0];
-            let longNLatArray = [data[1], data[2]];
-
-            let airApiUrl = 'https://api.purpleair.com/v1/sensors/' + sensorKey + '?api_key=81D9ACDC-966F-11EC-B9BF-42010A800003';
-            let response = await fetch(airApiUrl);
-            let popupData = await response.json();
-            popupData = popupData.sensor;
-
-            var pm10Mins = popupData.stats["pm2.5_10minute"];
+            let longNLatArray = [data[1], data[2]]; //fetched like [index,long,lat,alt,pm25]...
+            var pm10Mins = data[4];
             let colorNDes = getPMDescription(pm10Mins)
             var color = colorNDes[0];
             var description = colorNDes[1];
-
-            var title = pm10Mins;
-            /*var circleMarker = L.circleMarker([popupData.latitude, popupData.longitude], { 
-                title: title,
-                icon: L.divIcon({
-                    className: 'my-custom-icon',
-                    html: popupData.stats["pm2.5_10minute"],
-                }),
-                color: color,
-                fillColor: color,
-                fillOpacity: 0.5,
-                radius: 15,
-             })*/
-            //circleMarker.bindPopup(title);
 
             var c = ' marker-cluster-';
             if (color == "#00e400") {
@@ -1116,7 +1101,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                 c += 'large';
             }
             
-            var circleMarker = new L.marker([popupData.latitude, popupData.longitude],
+            var circleMarker = new L.marker([longNLatArray[0], longNLatArray[1]],
             { 
                 icon: L.divIcon({
                     html: '<div><span><b>' + pm10Mins + '</b></span></div>',
@@ -1126,19 +1111,39 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                 title:pm10Mins,
              });
 
-            /*var circleMarker = L.circleMarker([popupData.latitude, popupData.longitude], {
-                color: color,
-                fillColor: color,
-                radius: 15,
-                title:pm10Mins,
-            }) */
+            circleMarker.bindPopup("<div id=" + sensorKey + " >", {
+                maxWidth : 201,
+                minWidth: 201
+            });;
+
             markers.addLayer(circleMarker);
             purpleAirMonitors.addLayer(circleMarker);
 
+            let airApiUrl = 'https://api.purpleair.com/v1/sensors/' + sensorKey + '?api_key=81D9ACDC-966F-11EC-B9BF-42010A800003';
 
-            buildAirDataPopup(circleMarker, popupData, description);
+            console.log(airApiUrl);
+            // Hit URL when user clicks on marker
+            circleMarker.on('click', async function (e) {
+                
+                console.log("clicked on marker " + sensorKey)
+
+                let response = await fetch(airApiUrl);
+                let popupData = await response.json();
+                popupData = popupData.sensor;
+
+                buildAirDataPopup(circleMarker, popupData, description);
+                // Check if marker has popup
+                // if (circleMarker.getPopup()) {
+                //     // If it does, close it
+                //     circleMarker.closePopup();
+                // } else {
+                //     // If it doesn't, open it
+                //     circleMarker.openPopup();
+                // }
+
+            });
+
         }
-
 
 
 
@@ -1161,6 +1166,8 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
     function buildAirDataPopup(marker, popupData, description) {
         // console.log(popupData);
+
+        var sensorKey = popupData.sensor_index; //sensor index
 
         let unixTimestamp = popupData.last_modified;
         var a = new Date(unixTimestamp * 1000);
@@ -1187,6 +1194,8 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
         // insert bold ending brace at end of colon
         //airMarkerPopup.replace(":", ":</b>");
+        // Get length of Pm2.5_10minute
+        var pmLength = popupData.stats["pm2.5_10minute"].toString().length;
 
         airMarkerPopup += `
         <span style="
@@ -1194,7 +1203,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
             color: grey;
             position: absolute;
             top: 50px;
-            right: 40px;
+            right: 10px;
         "> μg/m <sup>3</sup>
         </span>`
 
@@ -1213,11 +1222,27 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
         </div>
         `;
 
+        console.log(airMarkerPopup);
 
+        // Clear the current click event
+        //marker.on('click', function (e) {});
 
-        marker.bindPopup(airMarkerPopup, {
-            maxWidth : 201
-        });;
+        //marker.bindPopup(airMarkerPopup, {
+        //    maxWidth : 201
+        //});;
+        document.getElementById(sensorKey).innerHTML = airMarkerPopup;
+        console.log("got far")
+        //marker.openPopup();
+        //if (marker.getPopup())
+        //    console.log("got popup")
+        // No marker is popping up, fix this
+        // marker.on('click', function (e) {
+        //     console.log("clicked on marker " + sensorKey)
+        //     // Check if marker has popup
+        //     if (marker.getPopup()) {
+        //         // If it does, close it
+        //         marker.closePopup();
+
     }
 
     // build air table for next 5 hours

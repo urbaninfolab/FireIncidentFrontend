@@ -420,7 +420,8 @@ Check My Location button code leaflet
 						<li><input style="margin-left: 15px;" type="checkbox" class="three-hour-smoke" checked />  3 Hour Forecast </li>
 						<b><li>Air Data</li></b>
 						<li><input style="margin-left: 15px;" type="checkbox" class="purple-air" checked />  PurpleAir Data</li>
-						<li><input style="margin-left: 15px;" type="checkbox" class="microsoft-air" checked />  MSR Air Quality Sensors </li>
+						<!-- Microsoft seems to have pulled the rug on their air sensors -->
+						<li style="display: none;"><input style=" margin-left: 15px;" type="checkbox" class="microsoft-air" checked />  MSR Air Quality Sensors </li>
 						<b><li>Shapefile</li></b>
 						<li><input style="margin-left: 15px;" type="radio" id="test-risk-radio" name="shapefile-radio" value="test-risk-radio"
 								 />
@@ -433,7 +434,7 @@ Check My Location button code leaflet
 							<label for="hvi-radio">HVI Map</label>
 						</li>
 						<li><input style="margin-left: 15px;" type="radio" id="fire-risk-radio" name="shapefile-radio" value="fire-risk-radio" checked />
-							<label for="fire-risk-radio">Vulnerability Map</label>
+							<label for="fire-risk-radio">Fire Vulnerability Map</label>
 						</li>
 						<li ><input style="margin-left: 15px;" type="radio" id="no-shapefile" name="shapefile-radio" value="none-radio" />
 							<label for="none-radio">None</label>
@@ -735,14 +736,14 @@ Check My Location button code leaflet
 			</script>
 
 
-		<!--
+		
 			<div class="legend-wrapper">
 				<div class="fire-risk-legend">
 					<div style="background-color: white;">
-						<span>Fire Risk: </span>
+						<span id="fireRiskType">Fire Risk: </span>
 					</div>
 					<div style="background-color: red;">
-						<span>Highest</span>
+						<span style="color:#ffffff">Highest</span>
 					</div>
 					<div style="background-color: orange;">
 						<span>Elevated</span>
@@ -758,19 +759,19 @@ Check My Location button code leaflet
 						<span>AFD Response Rate: </span>
 					</div>
 					<div style="background-color: rgb(1, 106, 1);">
-						<span>90% and up</span>
+						<span style="color:#ffffff">90% and up</span>
 					</div>
 					<div style="background-color: #699d50;">
-						<span>80% ~ 89%</span>
+						<span style="color:#ffffff">80% ~ 89%</span>
 					</div>
 					<div style="background-color: orange;">
-						<span>70% ~ 79%</span>
+						<span style="color:#ffffff">70% ~ 79%</span>
 					</div>
 					<div style="background-color: #ff5500;">
-						<span>50% ~ 67%</span>
+						<span style="color:#ffffff">50% ~ 67%</span>
 					</div>
 					<div style="background-color: #704489;">
-						<span>Less than 50%</span>
+						<span style="color:#ffffff">Less than 50%</span>
 					</div>
 				</div>
 			</div>
@@ -796,7 +797,7 @@ Check My Location button code leaflet
 					</div>
 				</div>
 			</div>
-			-->
+		
 		</div>
 
 		<link

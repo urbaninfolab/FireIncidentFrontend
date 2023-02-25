@@ -612,14 +612,13 @@ body {
     flex-direction: row;
     justify-content: center;
     margin-top: -70px;
-    margin-left: 395px;
+    margin-left: 10px;
     z-index: 1000;
     position: absolute;
-    width: 670px;
 }
 
 .afd-legend div {
-    width: fit-content;
+    width: max-content;
 }
 
 .afd-legend div span {
@@ -633,7 +632,7 @@ body {
     flex-direction: row;
     justify-content: center;
     margin-top: -70px;
-    margin-left: 395px;
+    margin-left: 10px;
     z-index: 1000;
     position: absolute;
     width: 670px;
