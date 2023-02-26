@@ -1757,7 +1757,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
     let inactive_flag = true;
     let purple_air_diaplay_flag = true;
-    let microsoft_air_display_flag = false;
+    let microsoft_air_display_flag = true;
 
     addMapLayer(map);
 

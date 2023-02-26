@@ -49,19 +49,6 @@ function toggleLayerCustom1(ids, bool) {
          }
     };
 
-    var proxyURL = fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRyTN7e3Aile3mrre2h-eHfYBjW3zK8mcej5sUC4ZjyHiR0RpYSJB6PGkBwEmH7uzmNJPT9Xuv15f5P/pub?output=csv")
-    .then(function (response) {
-        return response.text();
-    })
-    .then(function (csv) {
-        console.log(csv);
-        proxyURL = csv;
-        proxyURL = "../data/generated/"
-        return csv;
-    })
-
-
-    
     //Input: map instance and an array of stringW
     async function mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag) {
 
@@ -298,7 +285,7 @@ function toggleLayerCustom1(ids, bool) {
                 rotationOrigin: 'center',
                 zIndexOffset: -1,
             }).addTo(map); */
-            addSmokeRegions(map, "../data/" + longNLatString)
+            addSmokeRegions(map, "https://generated.activefires.ml/" + longNLatString)
         }
 
     }
@@ -348,7 +335,7 @@ function toggleLayerCustom1(ids, bool) {
                             forecastGroup.push(tb)
         
                             var options = {
-                                obj:  "../data/generated/" + KMLstring.substring(KMLstring.indexOf("data/") + 5),
+                                obj:  "https://generated.activefires.ml/" + KMLstring.substring(KMLstring.indexOf("data/") + 5),
                                 type: 'fbx',
                                 scale: 0.006,
                                 units: 'meters',
@@ -1725,7 +1712,8 @@ function toggleLayerCustom1(ids, bool) {
     // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
     style: 'mapbox://styles/ryanhlewis/cl8dqj4dc000p14qij147mmi2',
     zoom: 12,
-    center: [-97.701180, 30.356635],
+    center: [-97.74605, 30.26928],
+
     pitch: 60,
     antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
     });
@@ -1745,7 +1733,7 @@ function toggleLayerCustom1(ids, bool) {
     let inactive_flag = true;
     let shapefile_display_flag = "fire-risk-radio";
     let purple_air_diaplay_flag = true;
-    let microsoft_air_display_flag = true;
+    let microsoft_air_display_flag = false;
 
 
     var markers = L.markerClusterGroup({

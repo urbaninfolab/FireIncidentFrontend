@@ -169,7 +169,8 @@
             "yAxisLabel": "Number of case"
         };
 
-        let jsonUrl = '../data/weeklySumChart.json';
+        //let jsonUrl = 'weeklySumChart.json';
+        let jsonUrl = 'https://smartcity.tacc.utexas.edu/data/weeklySumChart.json';
         let response = await fetch(jsonUrl);
         response_data = await response.json();
 
@@ -352,7 +353,7 @@
             "xAxisLabel": "Date",
             "yAxisLabel": "Number of case"
         };
-        let jsonUrl = '../../data/weekdayChart.json';
+        let jsonUrl = 'https://smartcity.tacc.utexas.edu/data/weekdayChart.json';
         let response = await fetch(jsonUrl);
         response_data = await response.json();
 
@@ -593,7 +594,7 @@
             "xAxisLabel": "Hour",
             "yAxisLabel": "Number of case"
         };
-        let jsonUrl = '../../data/perHourChart.json';
+        let jsonUrl = 'https://smartcity.tacc.utexas.edu/data/perHourChart.json';
         let response = await fetch(jsonUrl);
         response_data = await response.json();
 
@@ -677,18 +678,25 @@
     }
 
     async function buildSlider() {
-        let sliderJsonUrl = '../../data/title_by_day.json';
+        //let sliderJsonUrl = 'title_by_day.json';
+        let sliderJsonUrl = 'https://smartcity.tacc.utexas.edu/data/title_by_day.json';
         let sliderResponse = await fetch(sliderJsonUrl);
         slider_data = await sliderResponse.json();
+        console.log(slider_data)
         let minDateString = slider_data["minDate"].split('-');
         let maxDateString = slider_data["maxDate"].split('-');
         let fireTitleData = slider_data;
         delete slider_data["minDate"];
         delete slider_data["maxDate"];
+        // Hacky fix, until can implement new data.
+        //let minDateString = "2022-01-26".split('-');
+        //let maxDateString = "2022-05-12".split('-');
 
         let minDate = new Date(minDateString[0], parseInt(minDateString[1], 10) - 1, minDateString[2]);
         let maxDate = new Date(maxDateString[0], parseInt(maxDateString[1], 10) - 1, maxDateString[2]);
+        //let initialData = slider_data["2022-01-26"];
         let initialData = slider_data[Object.keys(slider_data)[0]];
+        //console.log(initialData)
         barChart.setData(initialData);
 
         $(function () {

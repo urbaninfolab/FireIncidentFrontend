@@ -49,18 +49,6 @@ function toggleLayerCustom1(ids, bool) {
          }
     };
 
-    var proxyURL = fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRyTN7e3Aile3mrre2h-eHfYBjW3zK8mcej5sUC4ZjyHiR0RpYSJB6PGkBwEmH7uzmNJPT9Xuv15f5P/pub?output=csv")
-    .then(function (response) {
-        return response.text();
-    })
-    .then(function (csv) {
-        console.log(csv);
-        proxyURL = csv;
-        proxyURL = "../data/generated/"
-        return csv;
-    })
-
-
     
     //Input: map instance and an array of stringW
     async function mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag) {
