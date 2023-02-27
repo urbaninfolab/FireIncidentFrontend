@@ -789,7 +789,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                     
                 })
                 // hide fire risk legend
-                document.getElementById('fireRiskType').innerHTML = "Wildfire Fire Risk: "
+                document.getElementById('fireRiskType').innerHTML = "Fire Vulnerability Risk: "
                 fireRiskLegend.style.display = 'flex';
                 afdLegend.style.display = 'none';
                 hviLegend.style.display = 'none';

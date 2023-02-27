@@ -174,6 +174,16 @@
         let response = await fetch(jsonUrl);
         response_data = await response.json();
 
+        // if "weekly_sum_categories" has more than 12 entries, delete
+        // all the entries at the start of the file until there are 
+        // only 12 left
+        if(response_data["weekly_sum_categories"].length > 12)
+            response_data["weekly_sum_categories"] = response_data["weekly_sum_categories"].slice(response_data["weekly_sum_categories"].length - 12);
+
+        // Do the same for "weekly_sum_series"[0]["data"]
+        if(response_data["weekly_sum_series"][0]["data"].length > 12)
+            response_data["weekly_sum_series"][0]["data"] = response_data["weekly_sum_series"][0]["data"].slice(response_data["weekly_sum_series"][0]["data"].length - 12);
+
         const el = document.getElementById('week-line-chart');
         const data = {
             categories: response_data.weekly_sum_categories,
@@ -356,6 +366,12 @@
         let jsonUrl = 'https://smartcity.tacc.utexas.edu/data/weekdayChart.json';
         let response = await fetch(jsonUrl);
         response_data = await response.json();
+
+        // If "weekday_series" has more than 12 entries, delete
+        // all the entries at the start of the file until there are
+        // only 12 left
+        if(response_data["weekday_series"].length > 12)
+            response_data["weekday_series"] = response_data["weekday_series"].slice(response_data["weekday_series"].length - 12);
 
         const el = document.getElementById('week-column-chart');
         const data = {
