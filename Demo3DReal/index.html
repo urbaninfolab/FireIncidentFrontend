@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- Include the CesiumJS JavaScript and CSS files -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.105.1/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.105.1/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://smartcity.tacc.utexas.edu/FireIncident/Demo3D/assets/css/fireMap.css">
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<style>
+    html,
+body,
+#cesiumContainer {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+</style>
+
+
+<body>
+
+    <section>
+        <div style="display: block; background-color: #bf1d00; height: 40px; text-align: center; user-select: none;">
+            
+            <div onclick="info()">
+            <!-- Fire Logo -->
+            <a href="#" onclick="info()" style="float: left; margin-right: 1rem; margin-top:0;">
+                <span style="margin-left: 10px; max-height: 25px; margin-top: -5px; display: block; max-width: 100%; height: auto;">
+                    <img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/firelogo.svg" width="50px" height="50px" xml:space="preserve"> 
+                </span>
+            </a>
+    
+            <!-- Fire Toggles -->
+    
+    
+            <h2 id="MapTitle" style="float: left; margin-right: 1rem; margin-top:5px; color: white;"><b><a style="color:white" href="#">Active Fire Incidents Map</a></b></h2>
+        </div>
+                                    <!--
+                                    <div id="get-help">
+                                            <p><a onclick="stats()" href="#">View Stats</a></p>
+                                            <p><a onclick="info()" href="#">More Information</a></p>
+                                    </div>
+                                    -->
+    
+                            
+            <!-- College/Project Branding -->
+            <a href="http://www.utexas.edu" style="float: right; margin-right: 1rem; margin-top:0;">
+                <span style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;color: #fff">University of Texas at Austin</span> 
+                <span style="max-height: 25px; margin-top: 9px; display: block; max-width: 100%; height: auto;">
+                    <svg id="UTexas" xmlns="http://www.w3.org/2000/svg" width="115px" height="25px" viewBox="0 0 154 34" xml:space="preserve">
+                        <g id="ShieldTexas" style="fill:#ffffff;">
+                            <path id="S" d="M148.3,14.1l-4.5-2c-2.1-0.9-3.7-2.3-3.7-4.4c0-2.6,1.8-4.3,4.9-4.3c2.3,0,3.6,0.9,4.6,1.9
+                                l1.1,3.6h2V3.6c-2-1.4-4.7-2.3-7.1-2.3c-5.4,1.1-9.3,3.6-9.3,7.9c0,3.5,2.3,5.3,5.1,6.5l4.7,2.1c2.3,1,4.1,2.5,4.1,5.2
+                                c0,2.9-2,5-5.3,5c-2.2,0-4.3-1-5.5-2.5l-1.4-3.3h-2.7l0.9,5.3c2.1,1.6,4.5,2.7,8.1,2.7c7.3-1.5,9.8-5.1,9.8-8.7
+                                C154,17.4,151.3,15.4,148.3,14.1z"></path>
+                            <path id="XA" d="M121.8,1.7l-2.3,0.7l-9.7,25.3l-1.9,0.3l-1.9-0.3l-8.7-12.8l8-11l3-0.4L108.2,2l-4.6,0.1
+                                L99.1,2l-0.2,1.4l3.4,0.5L96.1,13l-5.5-9.1l3.3-0.5L93.7,2l-5.5,0.2L82.6,2l-0.2,1.4l3,0.4L93.5,16l-8.4,11.6L82,28l0.2,1.4
+                                l4.4-0.1l4.6,0.1l0.2-1.4l-3.2-0.5l6.7-9.7l6.1,9.7L97.6,28l0.2,1.4l5.6-0.1l4.6,0.1l3.2-0.1l4.7,0.1l0.2-1.4l-3.4-0.5l2.5-7.3
+                                h9.6l2.7,7.3l-3.3,0.5l0.2,1.4l5.2-0.1l5.4,0.1l0.2-1.4l-3-0.4L121.8,1.7z M115.7,18.4l4-11.7l4.3,11.7H115.7z"></path>
+                            <polygon id="E" points="76.5,27.5 65.7,27.6 65.7,15.9 71.2,16 72.8,20.1 74.1,20.1 73.7,14.9 74.1,10
+                                72.8,10 71.2,14.1 65.7,14.2 65.7,3.9 76.1,4 78.3,9 79.6,9 79.2,2 63.7,2.1 58.3,2 58.1,3.4 61.6,3.9 61.6,27.6 58.1,28.1
+                                58.3,29.4 63.7,29.3 79.2,29.4 80.6,22.2 79.1,22.2 		"></polygon>
+                            <polygon id="T" points="33.5,2 33.5,8.9 35.1,8.9 36.9,4 42.7,3.9 42.7,27.6 38,28.1 38.2,29.4 44.8,29.3
+                                51.1,29.4 51.3,28.1 46.8,27.6 46.8,3.9 52.7,4 54.5,8.9 56,8.9 56,2 44.7,2.1 		"></polygon>
+                            <path id="Laurel" d="M21.7,21.3c-0.3,0.3-0.7,0.6-1.2,0.7c0.1-0.5,0.3-0.9,0.6-1.2c0.3-0.3,0.7-0.6,1.2-0.7
+                                C22.2,20.6,22,21,21.7,21.3L21.7,21.3z M20,18.7c-0.1-0.5,0-0.9,0.2-1.3c0.3,0.3,0.5,0.8,0.6,1.2c0.1,0.5,0,0.9-0.2,1.3
+                                C20.3,19.5,20.1,19.1,20,18.7L20,18.7z M21,15.2c-0.1-0.5,0-0.9,0.1-1.3c0.3,0.3,0.5,0.7,0.6,1.2c0.1,0.5,0,0.9-0.1,1.3
+                                C21.3,16,21,15.6,21,15.2L21,15.2z M23.1,16.2c0,0.5-0.1,0.9-0.3,1.3c-0.2,0.4-0.6,0.7-1,0.9c0-0.5,0.1-0.9,0.3-1.3
+                                C22.4,16.7,22.7,16.4,23.1,16.2L23.1,16.2z M19.8,24.8c-0.4,0.3-0.8,0.4-1.3,0.4c0.2-0.4,0.4-0.8,0.8-1.1c0.4-0.3,0.8-0.4,1.3-0.4
+                                C20.4,24.2,20.2,24.5,19.8,24.8L19.8,24.8z M18.7,21.9c0-0.5,0.2-0.9,0.5-1.3c0.2,0.4,0.3,0.8,0.3,1.3c0,0.5-0.2,0.9-0.5,1.3
+                                C18.8,22.8,18.7,22.3,18.7,21.9L18.7,21.9z M17.5,25c-0.1,0.4-0.4,0.8-0.7,1.1c-0.1-0.4-0.1-0.9,0-1.3c0.1-0.4,0.4-0.8,0.7-1.1
+                                C17.6,24,17.7,24.5,17.5,25L17.5,25z M18.2,27c-0.2,0.4-0.6,0.7-1,0.9C16.9,28,16.6,28,16.3,28l0,0c-0.1,0-0.3,0-0.4,0
+                                c0.2-0.4,0.6-0.7,1-0.9C17.3,26.9,17.8,26.9,18.2,27L18.2,27z M14.3,27.1c0.2-0.4,0.6-0.7,1-0.9c0,0.5,0,0.9-0.3,1.3
+                                c-0.2,0.4-0.6,0.7-1,0.9C13.9,28,14,27.5,14.3,27.1L14.3,27.1z M9.1,27.8c-0.4-0.2-0.8-0.5-1-0.9c0.4-0.1,0.9,0,1.3,0.2
+                                c0.4,0.2,0.8,0.5,1,0.9C10,28.1,9.6,28,9.1,27.8L9.1,27.8z M8.8,25c-0.1-0.4-0.1-0.9,0-1.3c0.4,0.3,0.6,0.7,0.7,1.1
+                                c0.1,0.4,0.1,0.9,0,1.3C9.2,25.8,8.9,25.4,8.8,25L8.8,25z M11.1,26.2c0.4,0.2,0.7,0.5,1,0.9c0.2,0.4,0.3,0.9,0.3,1.3
+                                c-0.4-0.2-0.7-0.5-1-0.9C11.2,27.1,11.1,26.6,11.1,26.2L11.1,26.2z M6.5,24.8c-0.4-0.3-0.7-0.6-0.8-1.1c0.5,0,0.9,0.2,1.3,0.4
+                                c0.4,0.3,0.7,0.6,0.8,1.1C7.4,25.2,6.9,25.1,6.5,24.8L6.5,24.8z M7.1,20.6c0.3,0.4,0.5,0.8,0.5,1.2c0,0.5-0.1,0.9-0.3,1.3
+                                c-0.3-0.4-0.5-0.8-0.5-1.3C6.8,21.5,6.9,21,7.1,20.6L7.1,20.6z M4.6,21.3c-0.3-0.3-0.5-0.8-0.6-1.2c0.4,0.1,0.8,0.3,1.2,0.7
+                                c0.3,0.3,0.5,0.8,0.6,1.2C5.3,21.9,4.9,21.7,4.6,21.3L4.6,21.3z M4.5,18.4c-0.4-0.2-0.8-0.5-1-0.9s-0.3-0.9-0.3-1.3
+                                c0.4,0.2,0.8,0.5,1,0.9C4.4,17.5,4.5,18,4.5,18.4L4.5,18.4z M4.6,15c0.1-0.5,0.3-0.9,0.6-1.2c0.2,0.4,0.2,0.9,0.1,1.3
+                                c-0.1,0.5-0.3,0.9-0.6,1.2C4.6,15.9,4.5,15.5,4.6,15L4.6,15z M5.5,18.5c0.1-0.5,0.3-0.9,0.6-1.2c0.2,0.4,0.3,0.9,0.2,1.3
+                                c-0.1,0.5-0.3,0.9-0.6,1.2C5.5,19.5,5.4,19,5.5,18.5L5.5,18.5z M21.7,19.1c0.7-0.2,1.3-0.7,1.7-1.3c0.4-0.6,0.5-1.4,0.3-2.1
+                                l-0.1-0.3l-0.3,0.1c-0.4,0.1-0.7,0.3-1,0.5c0.1-0.4,0.1-0.7,0-1.1c-0.1-0.7-0.5-1.4-1.1-1.8l-0.3-0.2l-0.2,0.3
+                                c-0.4,0.6-0.5,1.4-0.4,2.1c0.1,0.7,0.5,1.4,1.1,1.8c-0.1,0.2-0.2,0.5-0.2,0.8c-0.2-0.5-0.5-0.9-0.9-1.2l-0.3-0.2L20,16.7
+                                c-0.4,0.6-0.6,1.3-0.5,2.1c0.1,0.7,0.5,1.4,1,1.9l0,0c-0.2,0.2-0.3,0.5-0.4,0.7c-0.1-0.5-0.3-1-0.6-1.4l-0.2-0.3L19,19.9
+                                c-0.5,0.5-0.9,1.2-0.9,1.9c-0.1,0.7,0.2,1.5,0.6,2l0,0c-0.2,0.2-0.4,0.4-0.5,0.6c0-0.5-0.1-1-0.3-1.5l-0.1-0.3l-0.3,0.2
+                                c-0.6,0.4-1.1,1-1.3,1.7C16,25.3,16,26,16.4,26.7l0,0c-0.2,0.1-0.5,0.3-0.7,0.5c0.1-0.5,0.1-1,0-1.5l-0.1-0.3l-0.3,0.1
+                                c-0.7,0.2-1.3,0.7-1.6,1.4c-0.3,0.6-0.4,1.3-0.3,2c-0.1,0.1-0.2,0.1-0.3,0.2c-0.1-0.1-0.2-0.1-0.3-0.2c0.2-0.7,0.1-1.4-0.3-2
+                                c-0.4-0.6-0.9-1.1-1.6-1.4l-0.3-0.1l-0.1,0.3c-0.1,0.5-0.1,1,0,1.5c-0.2-0.2-0.4-0.4-0.7-0.5l0,0c0.3-0.7,0.4-1.4,0.2-2.1
+                                c-0.2-0.7-0.7-1.3-1.3-1.7l-0.3-0.2L8.4,23c-0.2,0.5-0.3,1-0.3,1.5C8,24.3,7.8,24,7.6,23.9l0,0c0.5-0.6,0.7-1.3,0.6-2
+                                c-0.1-0.7-0.4-1.4-0.9-1.9L7,19.7l-0.2,0.3c-0.3,0.4-0.5,0.9-0.6,1.4c-0.1-0.3-0.2-0.5-0.4-0.7l0,0c0.6-0.5,0.9-1.1,1-1.9
+                                C7,18,6.8,17.3,6.4,16.7l-0.2-0.3l-0.3,0.2c-0.4,0.3-0.7,0.8-0.9,1.2c0-0.3-0.1-0.5-0.2-0.8c0.6-0.4,1-1.1,1.1-1.8
+                                c0.1-0.7,0-1.5-0.4-2.1l-0.2-0.3l-0.3,0.2c-0.6,0.4-1,1.1-1.1,1.8c-0.1,0.4-0.1,0.7,0,1.1c-0.3-0.2-0.6-0.4-1-0.5l-0.3-0.1
+                                l-0.1,0.3c-0.2,0.7,0,1.5,0.3,2.1c0.4,0.6,1,1.1,1.7,1.3l0.3,0.1c0,0.2,0.1,0.5,0.2,0.7c-0.4-0.3-0.8-0.4-1.3-0.4l-0.3,0l0,0.3
+                                c0,0.7,0.3,1.4,0.7,2c0.5,0.5,1.2,0.9,1.9,0.9l0.3,0c0.1,0.2,0.2,0.4,0.3,0.6c-0.3-0.1-0.7-0.2-1-0.2c-0.1,0-0.2,0-0.4,0l-0.3,0
+                                L5,23.5c0.1,0.7,0.5,1.4,1.1,1.8c0.5,0.4,1.1,0.5,1.7,0.5c0.1,0,0.2,0,0.4,0l0.3,0C8.6,26,8.8,26.2,9,26.3c-0.5-0.1-0.9,0-1.4,0.1
+                                l-0.3,0.1l0.1,0.3c0.3,0.7,0.8,1.2,1.5,1.5c0.4,0.2,0.8,0.2,1.2,0.2c0.3,0,0.6-0.1,1-0.2l0.2-0.1c0.4,0.3,0.8,0.6,1.4,1
+                                c-0.3,0.2-0.6,0.4-0.9,0.6l0.6,0.4c0.3-0.2,0.6-0.4,0.9-0.6c0.3,0.2,0.5,0.4,0.9,0.6l0.6-0.4c-0.3-0.2-0.6-0.4-0.9-0.6
+                                c0.6-0.4,1-0.7,1.4-1l0.2,0.1c0.3,0.1,0.6,0.2,1,0.2l0,0c0.4,0,0.8-0.1,1.2-0.2c0.7-0.3,1.2-0.8,1.5-1.5l0.1-0.3l-0.3-0.1
+                                c-0.4-0.2-0.9-0.2-1.4-0.1c0.2-0.2,0.3-0.4,0.4-0.6l0.3,0c0.1,0,0.2,0,0.4,0l0,0c0.6,0,1.2-0.2,1.7-0.5c0.6-0.4,1-1.1,1.1-1.8
+                                l0.1-0.3l-0.3,0c-0.1,0-0.2,0-0.4,0c-0.3,0-0.7,0.1-1,0.2c0.1-0.2,0.2-0.4,0.3-0.6l0.3,0c0.7-0.1,1.4-0.4,1.9-0.9s0.8-1.2,0.7-2
+                                l0-0.3l-0.3,0c-0.5,0-0.9,0.2-1.3,0.4c0.1-0.2,0.1-0.4,0.2-0.7L21.7,19.1L21.7,19.1z"></path>
+                            <path id="Star" d="M12.4,16.9l0.8-2l0.8,2l2.1,0.1l-1.6,1.4l0.5,2.1l-1.8-1.1l-1.8,1.1l0.5-2.1l-1.6-1.4
+                                L12.4,16.9L12.4,16.9z M7.6,16.2L7.6,16.2l3.4,2.5l-1.3,4.1c0,0,0,0,0,0s0,0,0,0l3.5-2.5l3.5,2.5c0,0,0,0,0,0c0,0,0,0,0,0l-1.3-4
+                                l3.4-2.5l0,0c0,0,0,0,0,0c0,0,0,0,0,0v0h-4.2l-1.3-4h0c0,0,0,0,0,0c0,0,0,0,0,0h0l-1.3,4L7.6,16.2L7.6,16.2
+                                C7.6,16.2,7.6,16.2,7.6,16.2C7.6,16.2,7.6,16.2,7.6,16.2L7.6,16.2z"></path>
+                            <path id="Book" d="M16.6,8.5c-0.7-0.1-1.4-0.2-2-0.2c-0.3,0-0.6,0-0.9,0.1l-0.1-4V3.7
+                                c0.3-0.1,0.6-0.2,1.1-0.2c0.6,0,1.2,0.1,1.9,0.2c0.6,0.1,1.2,0.2,1.8,0.2l0.2,4.8C17.9,8.7,17.2,8.6,16.6,8.5L16.6,8.5z M9.8,8.5
+                                C9.1,8.6,8.5,8.7,7.9,8.7L8,3.9c0.6,0,1.2-0.1,1.8-0.2c0.7-0.1,1.3-0.2,1.9-0.2c0.4,0,0.8,0.1,1.1,0.2v0.7l-0.1,4
+                                c-0.3-0.1-0.5-0.1-0.9-0.1C11.2,8.3,10.5,8.4,9.8,8.5L9.8,8.5z M19.9,5.7V4.8h-0.6V3.2H19c-0.8,0-1.6-0.1-2.4-0.2
+                                c-0.7-0.1-1.4-0.2-2-0.2c-0.6,0-1.1,0.1-1.5,0.3c-0.4-0.2-0.9-0.3-1.5-0.3c-0.6,0-1.3,0.1-2,0.2C9,3.1,8.2,3.2,7.4,3.2H7v1.6H6.4
+                                v0.9H7v1.2H6.4v0.9H7v1.7h0.4c0.9,0,1.7-0.1,2.5-0.3C10.6,9.1,11.2,9,11.8,9c0.4,0,0.8,0.1,1,0.2l0,0h0.7l0,0
+                                c0.3-0.1,0.6-0.2,1-0.2c0.6,0,1.2,0.1,1.9,0.2c0.8,0.1,1.7,0.3,2.5,0.3h0.4V7.8h0.6V6.9h-0.6V5.7H19.9L19.9,5.7z M9.9,4.4V5
+                                c0,0,0,0,0,0C9.5,5.1,9.1,5.1,8.7,5.2l0-0.6c0.4,0,0.7-0.1,1.1-0.1C9.8,4.4,9.8,4.4,9.9,4.4L9.9,4.4z M10.3,4.4V5
+                                c0.6-0.1,1.2-0.2,1.8-0.1l0-0.6C11.6,4.2,11,4.3,10.3,4.4L10.3,4.4z M9.9,7.2c0,0-0.1,0-0.1,0C9.4,7.3,9,7.3,8.6,7.4l0,0.6
+                                c0.4,0,0.9-0.1,1.3-0.2c0,0,0,0,0,0V7.2L9.9,7.2z M10.3,7.1v0.6c0.6-0.1,1.2-0.1,1.7-0.1L12,7C11.5,7,10.9,7,10.3,7.1L10.3,7.1z
+                                    M9.8,5.8v0.6c0,0,0,0,0.1,0c0.8-0.1,1.6-0.2,2.2-0.2l0-0.6C11.4,5.6,10.6,5.7,9.8,5.8L9.8,5.8z M9.3,5.9C9.1,5.9,8.9,5.9,8.6,6
+                                l0,0.6c0.2,0,0.5-0.1,0.7-0.1V5.9L9.3,5.9z M15.8,4.3c-0.5-0.1-1-0.1-1.5-0.1l0,0.6c0.4,0,0.9,0,1.5,0.1V4.3L15.8,4.3z M17.7,4.6
+                                c-0.4,0-0.7-0.1-1.1-0.1c-0.1,0-0.3,0-0.4-0.1V5c0.1,0,0.2,0,0.3,0c0.4,0.1,0.8,0.1,1.2,0.2L17.7,4.6L17.7,4.6z M15.6,5.7
+                                c-0.5-0.1-0.9-0.1-1.3-0.1l0,0.6c0.4,0,0.8,0,1.3,0.1V5.7L15.6,5.7z M17.7,6c-0.4,0-0.8-0.1-1.1-0.2c-0.2,0-0.3-0.1-0.5-0.1v0.6
+                                c0.1,0,0.3,0,0.4,0.1c0.4,0.1,0.8,0.1,1.2,0.2L17.7,6L17.7,6z M16.6,7.8C17,7.9,17.4,7.9,17.8,8l0-0.6c-0.4,0-0.8-0.1-1.2-0.2
+                                c0,0,0,0-0.1,0V7.8L16.6,7.8z M16.1,7.1C15.5,7.1,14.9,7,14.4,7l0,0.6c0.5,0,1.1,0,1.7,0.1V7.1L16.1,7.1z"></path>
+                            <path id="ShieldOutline" d="M21.8,25.5c-0.6,0.9-1.3,1.7-2.2,2.6c-2.6,2.4-5.6,3.8-6.4,4.1
+                                c-0.8-0.3-3.8-1.7-6.4-4.1c-0.9-0.8-1.6-1.7-2.2-2.6c-3-4.4-3.4-9.4-3.4-13.4h0l12-0.7l12,0.7C25.2,16.1,24.8,21.2,21.8,25.5
+                                L21.8,25.5z M1.9,2c2.2-0.2,7.2-0.7,11.3-0.7c4.1,0,9.1,0.5,11.3,0.7l0.6,8.8h-12h-12L1.9,2L1.9,2z M26.4,1l-0.5-0.1
+                                C25.8,0.9,18.7,0,13.2,0c0,0,0,0,0,0c0,0,0,0,0,0C7.7,0,0.6,0.9,0.5,0.9L0,1v9.8h0v1.4c0,4.1,0.4,9.4,3.6,14.1
+                                c0.7,1,1.4,1.8,2.3,2.7l0,0c0,0,0,0,0,0c1.7,1.7,4,3.2,7.3,5v0c0,0,0,0,0,0c0,0,0,0,0,0v0c3.3-1.8,5.5-3.4,7.3-5c0,0,0,0,0,0v0
+                                c0.9-0.9,1.6-1.7,2.3-2.7c3.2-4.7,3.6-10,3.6-14.1v-0.2h0V1L26.4,1z"></path>
+                        </g>
+                    </svg>
+                </span>
+            </a>
+    
+            <div style="float: right; margin-right: 2rem; margin-top:-10px;" class="date-bar">
+                <!--
+                    <div class="select-bar">
+                        <div class="bar bar-grey">
+                            <div class="option">Today</div>
+                            <div class="option">Yesterday</div>
+                            <div class="option">Past 3 Days</div>
+                            <div class="option">Custom</div>
+                        </div>
+                        <div class="bar-outer">
+                            <div class="bar bar-purple">
+                                <div class="option">Today</div>
+                                <div class="option">Yesterday</div>
+                                <div class="option">Past 3 Days</div>
+                                <div class="option">Custom</div>
+                            </div>
+                        </div>
+                    </div>
+        -->
+                    <div class="date-picker" style="display: none;">
+                        <!--<label for="start">Start date:</label>-->
+                        <input type="date" id="start" name="trip-start" min="2022-01-31">
+                    </div>
+        
+                    <!-- <div class="status-toggle"> </div> -->
+        
+                    <div id="filter-menu" class="dropdown-check-list" tabindex="100">
+                        <span class="anchor">᠎⠀ ⠀᠎⠀ ⠀</span>
+                        
+                        <ul class="items">
+                            <b><li>Fire Data</li></b>
+                            <li><input style="margin-left: 15px;" type="checkbox" class="active-fire" checked="">  Inactive Fire </li>
+                            <b><li>Smoke Data</li></b>
+                            <li><input style="margin-left: 15px;" type="checkbox" class="one-hour-smoke" checked="">  1 Hour Forecast </li>
+                            <li><input style="margin-left: 15px;" type="checkbox" class="two-hour-smoke" checked="">  2 Hour Forecast </li>
+                            <li><input style="margin-left: 15px;" type="checkbox" class="three-hour-smoke" checked="">  3 Hour Forecast </li>
+                            <b><li>Air Data</li></b>
+                            <li><input style="margin-left: 15px;" type="checkbox" class="purple-air" checked="">  PurpleAir Data</li>
+                            <!--
+                            <li><input style="margin-left: 15px;" type="checkbox" class="microsoft-air" checked />  MSR Air Quality Sensors </li>
+                            <b><li>Shapefile</li></b>
+                            <li><input style="margin-left: 15px;" type="radio" id="test-risk-radio" name="shapefile-radio" value="test-risk-radio"
+                                    checked />
+                                    <label for="test-risk-radio">Fire Risk</label>
+                                </li>
+                            <li><input style="margin-left: 15px;" type="radio" id="afd-radio" name="shapefile-radio" value="afd-radio" />
+                                    <label for="afd-radio">AFD Converage</label>
+                            </li>
+                            <li style="display:none"><input style="margin-left: 15px;"type="radio" id="hvi-radio" name="shapefile-radio" value="hvi-radio" />
+                                <label for="hvi-radio">HVI Map</label>
+                            </li>
+                            <li><input style="margin-left: 15px;" type="radio" id="fire-risk-radio" name="shapefile-radio" value="fire-risk-radio" />
+                                <label for="fire-risk-radio">Vulnerability Map</label>
+                            </li>
+                            <li ><input style="margin-left: 15px;" type="radio" id="no-shapefile" name="shapefile-radio" value="none-radio" />
+                                <label for="none-radio">None</label>
+                            </li>
+                            -->
+                        </ul>
+                    </div>
+        
+                    <div id="filter-menu2" class="dropdown-check-list2" tabindex="100" style="position:relative; margin-top: 17px; margin-left: 15px;">
+                        <a onclick="stats()" href="#">
+                        <img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/stats.png" width="25px" height="25px" xml:space="preserve"> 
+                    </a>
+    
+                    </div>
+        
+                    <div class="dropdown">
+    
+                    <div id="filter-menu1" class="dropdown-check-list1" tabindex="100">
+                        <span id="CurrentSelectedDate" class="anchor" type="button" data-toggle="dropdown" style="user-select: none">⠀ ⠀᠎⠀ ⠀Today</span>
+    
+                        <ul class="dropdown-menu" style=" user-select: none">
+                            <li><a onclick="getToday()" href="#" class="option">Today</a></li>
+                            <li><a onclick="getYesterday()" href="#" class="option">Yesterday</a></li>
+                            <li><a onclick="get3Days()" href="#" class="option">Past 3 Days</a></li>
+                            <li><a onclick="getCustom()" href="#" class="option">Custom</a></li>
+                          </ul>
+                        <!--
+                        <ul class="items">
+    
+                        <div class="select-bar">
+                        <div class="bar bar-grey" style="color: black; display: block;">
+                            <div class="option1">Today</div>
+                            <div class="option1">Yesterday</div>
+                            <div class="option1">Past 3 Days</div>
+                            <div class="option1">Custom</div>
+                        </div>
+                        <div class="bar-outer">
+                            <div class="bar bar-purple" style="color: black; display: block;">
+                                <div class="option1">Today</div>
+                                <div class="option1">Yesterday</div>
+                                <div class="option1">Past 3 Days</div>
+                                <div class="option1">Custom</div>
+                            </div>
+                        </div>
+                    </div>
+        
+    
+                        </ul>
+                        -->
+                    </div>
+                    </div>
+                    <!--
+                    <div class="select-bar" width="10%" style="margin-left:100px; width: 300px;">
+                        <div class="bar bar-grey" style="width: 300px;">
+                            <div class="option2" style="width: 300px;">Check my Location</div>
+                        </div>
+                        <div class="bar-outer2" style="width: 300px;">
+                            <div class="bar bar-purple bar-purple2" style="width: 300px;">
+                                <div class="option2" style="width: 300px;">Check my Location</div>
+                            </div>
+                        </div>
+                    </div> -->
+    
+                    <div id="filter-menu" class="dropdown-check-list2" tabindex="100" style="position:relative; margin-top: 17px; margin-left: 15px;">
+                        <a href="https://smartcity.tacc.utexas.edu/FireIncident/Demo2D" style="text-decoration:none;">
+                            <h3 style="position:relative; top: -20px; color:white"><b>2D</b></h3>
+                        <!--<img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/stats.png" width="25px" height="25px"  xml:space="preserve"> </img>-->
+                    </a>
+    
+                    </div>
+                
+    
+                </div>
+                
+    
+    
+    
+    
+            <a href="http://goodsystems.utexas.edu" style="display: none; float: right; margin-right: 1rem; margin-top:0;">
+                <span style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;color: #fff">University of Texas at Austin</span> 
+                <span style="max-height: 25px; margin-top: 9px; display: block; max-width: 100%; height: auto;">
+                    <img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/goodsystems.svg" width="115px" height="25px" xml:space="preserve"> 
+                </span>
+            </a>
+        </div>
+    </section>
+
+  <div id="cesiumContainer" style="position: absolute;"></div>
+  <script>
+    // Your access token can be found at: https://ion.cesium.com/tokens.
+    // This is the default access token from your ion account
+
+    // Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3ODhiN2NhYi02NzgxLTQ2OWQtOTAzMi02ZTgwYmNjMGJmYjYiLCJpZCI6MTM4NjUzLCJpYXQiOjE2ODQxMTUyNDV9.yzVSoiedb3diO7rOG9kd9Luuamx4Wjnieson-zb3vvk';
+
+    // // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
+    // const viewer = new Cesium.Viewer('cesiumContainer', {
+    //   terrainProvider: Cesium.createWorldTerrain()
+    // });    
+    // // Add Cesium OSM Buildings, a global 3D buildings layer.
+    // const buildingTileset = viewer.scene.primitives.add(Cesium.createOsmBuildings());   
+
+    
+        Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3ODhiN2NhYi02NzgxLTQ2OWQtOTAzMi02ZTgwYmNjMGJmYjYiLCJpZCI6MTM4NjUzLCJpYXQiOjE2ODQxMTUyNDV9.yzVSoiedb3diO7rOG9kd9Luuamx4Wjnieson-zb3vvk";
+
+        Cesium.GoogleMaps.defaultApiKey = "AIzaSyDV0rBF5y2f_xsSNj32fxvhqj3ZErTt6HQ";
+
+        const viewer = new Cesium.Viewer("cesiumContainer", {
+            globe: false,
+        });
+
+
+    async function createGooglePhotorealistic3DTileset() {
+        try {
+        const tileset = await Cesium.createGooglePhotorealistic3DTileset();
+        window.tileset = tileset;
+        viewer.scene.primitives.add(tileset);
+
+        //plotPoint(tileset, 30.285337, -97.7397203);
+
+        fetchAllData();
+        //fetchPurpleAirData();
+
+        } catch (error) {
+        console.log(`Failed to load tileset: ${error}`);
+        }
+    }
+
+
+    createGooglePhotorealistic3DTileset();
+
+
+
+function plotPoint(tileset, lat, lng) {
+    // Get position from lat/lon
+    const position = Cesium.Cartesian3.fromDegrees(lng, lat, 10000); // Assume initial altitude of 10,000m
+
+    // Cast a ray from position to the center of the Earth
+    const ray = new Cesium.Ray(position, Cesium.Cartesian3.negate(Cesium.Cartesian3.fromDegrees(lng, lat), new Cesium.Cartesian3()));
+    
+    // Intersect the ray with the tileset
+    const intersection = viewer.scene.pickFromRay(ray, [tileset]);
+
+    if (Cesium.defined(intersection)) {
+        const clampPosition = intersection.position;
+        // Subtract 10m from the altitude so the billboard does not clip into the ground
+        clampPosition.z -= 30;
+        clampPosition.y += 30;
+        clampPosition.x += 20;
+
+        // Add the billboard
+        viewer.entities.add({
+            position: clampPosition,
+            billboard: {
+                image: 'https://smartcity.tacc.utexas.edu/FireIncident/assets/images/fire.png',
+                //verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                scale: 0.1,
+                // Allow see through everything by doing allowing any depth
+                pixelSize: 10,
+                outlineWidth: 3,
+
+                verticalOrigin: Cesium.VerticalOrigin.CENTER,
+                // Disable depth testing so the billboard will not be occluded by terrain
+                disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            },
+            // Instead of a billboard, you can add a marker pin
+            // point: {
+            //     // with the image of a pin
+            //     color: Cesium.Color.WHITE,
+            //     pixelSize: 10,
+            //     outlineColor: Cesium.Color.WHITE,
+            //     outlineWidth: 3,
+            //     disableDepthTestDistance: Number.POSITIVE_INFINITY,
+            // }
+
+        });
+    } else {
+        console.log('No intersection found');
+        // Do it again in 1 second
+        setTimeout(() => plotPoint(tileset, lat, lng), 1000);
+
+    }
+}
+
+
+
+var originalPosition = Cesium.Cartesian3.fromDegrees(-97.739720, 30.285337);
+
+// You will need to adjust these values to suit your needs.
+var offset = new Cesium.Cartesian3(-250, -80, -200); // Adjust this offset to get the right position.
+var position = Cesium.Cartesian3.add(originalPosition, offset, new Cesium.Cartesian3());
+
+var hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(90), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
+var orientation = Cesium.Transforms.headingPitchRollQuaternion(position, hpr);
+
+var entity = viewer.entities.add({
+    position : position,
+    orientation : orientation,
+    model : {
+        uri : '30.285337,-97.7397203.glb',
+        minimumPixelSize : 12,
+        maximumScale : 20,
+        scale : 0.005,
+        color: new Cesium.Color(0, 0, 0, 0.9), // Black color with 0.5 alpha
+        colorBlendMode : Cesium.ColorBlendMode.MIX,
+        colorBlendAmount : 0.5,
+        //silhouetteColor : Cesium.Color.RED,
+        //silhouetteSize : 2.0,
+        opacity : 0.4,
+    }
+});
+
+
+function fetchAllData() {
+
+// Use the Fetch API to get the data
+fetch('https://smartcity.tacc.utexas.edu/FireIncident/data/2022-08-08-FireMap.json')
+    .then(response => response.json())
+    .then(data => {
+        // data now contains the JSON data from the URL
+
+        // Parse the data
+        let items = data.rss.channel.item;
+        console.log(items);
+
+        // Loop over each item
+        for (let item of items) {
+            // Get the link to the .fbx file
+            let link = item.link;
+            console.log(link);
+            // replace http://maps.google.com/maps?q= with nothing
+            let latLng = link.replace("http://maps.google.com/maps?q=", "");
+            let [lat, lng] = latLng.split(",");
+            console.log(lat, lng);
+
+            // plot the fire on the map
+            plotPoint(window.tileset, parseFloat(lat), parseFloat(lng));
+            
+            // load and display the fbx file
+            //let modelUrl = `https://smartcity.tacc.utexas.edu/FireIncident/data/generated/${latLng}.fbx3`;
+            //console.log(modelUrl);
+            let modelUrl = `${latLng}.glb`;
+            //let modelUrl = `30.285337,-97.7397203.glb`;
+            let position = Cesium.Cartesian3.fromDegrees(parseFloat(lng), parseFloat(lat));
+            let offset = new Cesium.Cartesian3(-250, -80, -200); 
+            let finalPosition = Cesium.Cartesian3.add(position, offset, new Cesium.Cartesian3());
+            let hpr = new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(90), Cesium.Math.toRadians(0), Cesium.Math.toRadians(0));
+            let orientation = Cesium.Transforms.headingPitchRollQuaternion(finalPosition, hpr);
+
+            // Make a clickable popup
+            let popup = `<h3>Fire Incident</h3>
+            <p>Location: ${latLng}</p>
+            <p>Time: ${item.pubDate}</p>
+            <p>Link: <a href="${link}">${link}</a></p>
+            <p>Model: <a href="${modelUrl}">${modelUrl}</a></p>
+            `;
+
+            viewer.entities.add({
+                position : finalPosition,
+                orientation : orientation,
+                model : {
+                    uri : modelUrl,
+                    minimumPixelSize : 12,
+                    maximumScale : 20,
+                    scale : 0.005,
+                    color: new Cesium.Color(0, 0, 0, 0.9),
+                    colorBlendMode : Cesium.ColorBlendMode.MIX,
+                    colorBlendAmount : 0.5,
+                    opacity : 0.4,
+                }            
+            })
+
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+
+
+}
+
+
+// Hit https://api.purpleair.com/v1/sensors?api_key=81D9ACDC-966F-11EC-B9BF-42010A800003&nwlat=30.747879&selat=29.978325&nwlng=-98.056977&selng=-97.357011&fields=latitude,longitude,altitude,pm2.5_10minute
+// and add the PurpleAir sensors as markers on the map
+function fetchPurpleAirData() {
+
+    // Use the Fetch API to get the data
+    fetch('https://api.purpleair.com/v1/sensors?api_key=81D9ACDC-966F-11EC-B9BF-42010A800003&nwlat=30.747879&selat=29.978325&nwlng=-98.056977&selng=-97.357011&fields=latitude,longitude,altitude,pm2.5_10minute')
+        .then(response => response.json())
+        .then(data => {
+            // data now contains the JSON data from the URL
+
+            // Parse the data
+            let sensors = data.data;
+            console.log(sensors);
+
+            // Loop over each item
+            for (let sensor of sensors) {
+                // Get the link to the .fbx file
+                let lat = sensor.latitude;
+                let lng = sensor.longitude;
+                let pm25 = sensor["pm2.5_10minute"];
+                console.log(lat, lng, pm25);
+
+                // plot the fire on the map
+                //plotPoint(window.tileset, parseFloat(lat), parseFloat(lng));
+
+                // Make a clickable popup
+                // let popup = `<h3>PurpleAir Sensor</h3>
+                // <p>Location: ${lat}, ${lng}</p>
+                // <p>PM2.5: ${pm25}</p>
+                // `;
+
+                viewer.entities.add({
+                    position : Cesium.Cartesian3.fromDegrees(parseFloat(lng), parseFloat(lat)),
+                    // Instead of a billboard, you can add a marker pin
+                    point: {
+                        // with the image of a pin
+                        color: Cesium.Color.WHITE,
+                        pixelSize: 10,
+                        outlineColor: Cesium.Color.WHITE,
+                        outlineWidth: 3,
+                        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+                    }
+
+                })
+
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+
+    }
+
+
+
+// fly camera to model
+viewer.flyTo(entity, {
+    offset : new Cesium.HeadingPitchRange(0.0, -0.5, 2000.0)
+});
+
+
+    // Fly the camera to Austin, Texas at the given longitude, latitude, and height.
+    // viewer.camera.flyTo({
+    //   destination : Cesium.Cartesian3.fromDegrees(-97.7431, 30.2672, 1000.0),
+    //   orientation : {
+    //     heading : Cesium.Math.toRadians(0.0),
+    //     pitch : Cesium.Math.toRadians(-15.0),
+    //   }
+    // });
+
+    
+
+    var scene = viewer.scene;
+    var canvas = viewer.canvas;
+    var handler = new Cesium.ScreenSpaceEventHandler(canvas);
+    var annotations = scene.primitives.add(new Cesium.LabelCollection());
+
+
+    // handler.setInputAction(function(movement) {
+    //     // Add annotation showing the height at the click location
+    //     var feature = scene.pick(movement.position);
+    //     console.log(movement.position)
+    //     if (Cesium.defined(feature) && scene.pickPositionSupported) {
+    //         var cartesian = scene.pickPosition(movement.position);
+    //         console.log(cartesian)
+    //         var cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+    //         console.log(cartographic)
+    //         var height = cartographic.height.toFixed(2) + ' m';
+
+    //         annotations.add({
+    //             position : cartesian,
+    //             text : height,
+    //             horizontalOrigin : Cesium.HorizontalOrigin.LEFT,
+    //             verticalOrigin : Cesium.VerticalOrigin.BOTTOM,
+    //             eyeOffset : new Cesium.Cartesian3(0.0, 0.0, -1.0)
+    //         });
+    //     }
+
+
+    // }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+
+    // Make a function that takes in latlng coordinates and plots them on the map
+    // async function plotPoint(lat, lng) {
+
+    //     // Plot a point using 3D Tiles ClampToGround
+    //     // Just make a marker with logo 'https://smartcity.tacc.utexas.edu/FireIncident/assets/images/fire.png',
+    //     // at the given latlng coordinates
+
+
+
+    //     // Make a Cesium billboard
+    //     // var billboards = viewer.scene.primitives.add(new Cesium.BillboardCollection());
+
+        
+    //     // // Add a billboard with the given latlng coordinates
+    //     // var cartesian = Cesium.Cartesian3.fromDegrees(lng, lat);
+
+    //     // positions = []
+
+    //     // Clamptoheight
+    //     // scene.postRender.addEventListener(async function () {
+    //     //     var yay = await viewer.scene.clampToHeightMostDetailed(cartesian);
+    //     //     //var yay = scene.clampToHeight(cartesian);
+    //     //     //console.log(hey);
+    //     //     console.log(yay);
+
+    //     //     // Add billboard, dont add again if already added
+    //     //     if(yay == undefined || positions.includes(lat + "," + lng)) {
+    //     //         console.log("already added");
+    //     //         return;
+    //     //     }
+
+    //     //     billboards.add({
+    //     //         position : yay,
+    //     //         image : 'https://smartcity.tacc.utexas.edu/FireIncident/assets/images/fire.png',
+    //     //         scale : 0.1,
+    //     //         show: true, // default
+    //     //         disableDepthTestDistance : Number.POSITIVE_INFINITY,
+    //     //         clampToGround: true
+    //     //     });
+
+    //     //     viewer.entities.add({
+    //     //         position : yay,
+    //     //         label : {
+    //     //             text : 'Fire Incident',
+    //     //             font : '14pt monospace',
+    //     //             style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+    //     //             outlineWidth : 2,
+    //     //             verticalOrigin : Cesium.VerticalOrigin.BOTTOM,
+    //     //             pixelOffset : new Cesium.Cartesian2(0, -9)
+    //     //         },
+    //     //         clampToGround: true
+    //     //     });
+
+    //     //     positions.push(lat + "," + lng);
+
+    //     // });
+    
+
+    //     // Use Cesium.sampleTerrainMostDetailed to get the height of the terrain at the given latlng coordinates
+    //     // var height = Cesium.sampleTerrainMostDetailed(viewer.terrainProvider, [position]).then(function(updatedPositions) {
+    //     //     console.log(updatedPositions[0].height);
+    //     //     return updatedPositions[0].height;
+    //     // });
+
+    //     // height is still a promise, so we need to await it
+    //     // height = await height;
+    //     // console.log(height);
+
+    // }
+
+    // remove all cesium UI
+    // classes include cesium-viewer-bottom, cesium-viewer-toolbar, cesium-viewer-animationContainer, cesium-viewer-timelineContainer
+    // cesium-viewer-fullscreenContainer, cesium-viewer-geocoderContainer, cesium-viewer-home-button, cesium-viewer-baseLayerPicker
+    // cesium-viewer-infoBoxContainer, cesium-viewer-selectionIndicatorContainer, cesium-viewer-navigationHelpButton
+    // cesium-viewer-creditsContainer, cesium-viewer-cesiumCreditContainer
+    document.getElementsByClassName("cesium-viewer-toolbar")[0].style.display = "none";
+    document.getElementsByClassName("cesium-viewer-animationContainer")[0].style.display = "none";
+    document.getElementsByClassName("cesium-viewer-timelineContainer")[0].style.display = "none";
+    document.getElementsByClassName("cesium-viewer-fullscreenContainer")[0].style.display = "none";
+    document.getElementsByClassName("cesium-viewer-geocoderContainer")[0].style.display = "none";
+    document.getElementsByClassName("cesium-viewer-infoBoxContainer")[0].style.display = "none";
+    document.getElementsByClassName("cesium-viewer-selectionIndicatorContainer")[0].style.display = "none";
+
+
+
+
+  </script>
+ </div>
+</body>
+</html>
