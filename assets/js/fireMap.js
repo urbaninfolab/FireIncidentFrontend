@@ -1065,21 +1065,6 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
         }
 
 
-        // Austin
-        //let sensorApiUrl = 'https://api.purpleair.com/v1/sensors?api_key=81D9ACDC-966F-11EC-B9BF-42010A800003&nwlat=30.747879&selat=29.978325&nwlng=-98.056977&selng=-97.357011&fields=latitude,longitude,altitude';
-        // Dallas
-        //let sensorApiUrl = 'https://api.purpleair.com/v1/sensors?api_key=81D9ACDC-966F-11EC-B9BF-42010A800003&nwlat=33.277373&selat=32.386557&nwlng=-97.530442&selng=-96.398095&fields=latitude,longitude,altitude';
-        // Houston
-        //let sensorApiUrl = 'https://api.purpleair.com/v1/sensors?api_key=81D9ACDC-966F-11EC-B9BF-42010A800003&nwlat=30.037817&selat=29.537246&nwlng=-95.734526&selng=-94.948479&fields=latitude,longitude,altitude';
-        // San Antonio
-        //let sensorApiUrl = 'https://api.purpleair.com/v1/sensors?api_key=81D9ACDC-966F-11EC-B9BF-42010A800003&nwlat=29.567989&selat=29.229396&nwlng=-98.683366&selng=-98.262682&fields=latitude,longitude,altitude';
-
-        //let response = await fetch(sensorApiUrl);
-        //let sensorData = await response.json();
-
-        //let airData = sensorData.data;
-        // let airData = sampleData;
-
 
         for (let i = 0; i < airData.length; i++) {
             let data = airData[i];
