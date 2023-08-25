@@ -356,7 +356,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
     }
 
     function addMapLayer(map) {
-        L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=GiZ6x9ufTTvbNzpIWAX8', {
+        L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=JR1fKbu7BwZJc1QN0A5Y', {
             attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
         }).addTo(map);
         console.log("BEING CALLED");
