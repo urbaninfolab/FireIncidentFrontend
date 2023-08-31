@@ -1,7 +1,7 @@
 /*
 Real-Time Fire Incident Map
 
-Created under Dr. Jiao's Urban Information Lab
+Created under Dr. Jiao's Urban Information Lab.
 */
 
 var activeFires = new L.FeatureGroup();
