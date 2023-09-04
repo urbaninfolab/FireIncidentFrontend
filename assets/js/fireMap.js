@@ -1152,7 +1152,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
         var sensorKey = popupData.sensor_index; //sensor index
 
-        let unixTimestamp = popupData.last_modified;
+        let unixTimestamp = popupData.last_seen;
         var a = new Date(unixTimestamp * 1000);
         var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         var year = a.getFullYear();
