@@ -497,10 +497,10 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
     function getUserLocation() {
         navigator.geolocation.getCurrentPosition(onLocationFound);
 
-        /*navigator.geolocation.watchPosition(onLocationFound, onLocationError, {
-        maximumAge: 60000,
-        timeout: 2000
-        });*/
+        // navigator.geolocation.watchPosition(onLocationFound, onLocationError, {
+        // maximumAge: 60000,
+        // timeout: 2000
+        // });
     }
 
     function getToday() {

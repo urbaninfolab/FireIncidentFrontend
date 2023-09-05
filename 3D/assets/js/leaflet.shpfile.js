@@ -3,7 +3,8 @@
 /* global cw, shp */
 L.Shapefile = L.GeoJSON.extend({
     options: {
-        importUrl: 'shp.js'
+        "type": "Feature",
+        importUrl: 'shp.js',
     },
 
     initialize: function (file, options) {
@@ -17,8 +18,10 @@ L.Shapefile = L.GeoJSON.extend({
             }
             /*eslint-enable no-new-func*/
         }
+
         L.GeoJSON.prototype.initialize.call(this, {
-            features: []
+
+            features: [],
         }, options);
         this.addFileData(file);
     },

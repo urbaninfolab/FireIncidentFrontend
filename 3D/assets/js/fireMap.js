@@ -179,7 +179,7 @@ async function mapFireIncident(
     }
   }
 
-  //buildShapefile(map, shapefile_display_flag);
+  buildShapefile(map, shapefile_display_flag);
 
   if (purple_air_diaplay_flag == true) {
     mapPurpleAirData(map);
@@ -978,47 +978,75 @@ function buildShapefile(map, shapefile_display_flag) {
   var fireRiskLegend = document.querySelector(".fire-risk-legend");
   var afdLegend = document.querySelector(".afd-legend");
   var hviLegend = document.querySelector(".hvi-legend");
-
+  console.log("sme")
   switch (shapefile_display_flag) {
     case "fire-risk-radio":
-      shapefileName = "../data/austin_wildfire_vulnerable_populations.zip";
-      shpfile = new L.Shapefile(shapefileName, {
-        onEachFeature: function (feature, layer) {
-          popupContent = `
-                            <div class="risk-estimate-info">
-                                <span>Fire Category: ${feature.properties["FIRECAT"]}</span><BR>
-                            </div>
-                            <div class="basic-info">
-                                <span>FIPS: ${feature.properties["FIPS"]}</span><BR>
-                                <span>MAPTIP: ${feature.properties["MAPTIP"]}</span><BR>
-                                <span>TRCTNAME: ${feature.properties["TRCTNAME"]}</span><BR>
-                            </div>
-                            <div class="stats-info">
-                                <span>Families in Poverty: ${feature.properties["POPVAL"]} </span><BR>
-                                <span>People Under 5: ${feature.properties["UND5VAL"]} </span><BR>
-                                <span>People Over 65: ${feature.properties["OVR65VAL"]} </span><BR>
-                                <span>People With Disability: ${feature.properties["DISABLVAL"]}</span><BR>
-                                <span>ASTHMAVAL: ${feature.properties["ASTHMAVAL"]} </span>
-                            </div>
-                            
-                        `;
-          layer.bindPopup(popupContent);
-          let fireCat = feature.properties["FIRECAT"];
-          let words = fireCat.toLowerCase().split(" ");
-          if (words.includes("highest")) {
-            layer.options.color = "red";
-          } else if (words.includes("elevated")) {
-            layer.options.color = "orange";
-          } else {
-            layer.options.color = "yellow";
-          }
-        },
+      shapefileName = "../../data/austin_wildfire_vulnerable_populations.zip";
+
+    map.addSource('fire-risk-map', {
+      type: 'vector',
+      url: 'mapbox://shashankkota.43jnxirn'
       });
-      // hide fire risk legend
-      //fireRiskLegend.style.display = 'flex';
-      //afdLegend.style.display = 'none';
-      //hviLegend.style.display = 'none';
-      shpfile.addTo(map);
+    const FIRECAT = ['string', ['get', 'FIRECAT']];
+    map.addLayer({
+      'id': 'fire-risk',
+      'type': 'fill',
+      'source': 'fire-risk-map',
+      'source-layer': 'austin_wildfire_vulnerable_po-3w3j9v',
+      'paint': {
+        'fill-color':[
+          "case",
+          ['in', 'Highest', FIRECAT], '#f00',
+          ['in', 'Elevated', FIRECAT], '#ffa500',
+          '#ffff00',
+        ], 
+        'fill-opacity': 0.2
+
+        }
+    });
+      
+    //   shpfile = new L.Shapefile(shapefileName , {
+    //     onEachFeature: function (feature, layer) {
+    //       popupContent = `
+    //                         <div class="risk-estimate-info">
+    //                             <span>Fire Category: ${feature.properties["FIRECAT"]}</span><BR>
+    //                         </div>
+    //                         <div class="basic-info">
+    //                             <span>FIPS: ${feature.properties["FIPS"]}</span><BR>
+    //                             <span>MAPTIP: ${feature.properties["MAPTIP"]}</span><BR>
+    //                             <span>TRCTNAME: ${feature.properties["TRCTNAME"]}</span><BR>
+    //                         </div>
+    //                         <div class="stats-info">
+    //                             <span>Families in Poverty: ${feature.properties["POPVAL"]} </span><BR>
+    //                             <span>People Under 5: ${feature.properties["UND5VAL"]} </span><BR>
+    //                             <span>People Over 65: ${feature.properties["OVR65VAL"]} </span><BR>
+    //                             <span>People With Disability: ${feature.properties["DISABLVAL"]}</span><BR>
+    //                             <span>ASTHMAVAL: ${feature.properties["ASTHMAVAL"]} </span>
+    //                         </div>
+                            
+    //                     `;
+    //       layer.bindPopup(popupContent);
+    //       let fireCat = feature.properties["FIRECAT"];
+    //       let words = fireCat.toLowerCase().split(" ");
+    //       if (words.includes("highest")) {
+    //         layer.options.color = "red";
+    //       } else if (words.includes("elevated")) {
+    //         layer.options.color = "orange";
+    //       } else {
+    //         layer.options.color = "yellow";
+    //       }
+    //     },
+    //  }
+    //   );
+    //   // hide fire risk legend
+    //   //fireRiskLegend.style.display = 'flex';
+    //   //afdLegend.style.display = 'none';
+    //   //hviLegend.style.display = 'none';
+    //   console.log(shpfile);
+    //   console.log("map");
+    //   console.log(map);
+    //   shpfile.addTo(map);
+
       break;
     case "afd-radio":
       shapefileName = "../data/AFD Standard of Cover.zip";
@@ -1093,7 +1121,7 @@ function buildShapefile(map, shapefile_display_flag) {
         },
       });
       // color by exposure, color map by 5 colors
-
+ 
       hviLegend.style.display = "flex";
       afdLegend.style.display = "none";
       fireRiskLegend.style.display = "none";
@@ -1297,15 +1325,7 @@ async function mapPurpleAirData(map) {
         }
 
         // Add Mapbox marker
-        var airMarker = new mapboxgl.Marker({
-          color: color,
-          draggable: false,
-          id: popupData.id,
-          type: "air",
-          source: "purpleair",
-          title: popupData["pm2.5_10minute"],
-          radius: 15,
-        })
+        var airMarker = new mapboxgl.Marker()
           .setLngLat([popupData.longitude, popupData.latitude])
           .setPopup(
             new mapboxgl.Popup({ offset: 25 }) // add popups
@@ -1318,7 +1338,8 @@ async function mapPurpleAirData(map) {
         }
 
         airMarker.getElement().children[0].innerHTML = ` \
-        <circle cx="12" cy="12" r="12" fill="${color}" stroke="white" stroke-width="1" /> \
+        <circle cx="12" cy="12" r="12" fill="${color}" stroke="white" stroke-width="1" />
+        \
         `;
 
         // Add to marker cluster group
@@ -1345,7 +1366,6 @@ function addMore() {
 }
 
 function buildAirDataPopup(marker, popupData, description) {
-  console.log(popupData);
 
   let unixTimestamp = popupData.last_seen;
   var a = new Date(unixTimestamp * 1000);
@@ -1420,7 +1440,6 @@ function buildAirDataPopup(marker, popupData, description) {
 
 // build air table for next 5 hours
 function buildAirTable(pmData) {
-  console.log(pmData);
   var data = `
                 <tr>
                     <td>${pmData["pm2.5"]}</td>
@@ -1829,7 +1848,7 @@ var data =
   "<pubDate>Mon, 06 Dec 2021 16:12:50 CDT</pubDate></item>";
 
 // initialize map and base layer
-//var map = L.map('map',{ preferCanvas:true, zoomControl: false, renderer: L.canvas() }).setView([30.356635, -97.701180], 12);
+// var map = L.map('map',{ preferCanvas:true, zoomControl: false, renderer: L.canvas() }).setView([30.356635, -97.701180], 12);
 // make a mapbox map instead
 mapboxgl.accessToken =
   "pk.eyJ1IjoicnlhbmhsZXdpcyIsImEiOiJjbDhkcWZzcHowbGhiM3VrOWJ3ZmtzcnZyIn0.ipWAZK-oipctMjaHytOUKQ";
@@ -1846,7 +1865,7 @@ var map = new mapboxgl.Map({
 
 //new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
 
-//addMapLayer(map);
+
 
 // map today's dp
 let dateArray = [];

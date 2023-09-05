@@ -662,6 +662,11 @@ body {
     }
 }
 
+.air-quality {
+    width: 12px;
+    height: 12px;
+}
+
 .marker {
     background-image: url('../images/fire.png');
     background-size: cover;
