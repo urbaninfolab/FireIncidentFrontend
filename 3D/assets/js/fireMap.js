@@ -1,14 +1,15 @@
+/**
+ * Description
+ * @param {any} ids
+ * @param {any} bool
+ * @returns {any}
+ */
 var activeFires = [];
 var inactiveFires = [];
 
 // Mapbox GL Support- layer groups
 function toggleLayerCustom(ids, bool) {
-  console.log(ids);
-  console.log(bool);
   for (layers in ids) {
-    //var visibility = map.getLayoutProperty(ids[layers], 'visibility');
-    //console.log(visibility);
-    //if (visibility === 'visible') {
     try {
       if (bool) {
         ids[layers]._element.style.visibility = "visible";
@@ -26,8 +27,6 @@ function toggleLayerCustom(ids, bool) {
 
 // Mapbox GL Support- layer groups
 function toggleLayerCustom1(ids, bool) {
-  console.log(ids);
-  console.log(bool);
   for (layers in ids) {
     //var visibility = map.getLayoutProperty(ids[layers], 'visibility');
     //console.log(visibility);
@@ -48,7 +47,16 @@ function toggleLayerCustom1(ids, bool) {
   }
 }
 
-//Input: map instance and an array of stringW
+/**
+ * Description
+ * @param {any} map - instance of mapboxgl map
+ * @param {any} dateArray - array of dates that user wants information for
+ * @param {any} inactive_flag - not used
+ * @param {any} shapefile_display_flag - the shapefile display chosen by the user
+ * @param {any} purple_air_diaplay_flag - flag that user can turn on or off to disable / enable PurpleAir information
+ * @param {any} microsoft_air_display_flag - flag that user can turn on or off to disable / enable Microsoft Air information
+ * @returns {void}
+ */
 async function mapFireIncident(
   map,
   dateArray,
@@ -57,55 +65,8 @@ async function mapFireIncident(
   purple_air_diaplay_flag,
   microsoft_air_display_flag
 ) {
-  console.log(map, dateArray);
-  let sampleData = [
-    {
-      title: "BRUSH - Brush Fire",
-      link: "http://maps.google.com/maps?q=30.767735,-97.876783",
-      guid: {
-        "@isPermaLink": "false",
-        "#text": "9B5927CEC83EE94F602974CA14A6FFD0569B777A",
-      },
-      description: "6780-8398 N US 183 | NON - ADVISED INCIDENT | 16:48:52",
-      pubDate: "Mon, 14 Feb 2022 16:48:52 CDT",
-      active_status: "yes",
-    },
-    {
-      title: "Traffic Injury Pri 4F",
-      link: "http://maps.google.com/maps?q=30.399615,-97.850904",
-      guid: {
-        "@isPermaLink": "false",
-        "#text": "E1CF984DAC4C3E377F4662FCCCE3602106165EEF",
-      },
-      description: "11213 Fm 2222 Rd | AFD | 16:53:43",
-      pubDate: "Mon, 14 Feb 2022 16:53:43 CDT",
-      active_status: "yes",
-    },
-    {
-      title: "ALARM - Fire Alarm",
-      link: "http://maps.google.com/maps?q=30.321938,-97.808294",
-      guid: {
-        "@isPermaLink": "false",
-        "#text": "3F8BED0F0E2ADB62764BF557B3C92D7E6B2E9FEC",
-      },
-      description: "2537 WAYMAKER WAY | AFD | 16:14:52",
-      pubDate: "Mon, 14 Feb 2022 16:14:52 CDT",
-      active_status: "no",
-    },
-    {
-      title: "RESQT - Rescue Task Force",
-      link: "http://maps.google.com/maps?q=30.501646,-97.790996",
-      guid: {
-        "@isPermaLink": "false",
-        "#text": "CEC1022BEFB63F729C72D1EE8A071FCD2876D273",
-      },
-      description: "15116 Dodge Cattle Cv | AFD | 16:37:09",
-      pubDate: "Mon, 14 Feb 2022 16:37:09 CDT",
-      active_status: "no",
-    },
-  ];
-
   let rawData = [];
+
   let cities = [
     "",
     "Dallas",
@@ -118,12 +79,12 @@ async function mapFireIncident(
     "Seattle",
   ];
 
+  // load city active/inactive fire data for each requested date
   for (city in cities) {
     for (let i = 0; i < dateArray.length; i++) {
       try {
         let date = dateArray[i];
 
-        // idk why this was commented out
         let jsonUrl =
           "https://smartcity.tacc.utexas.edu/data/" +
           date +
@@ -136,17 +97,7 @@ async function mapFireIncident(
         let response = await fetch(jsonUrl);
         let currentData = await response.json();
 
-        console.log(currentData);
-
-        // console.log(i);
-        // console.log(rawData);
-        //if (i === 0) {
-        //    rawData = currentData.rss.channel.item;
-        //} else {
-
         rawData.push.apply(rawData, currentData.rss.channel.item);
-
-        //}
       } catch (e) {
         console.log(e);
         break;
@@ -155,36 +106,37 @@ async function mapFireIncident(
   }
 
   let fireData = rawData;
-  //let fireData = sampleData;
 
   // check if we have data point
   if (fireData != undefined) {
     // check if we only have one data point
     if (!Array.isArray(fireData)) {
-      processData(fireData);
-    } else {
-      // loop through each data point
-      fireData.forEach(
-        (data) => {
-          //if ((inactive_flag === false && data.active_status === "yes") || inactive_flag === true) {
-          try {
-            processData(data);
-          } catch (e) {
-            console.log(e);
-          }
-        }
-
-        //}
-      );
+      try {
+        processData(fireData);
+      } catch (e) {
+        console.log(e);
+      }
+      return;
     }
+
+    // loop through each data point
+    fireData.forEach((data) => {
+      try {
+        processData(data);
+      } catch (e) {
+        console.log(e);
+      }
+    });
   }
 
+  // add shapefile to map
   buildShapefile(map, shapefile_display_flag);
 
-  if (purple_air_diaplay_flag == true) {
+  if (purple_air_diaplay_flag) {
     mapPurpleAirData(map);
   }
-  if (microsoft_air_display_flag == true) {
+
+  if (microsoft_air_display_flag) {
     mapMicrosoftAirData(map);
   }
 
@@ -192,11 +144,14 @@ async function mapFireIncident(
   var airQualityLegend = document.querySelector(".air-quality-legend");
   if (!purple_air_diaplay_flag && !microsoft_air_display_flag) {
     airQualityLegend.style.display = "none";
-  } else {
-    //airQualityLegend.style.display = 'flex';
   }
 }
 
+/**
+ * Description
+ * @param {any} data - array of JSON data with active/inactive fires in city; includes title of fire, location of fire (google maps link), active status, description, and date
+ * @returns {void}
+ */
 function processData(data) {
   let windDirections = [
     "N",
@@ -219,52 +174,37 @@ function processData(data) {
   let angles = [
     0, 25, 45, 65, 90, 115, 135, 155, 180, 205, 225, 245, 270, 295, 315, 335,
   ];
-  var activeFireIcon = L.icon({
-    iconUrl:
-      "https://smartcity.tacc.utexas.edu/FireIncident/assets/images/fire.png",
-    iconSize: [70, 70], // size of the icon
-  });
-  var windDirectionIcon = L.icon({
-    iconUrl:
-      "https://smartcity.tacc.utexas.edu/FireIncident/assets/images/arrow.png",
-    iconSize: [70, 70], // size of the icon
-  });
-  var deactiveFireIcon = L.icon({
-    iconUrl:
-      "https://smartcity.tacc.utexas.edu/FireIncident/assets/images/deactive_fire.png",
-    iconSize: [70, 70], // size of the icon
-  });
+
+  let isActiveFire = data.active_status == "yes"
   let link = data.link;
+
+
+  // parse JSON link (contains long and lat)
   let longNLatString = link.replace("http://maps.google.com/maps?q=", "");
   let longNLatArray = longNLatString.split(",");
   longNLatArray.forEach((x, i) => (longNLatArray[i] = parseFloat(x)));
 
-  weatherDataAPI = "https://api.weather.gov/points/" + longNLatString;
 
   const el = document.createElement("div");
 
-  let icon = activeFireIcon;
-  if (data.active_status != "yes") {
-    icon = deactiveFireIcon;
-    el.className = "marker1";
-  } else {
-    el.className = "marker";
-  }
-  var marker = new mapboxgl.Marker(el)
-    .setLngLat(longNLatArray.reverse())
-    .addTo(map);
+  // change icon if fire is active or not
+  el.className = isActiveFire ? "marker" : "marker1";
 
-  if (data.active_status != "yes") {
+  // add fires to map
+  var marker = new mapboxgl.Marker(el)
+    .setLngLat(longNLatArray.reverse());
+
+  // add marker to list of current fires visible to user
+  if (!isActiveFire) {
     inactiveFires.push(marker);
   } else {
     activeFires.push(marker);
   }
 
+
   getWeatherAPI(
-    weatherDataAPI,
     marker,
     data,
-    windDirectionIcon,
     windDirections,
     angles,
     longNLatArray,
@@ -273,22 +213,30 @@ function processData(data) {
 }
 
 async function getWeatherAPI(
-  url,
   marker,
   fireData,
-  windDirectionIcon,
   windDirections,
   angles,
   longNLatArray,
   longNLatString
 ) {
-  var response = await fetch(url);
+
+  // get current weather at long and lat
+  let weatherDataAPIUrl = new URL(`https://api.weather.gov/points/${longNLatString}`);
+  var response = await fetch(weatherDataAPIUrl);
   var api = await response.json();
+
+  // could not load hourly data; return early
+  if(!api.properties) {
+    return;
+  }
+
   var hourlyApiUrl = api.properties.forecastHourly;
-  // console.log(hourlyApiUrl);
+
+  // get hourly weather forcast
   var response = await fetch(hourlyApiUrl);
   var hourlyData = await response.json();
-  hourlyData1 = hourlyData.properties.periods[0];
+  var hourlyData1 = hourlyData.properties.periods[0];
 
   var markerPopup = `
         <span>
@@ -325,26 +273,26 @@ async function getWeatherAPI(
 
   markerPopup += `</div>`;
 
-  //marker.bindPopup(markerPopup, {
-  //    maxWidth : 251
-  //});;
-  // bind markerPopup to mapbox marker
+
   marker.setPopup(
     new mapboxgl.Popup({ offset: 25 }) // add popups
       .setHTML(markerPopup)
   );
+  marker.addTo(map);
 
   // map wind direction
   let index = windDirections.indexOf(hourlyData1.windDirection);
   let angle = angles[index];
-  if (fireData.active_status === "yes") {
+  if (fireData.active_status == "yes") {
     /*var windDirectionMarker = L.marker(longNLatArray, {
                 icon: windDirectionIcon,
                 rotationAngle: 90,
                 rotationOrigin: 'center',
                 zIndexOffset: -1,
             }).addTo(map); */
-    addSmokeRegions(map, "https://generated.activefires.ml/" + longNLatString);
+
+    // DISABLING UNTIL THE LINK WORKS
+    // addSmokeRegions(map, "https://generated.activefires.ml/" + longNLatString);
   }
 }
 
@@ -364,17 +312,6 @@ function addSmokeRegions(map, KMLstring) {
 
 function addForecastedSmoke(map, KMLstring, forecastGroup) {
   console.log("Added smoke map " + KMLstring);
-  // Load kml file
-  //try {
-  // fetch(KMLstring)
-  // .then(res => res.text())
-  // .then(kmltext => {
-  //     // Create new kml overlay
-  //     const parser = new DOMParser();
-  //     const kml = parser.parseFromString(kmltext, 'text/xml');
-  //     const track = new L.KML(kml);
-  //     forecastGroup.addLayer(track);
-  // });
 
   console.log("STYLE LOAD");
   //forecastGroup.push(KMLstring)
@@ -528,14 +465,11 @@ function buildTemperatureTable(hourlyData) {
 }
 
 function addMapLayer(map) {
-  //L.tileLayer('https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=GiZ6x9ufTTvbNzpIWAX8', {
-  //    attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',
-  //}).addTo(map);
-  // add 3d mapbox layer
+
+  // add 3d streets mapbox layer
   L.mapboxGL({
     accessToken:
       "pk.eyJ1IjoicnlhbmhsZXdpcyIsImEiOiJjbDhkcWZzcHowbGhiM3VrOWJ3ZmtzcnZyIn0.ipWAZK-oipctMjaHytOUKQ",
-    // STYLE is 3d streets
     style: "mapbox://styles/mapbox/streets-v11",
   }).addTo(map);
 }
@@ -978,74 +912,36 @@ function buildShapefile(map, shapefile_display_flag) {
   var fireRiskLegend = document.querySelector(".fire-risk-legend");
   var afdLegend = document.querySelector(".afd-legend");
   var hviLegend = document.querySelector(".hvi-legend");
-  console.log("sme")
   switch (shapefile_display_flag) {
     case "fire-risk-radio":
-      shapefileName = "../../data/austin_wildfire_vulnerable_populations.zip";
-
-    map.addSource('fire-risk-map', {
-      type: 'vector',
-      url: 'mapbox://shashankkota.43jnxirn'
+      map.addSource("fire-risk-map", {
+        type: "vector",
+        url: "mapbox://shashankkota.43jnxirn",
       });
-    const FIRECAT = ['string', ['get', 'FIRECAT']];
-    map.addLayer({
-      'id': 'fire-risk',
-      'type': 'fill',
-      'source': 'fire-risk-map',
-      'source-layer': 'austin_wildfire_vulnerable_po-3w3j9v',
-      'paint': {
-        'fill-color':[
-          "case",
-          ['in', 'Highest', FIRECAT], '#f00',
-          ['in', 'Elevated', FIRECAT], '#ffa500',
-          '#ffff00',
-        ], 
-        'fill-opacity': 0.2
+      const FIRECAT = ["string", ["get", "FIRECAT"]];
+      map.addLayer({
+        id: "fire-risk",
+        type: "fill",
+        source: "fire-risk-map",
+        "source-layer": "austin_wildfire_vulnerable_po-3w3j9v",
+        paint: {
+          "fill-color": [
+            "case",
+            ["in", "Highest", FIRECAT],
+            "#f00",
+            ["in", "Elevated", FIRECAT],
+            "#ffa500",
+            "#ffff00",
+          ],
+          "fill-opacity": 0.2,
+        },
+      });
 
-        }
-    });
-      
-    //   shpfile = new L.Shapefile(shapefileName , {
-    //     onEachFeature: function (feature, layer) {
-    //       popupContent = `
-    //                         <div class="risk-estimate-info">
-    //                             <span>Fire Category: ${feature.properties["FIRECAT"]}</span><BR>
-    //                         </div>
-    //                         <div class="basic-info">
-    //                             <span>FIPS: ${feature.properties["FIPS"]}</span><BR>
-    //                             <span>MAPTIP: ${feature.properties["MAPTIP"]}</span><BR>
-    //                             <span>TRCTNAME: ${feature.properties["TRCTNAME"]}</span><BR>
-    //                         </div>
-    //                         <div class="stats-info">
-    //                             <span>Families in Poverty: ${feature.properties["POPVAL"]} </span><BR>
-    //                             <span>People Under 5: ${feature.properties["UND5VAL"]} </span><BR>
-    //                             <span>People Over 65: ${feature.properties["OVR65VAL"]} </span><BR>
-    //                             <span>People With Disability: ${feature.properties["DISABLVAL"]}</span><BR>
-    //                             <span>ASTHMAVAL: ${feature.properties["ASTHMAVAL"]} </span>
-    //                         </div>
-                            
-    //                     `;
-    //       layer.bindPopup(popupContent);
-    //       let fireCat = feature.properties["FIRECAT"];
-    //       let words = fireCat.toLowerCase().split(" ");
-    //       if (words.includes("highest")) {
-    //         layer.options.color = "red";
-    //       } else if (words.includes("elevated")) {
-    //         layer.options.color = "orange";
-    //       } else {
-    //         layer.options.color = "yellow";
-    //       }
-    //     },
-    //  }
-    //   );
-    //   // hide fire risk legend
-    //   //fireRiskLegend.style.display = 'flex';
-    //   //afdLegend.style.display = 'none';
-    //   //hviLegend.style.display = 'none';
-    //   console.log(shpfile);
-    //   console.log("map");
-    //   console.log(map);
-    //   shpfile.addTo(map);
+      document.getElementById("fireRiskType").innerHTML =
+        "Fire Vulnerability Risk: ";
+      fireRiskLegend.style.display = "flex";
+      afdLegend.style.display = "none";
+      hviLegend.style.display = "none";
 
       break;
     case "afd-radio":
@@ -1121,7 +1017,7 @@ function buildShapefile(map, shapefile_display_flag) {
         },
       });
       // color by exposure, color map by 5 colors
- 
+
       hviLegend.style.display = "flex";
       afdLegend.style.display = "none";
       fireRiskLegend.style.display = "none";
@@ -1246,8 +1142,19 @@ const PURPLE_AIR_API_KEY = "81D9ACDC-966F-11EC-B9BF-42010A800003";
 
 // retrieves list of sensor information from PurpleAir API
 async function populateSensorInformationData(latlng) {
-  const fields = ["latitude", "longitude", "last_seen", "altitude", "pm2.5", "pm2.5_10minute", "pm2.5_30minute", "pm2.5_60minute", "pm2.5_6hour",
-  "pm2.5_24hour", "pm2.5_1week"]; 
+  const fields = [
+    "latitude",
+    "longitude",
+    "last_seen",
+    "altitude",
+    "pm2.5",
+    "pm2.5_10minute",
+    "pm2.5_30minute",
+    "pm2.5_60minute",
+    "pm2.5_6hour",
+    "pm2.5_24hour",
+    "pm2.5_1week",
+  ];
 
   const purpleAirSensorInformationURL = new URL(
     "https://api.purpleair.com/v1/sensors"
@@ -1289,9 +1196,8 @@ async function mapPurpleAirData(map) {
     for (const city in cities) {
       const sensorList = await populateSensorInformationData(cities[city]);
       newAirData = newAirData.concat(sensorList.data);
-    
-      sensorList.data.map((sensor) => {
 
+      sensorList.data.map((sensor) => {
         let popupData = {
           id: sensor[0],
           last_seen: sensor[1],
@@ -1304,8 +1210,8 @@ async function mapPurpleAirData(map) {
           "pm2.5_60minute": sensor[8],
           "pm2.5_6hour": sensor[9],
           "pm2.5_24hour": sensor[10],
-          "pm2.5_1_week": sensor[11]
-        }
+          "pm2.5_1_week": sensor[11],
+        };
 
         const popupInformation = getPMDescription(popupData["pm2.5_10minute"]);
 
@@ -1317,10 +1223,10 @@ async function mapPurpleAirData(map) {
           c += "small";
           color = "#03c04A"; // set color to markercluster-green (parkeet)
         } else if (color == "#fdff01") {
-          c += "medium"; 
+          c += "medium";
           color = "#fce205"; // set color to markercluster yellow (bumblebee yellow)
         } else {
-          c += "large"; 
+          c += "large";
           color = "#ff0000"; // set color to markercluster red
         }
 
@@ -1345,11 +1251,8 @@ async function mapPurpleAirData(map) {
         // Add to marker cluster group
         airMarkers.push(airMarker);
       });
-
     }
-
   }
-
 }
 
 function addMore() {
@@ -1366,7 +1269,6 @@ function addMore() {
 }
 
 function buildAirDataPopup(marker, popupData, description) {
-
   let unixTimestamp = popupData.last_seen;
   var a = new Date(unixTimestamp * 1000);
   var months = [
@@ -1864,8 +1766,6 @@ var map = new mapboxgl.Map({
 });
 
 //new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
-
-
 
 // map today's dp
 let dateArray = [];

@@ -1705,14 +1705,14 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
         for (var i = 0, max = radios.length; i < max; i++) {
             radios[i].onclick = function () {
                 shapefile_display_flag = this.value;
-                // console.log(shapefile_display_flag)
+                console.log(shapefile_display_flag)
                 // clear all markers and rebuild map layer
-                /*map.eachLayer(function (layer) {
+                map.eachLayer(function (layer) {
                     map.removeLayer(layer);
                 });
                 addMapLayer(map);
                 mapFireIncident(map, dateArray, inactive_flag, shapefile_display_flag, purple_air_diaplay_flag, microsoft_air_display_flag);
-                */
+                
                if(currentShapefile != null) 
                     map.removeLayer(currentShapefile)
                 buildShapefile(map, shapefile_display_flag)
