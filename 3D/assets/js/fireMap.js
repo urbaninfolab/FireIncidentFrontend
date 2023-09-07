@@ -175,15 +175,13 @@ function processData(data) {
     0, 25, 45, 65, 90, 115, 135, 155, 180, 205, 225, 245, 270, 295, 315, 335,
   ];
 
-  let isActiveFire = data.active_status == "yes"
+  let isActiveFire = data.active_status == "yes";
   let link = data.link;
-
 
   // parse JSON link (contains long and lat)
   let longNLatString = link.replace("http://maps.google.com/maps?q=", "");
   let longNLatArray = longNLatString.split(",");
   longNLatArray.forEach((x, i) => (longNLatArray[i] = parseFloat(x)));
-
 
   const el = document.createElement("div");
 
@@ -191,8 +189,7 @@ function processData(data) {
   el.className = isActiveFire ? "marker" : "marker1";
 
   // add fires to map
-  var marker = new mapboxgl.Marker(el)
-    .setLngLat(longNLatArray.reverse());
+  var marker = new mapboxgl.Marker(el).setLngLat(longNLatArray.reverse());
 
   // add marker to list of current fires visible to user
   if (!isActiveFire) {
@@ -200,7 +197,6 @@ function processData(data) {
   } else {
     activeFires.push(marker);
   }
-
 
   getWeatherAPI(
     marker,
@@ -220,14 +216,15 @@ async function getWeatherAPI(
   longNLatArray,
   longNLatString
 ) {
-
   // get current weather at long and lat
-  let weatherDataAPIUrl = new URL(`https://api.weather.gov/points/${longNLatString}`);
+  let weatherDataAPIUrl = new URL(
+    `https://api.weather.gov/points/${longNLatString}`
+  );
   var response = await fetch(weatherDataAPIUrl);
   var api = await response.json();
 
   // could not load hourly data; return early
-  if(!api.properties) {
+  if (!api.properties) {
     return;
   }
 
@@ -273,7 +270,6 @@ async function getWeatherAPI(
 
   markerPopup += `</div>`;
 
-
   marker.setPopup(
     new mapboxgl.Popup({ offset: 25 }) // add popups
       .setHTML(markerPopup)
@@ -290,7 +286,6 @@ async function getWeatherAPI(
                 rotationOrigin: 'center',
                 zIndexOffset: -1,
             }).addTo(map); */
-
     // DISABLING UNTIL THE LINK WORKS
     // addSmokeRegions(map, "https://generated.activefires.ml/" + longNLatString);
   }
@@ -465,7 +460,6 @@ function buildTemperatureTable(hourlyData) {
 }
 
 function addMapLayer(map) {
-
   // add 3d streets mapbox layer
   L.mapboxGL({
     accessToken:
@@ -905,22 +899,54 @@ function buildStatusToggleButton(map, checkbox) {
   //})
 }
 
-function buildShapefile(map, shapefile_display_flag) {
+function buildShapefile(map, new_shapefile_display_flag) {
   let shapefileName = "";
   let popupContent = ``;
   let shapefile = "";
   var fireRiskLegend = document.querySelector(".fire-risk-legend");
   var afdLegend = document.querySelector(".afd-legend");
   var hviLegend = document.querySelector(".hvi-legend");
-  switch (shapefile_display_flag) {
+
+
+  // disable current shapefile
+  console.log("checking if i can find " + shapefile_display_flag + " as " + new_shapefile_display_flag);
+  if(map.getLayer(shapefile_display_flag)) {
+    map.setLayoutProperty(
+      shapefile_display_flag,
+      "visibility",
+      "none"
+    );
+  }
+  switch (new_shapefile_display_flag) {
     case "fire-risk-radio":
+      console.log(`checking if ${new_shapefile_display_flag} is already a layer`)
+      // check if we have already loaded data
+      if (map.getLayer(new_shapefile_display_flag)) {
+             console.log(`it was`);
+        map.setLayoutProperty(
+          new_shapefile_display_flag,
+          "visibility",
+          "visible"
+        );
+
+        document.getElementById("fireRiskType").innerHTML =
+          "Fire Vulnerability Risk: ";
+        fireRiskLegend.style.display = "flex";
+        afdLegend.style.display = "none";
+        hviLegend.style.display = "none";
+        break;
+      }
+
       map.addSource("fire-risk-map", {
         type: "vector",
         url: "mapbox://shashankkota.43jnxirn",
       });
+
       const FIRECAT = ["string", ["get", "FIRECAT"]];
+
+      // get fire-risk data from tileset data online, check for certain strings in FIRECAT property and fill it
       map.addLayer({
-        id: "fire-risk",
+        id: "fire-risk-radio",
         type: "fill",
         source: "fire-risk-map",
         "source-layer": "austin_wildfire_vulnerable_po-3w3j9v",
@@ -937,6 +963,8 @@ function buildShapefile(map, shapefile_display_flag) {
         },
       });
 
+      // turn on legend
+
       document.getElementById("fireRiskType").innerHTML =
         "Fire Vulnerability Risk: ";
       fireRiskLegend.style.display = "flex";
@@ -945,45 +973,56 @@ function buildShapefile(map, shapefile_display_flag) {
 
       break;
     case "afd-radio":
-      shapefileName = "../data/AFD Standard of Cover.zip";
-      // var pasttern = new L.Pattern();
-      shpfile = new L.Shapefile(shapefileName, {
-        onEachFeature: function (feature, layer) {
-          popupContent = `
-                            <div class="basic-info">
-                                <span>Number of Incidents: ${feature.properties["incidents"]}</span><BR>
-                                <span>Responses in 8 mins: ${feature.properties["num_8min"]}</span><BR>
-                                <span>Fire Station ID: ${feature.properties["battalio_1"]}</span><BR>
-                                <span>Last Modified by: ${feature.properties["modified_b"]}</span><BR>
+      if (map.getLayer(new_shapefile_display_flag)) {
+        map.setLayoutProperty(
+          new_shapefile_display_flag,
+          "visibility",
+          "visible"
+        );
 
-                            </div>
-                            
-                        `;
-          layer.bindPopup(popupContent);
-          let numIncidents = parseInt(feature.properties["incidents"]);
-          let numResponses = parseInt(feature.properties["num_8min"]);
-          let percent = numResponses / numIncidents;
-          if (percent >= 0.9) {
-            layer.options.color = "rgb(1, 106, 1)";
-          } else if (percent >= 0.8) {
-            layer.options.color = "#699d50";
-          } else if (percent >= 0.7) {
-            layer.options.color = "orange";
-          } else if (percent >= 0.6) {
-            layer.options.color = "#ff5500";
-          } else {
-            layer.options.color = "#704489";
-          }
+        afdLegend.style.display = "flex";
+        fireRiskLegend.style.display = "none";
+        hviLegend.style.display = "none";
+        break;
+      }
+      map.addSource("afd-radio-map", {
+        type: "vector",
+        url: "mapbox://shashankkota.abdbnfg3",
+      });
 
-          // if(numIncidents <= 20) {
-          //     larer.options.fillColor = 'url(image.gif)';
-          // }
+      const INCIDENTS = ["number", ["get", "incidents"]];
+      const NUM_8MIN = ["number", ["get", "num_8min"]];
+
+      const PERCENTAGE = ["/", NUM_8MIN, INCIDENTS];
+
+      const QUERY = [
+        "step",
+        PERCENTAGE,
+        "#704489", // default
+        0.6,
+        "#ff5500",
+        0.7,
+        "orange",
+        0.8,
+        "#699d50",
+        0.9,
+        "rgb(1, 106, 1)",
+      ];
+
+      map.addLayer({
+        id: "afd-radio",
+        type: "fill",
+        source: "afd-radio-map",
+        "source-layer": "AFD_Standard_of_Cover-6dyl81",
+        paint: {
+          "fill-color": QUERY,
+          "fill-opacity": 0.3,
         },
       });
+
       afdLegend.style.display = "flex";
       fireRiskLegend.style.display = "none";
       hviLegend.style.display = "none";
-      shpfile.addTo(map);
       break;
     case "hvi-radio":
       shapefileName = "../data/HVI_Map.zip";
@@ -1025,6 +1064,8 @@ function buildShapefile(map, shapefile_display_flag) {
       break;
 
     case "test-risk-radio":
+      // TODO
+      return;
       shapefileName = "../data/firerisk.shp.zip";
       var filePath = "../data/AverageFire.json";
       var result;
@@ -1129,11 +1170,17 @@ function buildShapefile(map, shapefile_display_flag) {
           }
         });
       break;
-
     case "none-radio":
+  
       fireRiskLegend.style.display = "none";
       afdLegend.style.display = "none";
+      if (map.getLayer(shapefile_display_flag)) {
+          map.setLayoutProperty(shapefile_display_flag, "visibility", "none");
+      }
+
   }
+  console.log("yo!", shapefile_display_flag, new_shapefile_display_flag);
+  shapefile_display_flag = new_shapefile_display_flag;
 }
 
 // make mapbox marker group
@@ -1630,6 +1677,31 @@ function buildDropdownMenu(map) {
   var checkboxTwoSmoke = document.querySelector(".two-hour-smoke");
   var checkboxThreeSmoke = document.querySelector(".three-hour-smoke");
 
+  // var checkboxFireRisk = document.querySelector(".test-risk-radio");
+  // var checkboxAFD = document.querySelector(".afd-radio");
+  // var checkboxNoShapefile = document.querySelector(".no-shapefile");
+  // var checkboxVulnerability = document.querySelector(".fire-risk-radio");
+
+  let shapefileCheckboxes = [
+    "test-risk-radio",
+    "afd-radio",
+    "fire-risk-radio",
+    "none-radio",
+  ];
+
+  for (var shapefileFlag of shapefileCheckboxes) {
+    let checkbox = document.getElementById(shapefileFlag);
+    console.log(checkbox);
+    checkbox.addEventListener(
+      "click",
+      (function (shapefileFlag) {
+        return function () {
+          buildShapefile(map, shapefileFlag);
+        };
+      })(shapefileFlag)
+    );
+  }
+
   checkboxOneSmoke.addEventListener("click", function () {
     changeSmokeForecast(checkboxOneSmoke, onehourForecastGroup);
     console.log("one hour smoke");
@@ -1778,6 +1850,8 @@ var date =
   "-" +
   ("0" + today.getDate()).slice(-2);
 dateArray.push(date);
+
+// flags from dropdown
 let inactive_flag = true;
 let shapefile_display_flag = "fire-risk-radio";
 let purple_air_diaplay_flag = true;
