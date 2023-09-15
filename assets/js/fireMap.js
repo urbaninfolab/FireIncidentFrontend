@@ -1576,6 +1576,95 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
         });
     }
 
+    var tranMarkers = [];
+
+    function buildTranMap() {
+
+        // Delete all markers
+        for (var i = 0; i < tranMarkers.length; i++) {
+            tranMarkers[i].remove();
+        }
+
+        var transit = document.querySelector(".transit").checked;
+
+        console.log("Urban mobility button clicked");
+
+        // mobility JSON data
+        if (transit) {
+            // fetch("../data/transportation/transitposition.json")
+            //   .then((response) => response.json())
+            //   .then((json) => console.log(json));
+            jsdata = '{"header":{"gtfsRealtimeVersion":"2.0","incrementality":"FULL_DATASET","timestamp":"1694631061"},"entity":[{"id":"2551","vehicle":{"trip":{"tripId":"2732178_6309","startDate":"20230913","routeId":"335"},"position":{"latitude":30.30258,"longitude":-97.7004,"bearing":116.31392,"speed":0},"currentStopSequence":1,"currentStatus":"STOPPED_AT","timestamp":"1694631060","stopId":"5926","vehicle":{"id":"2551","label":"2551"}}},{"id":"2306","vehicle":{"trip":{"tripId":"2731209_5257","startDate":"20230913","routeId":"323"},"position":{"latitude":30.340689,"longitude":-97.6933,"bearing":52.423656,"speed":9.074911},"currentStopSequence":9,"currentStatus":"IN_TRANSIT_TO","timestamp":"1694631058","stopId":"6424","vehicle":{"id":"2306","label":"2306"}}}]}'
+            const transit_json = JSON.parse(jsdata);
+            var iconLink = "assets/images/bus_icon.png";
+            console.log("Display Transit");
+            for (var i = 0; i < transit_json["entity"].length; i++){
+                var marker = L.marker([transit_json["entity"][i]["vehicle"]["position"]["latitude"], transit_json["entity"][i]["vehicle"]["position"]["longitude"]]).addTo(map);
+                // console.log([transit_json["entity"][i]["vehicle"]["position"]["latitude"], transit_json["entity"][i]["vehicle"]["position"]["longitude"]])
+                // Change the icon to a custom icon
+                marker.setIcon(L.icon({
+                    iconUrl: iconLink,
+                    iconSize: [24, 32],
+                    iconAnchor: [12, 32],
+                    popupAnchor: [0, -30]
+                }));
+
+
+                var route_id = transit_json["entity"][i]["vehicle"]["trip"]["routeId"]
+                var vehicle_id = transit_json["entity"][i]["id"]
+                var speed = transit_json["entity"][i]["vehicle"]["position"]["speed"]
+                marker.bindPopup(" Vehicle ID: " + vehicle_id + ", Route: " + route_id + ", Speed: " + speed + "m/s");
+
+                // store marker in array to be deleted later
+                tranMarkers.push(marker);
+            }
+        }
+        
+    }
+
+    var scooterMarkers = [];
+
+    function buildScooterMap() {
+
+        // Delete all markers
+        for (var i = 0; i < scooterMarkers.length; i++) {
+            scooterMarkers[i].remove();
+        }
+
+        var micromobility = document.querySelector(".micromobility").checked;
+
+        console.log("Urban mobility button clicked");
+
+        // mobility JSON data
+        if (micromobility) {
+            // fetch("../data/transportation/freebike.json")
+            //   .then((response) => response.json())
+            //   .then((json) => console.log(json));
+            jsdata = '{"last_updated":1694794522,"ttl":16,"version":"2.2","data":{"bikes":[{"bike_id":"ed7592c8-0a1e-4482-a614-0dd6e1b9ac6f","vehicle_type_id":"1","lat":30.27044,"lon":-97.75432,"is_reserved":false,"is_disabled":false,"pricing_plan_id":"a582358c-0fda-4335-8089-2ac014b38b8b"},{"bike_id":"f5a0b086-e400-4a67-bbdb-42fd17f857f1","vehicle_type_id":"1","lat":30.26451,"lon":-97.74535,"is_reserved":false,"is_disabled":false,"pricing_plan_id":"a582358c-0fda-4335-8089-2ac014b38b8b"},{"bike_id":"2840da9d-47d9-4fba-b1f5-c2e3c5b7b647","vehicle_type_id":"1","lat":30.25376,"lon":-97.73538,"is_reserved":false,"is_disabled":false,"pricing_plan_id":"a582358c-0fda-4335-8089-2ac014b38b8b"},{"bike_id":"357c78c7-4165-48b1-bbdb-8fd25c544020","vehicle_type_id":"1","lat":30.26454,"lon":-97.74416,"is_reserved":false,"is_disabled":false,"pricing_plan_id":"a582358c-0fda-4335-8089-2ac014b38b8b"},{"bike_id":"a6ec8ab2-e2b9-4d41-b1dd-c50354e306fc","vehicle_type_id":"1","lat":30.28782,"lon":-97.74225,"is_reserved":false,"is_disabled":false,"pricing_plan_id":"a582358c-0fda-4335-8089-2ac014b38b8b"}]}}'
+            const scooter_json = JSON.parse(jsdata);
+            var iconLink = "assets/images/scooter_icon.png";
+            console.log("Display Scooter");
+            for (var i = 0; i < scooter_json["data"]["bikes"].length; i++){
+                var marker = L.marker([scooter_json["data"]["bikes"][i]["lat"], scooter_json["data"]["bikes"][i]["lon"]]).addTo(map);
+                // Change the icon to a custom icon
+                marker.setIcon(L.icon({
+                    iconUrl: iconLink,
+                    iconSize: [24, 32],
+                    iconAnchor: [12, 32],
+                    popupAnchor: [0, -30]
+                }));
+
+                var bike_id = scooter_json["data"]["bikes"][i]["bike_id"]
+                var bike_type = scooter_json["data"]["bikes"][i]["vehicle_type_id"]
+                marker.bindPopup(" ID: " + bike_id + ", Type: " + bike_type);
+
+                // store marker in array to be deleted later
+                scooterMarkers.push(marker);
+            }
+        }
+        
+    }
+
     function buildDropdownMenu(map) {
         var checkList = document.getElementById('filter-menu');
         checkList.getElementsByClassName('anchor')[0].onclick = function (evt) {
@@ -1600,6 +1689,14 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
         document.querySelector(".hospital").addEventListener('click', function () {
             buildPOIMap();
+        });
+
+        document.querySelector(".transit").addEventListener('click', function () {
+            buildTranMap();
+        });
+
+        document.querySelector(".micromobility").addEventListener('click', function () {
+            buildScooterMap();
         });
 
         var checkboxOneSmoke = document.querySelector(".one-hour-smoke");
