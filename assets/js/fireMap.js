@@ -1594,11 +1594,15 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
             // fetch("../data/transportation/transitposition.json")
             //   .then((response) => response.json())
             //   .then((json) => console.log(json));
-            jsdata = '{"header":{"gtfsRealtimeVersion":"2.0","incrementality":"FULL_DATASET","timestamp":"1694631061"},"entity":[{"id":"2551","vehicle":{"trip":{"tripId":"2732178_6309","startDate":"20230913","routeId":"335"},"position":{"latitude":30.30258,"longitude":-97.7004,"bearing":116.31392,"speed":0},"currentStopSequence":1,"currentStatus":"STOPPED_AT","timestamp":"1694631060","stopId":"5926","vehicle":{"id":"2551","label":"2551"}}},{"id":"2306","vehicle":{"trip":{"tripId":"2731209_5257","startDate":"20230913","routeId":"323"},"position":{"latitude":30.340689,"longitude":-97.6933,"bearing":52.423656,"speed":9.074911},"currentStopSequence":9,"currentStatus":"IN_TRANSIT_TO","timestamp":"1694631058","stopId":"6424","vehicle":{"id":"2306","label":"2306"}}}]}'
+            jsdata = '{"header":{"gtfsRealtimeVersion":"2.0","incrementality":"FULL_DATASET","timestamp":"1694631061"},"entity":[{"id":"2551","vehicle":{"trip":{"tripId":"2732178_6309","startDate":"20230913","routeId":"335"},"position":{"latitude":30.30258,"longitude":-97.7004,"bearing":116.31392,"speed":0},"currentStopSequence":1,"currentStatus":"STOPPED_AT","timestamp":"1694631060","stopId":"5926","vehicle":{"id":"2551","label":"2551"}}},{"id":"2306","vehicle":{"trip":{"tripId":"2731209_5257","startDate":"20230913","routeId":"323"},"position":{"latitude":30.340689,"longitude":-97.6933,"bearing":52.423656,"speed":9.074911},"currentStopSequence":9,"currentStatus":"IN_TRANSIT_TO","timestamp":"1694631058","stopId":"6424","vehicle":{"id":"2306","label":"2306"}}},{"id":"2304","vehicle":{"trip":{"tripId":"2732839_6769","startDate":"20230913","routeId":"345"},"position":{"latitude":30.300224,"longitude":-97.71672,"bearing":179.29863,"speed":3.4422078},"currentStopSequence":12,"currentStatus":"STOPPED_AT","timestamp":"1694631058","stopId":"2312","vehicle":{"id":"2304","label":"2304"}}},{"id":"2303","vehicle":{"trip":{"tripId":"2730805_4955","startDate":"20230913","routeId":"318"},"position":{"latitude":30.23089,"longitude":-97.79216,"bearing":27.723995,"speed":8.6278715},"currentStopSequence":40,"currentStatus":"STOPPED_AT","timestamp":"1694631059","stopId":"2216","vehicle":{"id":"2303","label":"2303"}}}]}'
             const transit_json = JSON.parse(jsdata);
             var iconLink = "assets/images/bus_icon.png";
             console.log("Display Transit");
             for (var i = 0; i < transit_json["entity"].length; i++){
+                if (!transit_json["entity"][i]["vehicle"].hasOwnProperty("trip")) {
+                    console.log(i);
+                    continue;
+                }
                 var marker = L.marker([transit_json["entity"][i]["vehicle"]["position"]["latitude"], transit_json["entity"][i]["vehicle"]["position"]["longitude"]]).addTo(map);
                 // console.log([transit_json["entity"][i]["vehicle"]["position"]["latitude"], transit_json["entity"][i]["vehicle"]["position"]["longitude"]])
                 // Change the icon to a custom icon
@@ -1608,7 +1612,6 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                     iconAnchor: [12, 32],
                     popupAnchor: [0, -30]
                 }));
-
 
                 var route_id = transit_json["entity"][i]["vehicle"]["trip"]["routeId"]
                 var vehicle_id = transit_json["entity"][i]["id"]
