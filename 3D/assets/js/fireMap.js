@@ -108,7 +108,7 @@ function toggleLayerCustom1(ids, bool) {
                 let date = dateArray[i];
                 //let jsonUrl = 'https://smartcity.tacc.utexas.edu/data/' + date + '-FireMap' + cities[city] + '.json';
                 //let jsonUrl = 'demoFireMap.json';
-                let jsonUrl = 'https://smartcity.tacc.utexas.edu/data/' + date + '-FireMap.json';
+                let jsonUrl = 'https://firesync.uturbaninfolab.workers.dev/data/' + date + '-FireMap.json';
                 let response = await fetch(jsonUrl);
                 let currentData = await response.json();
 
@@ -177,15 +177,15 @@ function toggleLayerCustom1(ids, bool) {
         let windDirections = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
         let angles = [0, 25, 45, 65, 90, 115, 135, 155, 180, 205, 225, 245, 270, 295, 315, 335];
         var activeFireIcon = L.icon({
-            iconUrl: "https://smartcity.tacc.utexas.edu/FireIncident/assets/images/fire.png",
+            iconUrl: "https://fire.austindigitaltwin.com/assets/images/fire.png",
             iconSize: [70, 70], // size of the icon
         });
         var windDirectionIcon = L.icon({
-            iconUrl: "https://smartcity.tacc.utexas.edu/FireIncident/assets/images/arrow.png",
+            iconUrl: "https://fire.austindigitaltwin.com/assets/images/arrow.png",
             iconSize: [70, 70], // size of the icon
         });
         var deactiveFireIcon = L.icon({
-            iconUrl: "https://smartcity.tacc.utexas.edu/FireIncident/assets/images/deactive_fire.png",
+            iconUrl: "https://fire.austindigitaltwin.com/assets/images/deactive_fire.png",
             iconSize: [70, 70], // size of the icon
         });
         let link = data.link;
@@ -1906,7 +1906,7 @@ function toggleLayerCustom1(ids, bool) {
         }
     
         container.innerHTML = `
-        <div class=\"geocoder-control-input leaflet-bar\" title=\"Check My Location\" style=\"position:absolute;top:0px; background-image: url(https://smartcity.tacc.utexas.edu/FireIncident/assets/images/location.png)\"></div><div class=\"geocoder-control-suggestions leaflet-bar\"><div class=\"\"></div></div>\r\n
+        <div class=\"geocoder-control-input leaflet-bar\" title=\"Check My Location\" style=\"position:absolute;top:0px; background-image: url(https://fire.austindigitaltwin.com/assets/images/location.png)\"></div><div class=\"geocoder-control-suggestions leaflet-bar\"><div class=\"\"></div></div>\r\n
         `;
 
         return container;
@@ -1952,7 +1952,7 @@ L.Control.Watermark = L.Control.extend({
         container.innerHTML = `
         <div class=\"geocoder-control-input leaflet-bar\" title=\"Stats\" style=\"    
 
-        background-image: url(); width:35px; \"><img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/stats1.png" style="width: 20px;height: 20px;position: absolute;left: 5px;"></div><div class=\"geocoder-control-suggestions leaflet-bar\"><div class=\"\"></div></div>\r\n
+        background-image: url(); width:35px; \"><img src="https://fire.austindigitaltwin.com/assets/images/stats1.png" style="width: 20px;height: 20px;position: absolute;left: 5px;"></div><div class=\"geocoder-control-suggestions leaflet-bar\"><div class=\"\"></div></div>\r\n
         `;
 
         return container;

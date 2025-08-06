@@ -6,7 +6,7 @@
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.105.1/Build/Cesium/Cesium.js"></script>
   <link href="https://cesium.com/downloads/cesiumjs/releases/1.105.1/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://smartcity.tacc.utexas.edu/FireIncident/Demo3D/assets/css/fireMap.css">
+  <link rel="stylesheet" href="https://fire.austindigitaltwin.com/Demo3D/assets/css/fireMap.css">
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -14,9 +14,9 @@
   <script src="https://cdn.jsdelivr.net/gh/cesium-plugin/cesium-popup-es6@main/dist/cesium-popup-es6.umd.js"></script>
 
 
-  <link rel="preload" href="https://smartcity.tacc.utexas.edu/FireIncident/assets/fonts/ManifoldDSA/ManifoldDSA-Medium.woff" as="font" type="font/woff" crossorigin="">
-  <link rel="preload" href="https://smartcity.tacc.utexas.edu/FireIncident/assets/fonts/ManifoldDSA/ManifoldDSA-ExtraBold.woff" as="font" type="font/woff" crossorigin="">
-  <link rel="preload" href="https://smartcity.tacc.utexas.edu/FireIncident/assets/fonts/FontAwesome/fa-solid-900.woff" as="font" type="font/woff" crossorigin="">
+  <link rel="preload" href="https://fire.austindigitaltwin.com/assets/fonts/ManifoldDSA/ManifoldDSA-Medium.woff" as="font" type="font/woff" crossorigin="">
+  <link rel="preload" href="https://fire.austindigitaltwin.com/assets/fonts/ManifoldDSA/ManifoldDSA-ExtraBold.woff" as="font" type="font/woff" crossorigin="">
+  <link rel="preload" href="https://fire.austindigitaltwin.com/assets/fonts/FontAwesome/fa-solid-900.woff" as="font" type="font/woff" crossorigin="">
 </head>
 <style>
     html,
@@ -92,7 +92,7 @@ body,
             <!-- Fire Logo -->
             <a href="#" onclick="info()" style="float: left; margin-right: 1rem; margin-top:0;">
                 <span style="margin-left: 10px; max-height: 25px; margin-top: -5px; display: block; max-width: 100%; height: auto;">
-                    <img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/firelogo.svg" width="50px" height="50px" xml:space="preserve"> 
+                    <img src="https://fire.austindigitaltwin.com/assets/images/firelogo.svg" width="50px" height="50px" xml:space="preserve"> 
                 </span>
             </a>
     
@@ -261,7 +261,7 @@ body,
         
                     <div id="filter-menu2" class="dropdown-check-list2" tabindex="100" style="position:relative; margin-top: 17px; margin-left: 15px;">
                         <a onclick="stats()" href="#">
-                        <img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/stats.png" width="25px" height="25px" xml:space="preserve"> 
+                        <img src="https://fire.austindigitaltwin.com/assets/images/stats.png" width="25px" height="25px" xml:space="preserve"> 
                     </a>
     
                     </div>
@@ -315,9 +315,9 @@ body,
                     </div> -->
     
                     <div id="filter-menu" class="dropdown-check-list2" tabindex="100" style="position:relative; margin-top: 17px; margin-left: 15px;">
-                        <a href="https://smartcity.tacc.utexas.edu/FireIncident/Demo2D" style="text-decoration:none;">
+                        <a href="https://fire.austindigitaltwin.com/Demo2D" style="text-decoration:none;">
                             <h3 style="position:relative; top: -20px; color:white"><b>2D</b></h3>
-                        <!--<img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/stats.png" width="25px" height="25px"  xml:space="preserve"> </img>-->
+                        <!--<img src="https://fire.austindigitaltwin.com/assets/images/stats.png" width="25px" height="25px"  xml:space="preserve"> </img>-->
                     </a>
     
                     </div>
@@ -332,7 +332,7 @@ body,
             <a href="http://goodsystems.utexas.edu" style="display: none; float: right; margin-right: 1rem; margin-top:0;">
                 <span style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;color: #fff">University of Texas at Austin</span> 
                 <span style="max-height: 25px; margin-top: 9px; display: block; max-width: 100%; height: auto;">
-                    <img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/goodsystems.svg" width="115px" height="25px" xml:space="preserve"> 
+                    <img src="https://fire.austindigitaltwin.com/assets/images/goodsystems.svg" width="115px" height="25px" xml:space="preserve"> 
                 </span>
             </a>
         </div>
@@ -417,7 +417,7 @@ async function plotPoint(tileset, lat, lng, fireData) {
         let billboardEntity = viewer.entities.add({
             position: clampPosition,
             billboard: {
-                image: 'https://smartcity.tacc.utexas.edu/FireIncident/assets/images/fire.png',
+                image: 'https://fire.austindigitaltwin.com/assets/images/fire.png',
                 //verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
                 scale: 0.1,
                 // Allow see through everything by doing allowing any depth
@@ -568,7 +568,7 @@ var entity = viewer.entities.add({
 function fetchAllData() {
 
 // Use the Fetch API to get the data
-fetch('https://smartcity.tacc.utexas.edu/FireIncident/data/2022-08-08-FireMap.json')
+fetch('https://fire.austindigitaltwin.com/data/2022-08-08-FireMap.json')
     .then(response => response.json())
     .then(data => {
         // data now contains the JSON data from the URL
@@ -591,7 +591,7 @@ fetch('https://smartcity.tacc.utexas.edu/FireIncident/data/2022-08-08-FireMap.js
             plotPoint(window.tileset, parseFloat(lat), parseFloat(lng), item);
             
             // load and display the fbx file
-            //let modelUrl = `https://smartcity.tacc.utexas.edu/FireIncident/data/generated/${latLng}.fbx3`;
+            //let modelUrl = `https://fire.austindigitaltwin.com/data/generated/${latLng}.fbx3`;
             //console.log(modelUrl);
             let modelUrl = `${latLng}.glb`;
             //let modelUrl = `30.285337,-97.7397203.glb`;
@@ -1040,7 +1040,7 @@ viewer.flyTo(entity, {
     // async function plotPoint(lat, lng) {
 
     //     // Plot a point using 3D Tiles ClampToGround
-    //     // Just make a marker with logo 'https://smartcity.tacc.utexas.edu/FireIncident/assets/images/fire.png',
+    //     // Just make a marker with logo 'https://fire.austindigitaltwin.com/assets/images/fire.png',
     //     // at the given latlng coordinates
 
 
@@ -1069,7 +1069,7 @@ viewer.flyTo(entity, {
 
     //     //     billboards.add({
     //     //         position : yay,
-    //     //         image : 'https://smartcity.tacc.utexas.edu/FireIncident/assets/images/fire.png',
+    //     //         image : 'https://fire.austindigitaltwin.com/assets/images/fire.png',
     //     //         scale : 0.1,
     //     //         show: true, // default
     //     //         disableDepthTestDistance : Number.POSITIVE_INFINITY,
