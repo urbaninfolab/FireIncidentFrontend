@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Active Fire Incidents Map - Smart Cities</title> 
+		<meta name="description" content="National city fire tracker. Find fires nearby and smoke fallouts.">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<!-- Open Graph tags for social media -->
+		<meta property="og:title" content="Active Fire Incidents Map - Smart Cities">
+		<meta property="og:description" content="National city fire tracker. Find fires nearby and smoke fallouts.">
+		<meta property="og:image" content="https://img.itch.zone/aW1hZ2UvMTQ4MDY3NS85Mzc5NTEwLnBuZw==/original/IRJDeW.png">
+		<meta property="og:url" content="https://smartcity.tacc.utexas.edu/FireIncident/FireIncidentMap.html">
+
+		<!-- Enables Twitter support -->
+		<meta name="twitter:card" content="summary">
+
+		<!-- Leaflet requirements -->
+
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin="" />
+		<!-- Make sure you put this AFTER Leaflet's CSS -->
+		<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+			integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+			crossorigin=""></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script src="https://smartcity.tacc.utexas.edu/FireIncident/assets/js/leaflet-rotatedMarker.js"></script>
+		<script src="https://smartcity.tacc.utexas.edu/FireIncident/assets/js/leaflet.shpfile.js"></script>
+		<script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script>
+		<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.css' rel='stylesheet' />
+		<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.js'></script>
+		<script src="https://unpkg.com/mapbox-gl-leaflet/leaflet-mapbox-gl.js"></script>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.3/proj4.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/gipong/shp2geojson.js@master/lib/jszip.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/gipong/shp2geojson.js@master/lib/jszip-utils.js"></script>
+		<!--[if IE]>
+		<script type="text/javascript" src="lib/jszip-utils-ie.js"></script>
+		<![endif]-->
+		
+		<script src="https://cdn.jsdelivr.net/gh/gipong/shp2geojson.js@master/preprocess.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/gipong/shp2geojson.js@master/preview.js"></script>
+		
+		<script src="https://unpkg.com/leaflet.markercluster@1.1.0/dist/leaflet.markercluster.js"></script>
+		<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.1.0/dist/MarkerCluster.css" />
+		<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.1.0/dist/MarkerCluster.Default.css" />
+
+		<script src="https://cdn.jsdelivr.net/gh/zostera/leaflet-legend@master/leaflet-legend.js"></script>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/zostera/leaflet-legend@master/leaflet-legend.css" />
+
+		<script src="https://smartcity.tacc.utexas.edu/FireIncident/assets/js/shp.js"></script>
+		<script src="https://cdn.jsdelivr.net/gh/windycom/leaflet-kml/L.KML.min.js"></script>
+		<link
+		rel="stylesheet"
+		href="https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.css"
+		/>
+		<!-- Make sure you put this AFtER leaflet.js, when using with leaflet -->
+		<script src="https://unpkg.com/leaflet-geosearch@3.0.0/dist/geosearch.umd.js"></script>
+
+		<link rel="stylesheet" href="https://uicdn.toast.com/chart/latest/toastui-chart.min.css" />
+		<script src="https://uicdn.toast.com/chart/latest/toastui-chart.min.js"></script>
+
+		<!-- Load Esri Leaflet from CDN -->
+		<script src="https://unpkg.com/esri-leaflet"></script>
+
+		<!-- Esri Leaflet Geocoder -->
+		<link
+		rel="stylesheet"
+		href="https://unpkg.com/esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css"
+		/>
+		<script src="https://unpkg.com/esri-leaflet-geocoder"></script>
+
+		<link rel="stylesheet" href="assets/css/style.css">
+		<link rel="shortcut icon" href="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/favicon.ico">
+
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+		<!-- preload essential fonts -->
+		<link rel="preload" href="https://smartcity.tacc.utexas.edu/FireIncident/assets/fonts/ManifoldDSA/ManifoldDSA-Medium.woff" as="font" type="font/woff" crossorigin>
+		<link rel="preload" href="https://smartcity.tacc.utexas.edu/FireIncident/assets/fonts/ManifoldDSA/ManifoldDSA-ExtraBold.woff" as="font" type="font/woff" crossorigin>
+		<link rel="preload" href="https://smartcity.tacc.utexas.edu/FireIncident/assets/fonts/FontAwesome/fa-solid-900.woff" as="font" type="font/woff" crossorigin>
+
+
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-LXDZCKSKZQ"></script>
+		<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'G-LXDZCKSKZQ');
+		</script>
+
+	</head>
+
+<!--
+
+Check My Location button code leaflet
+
+<div class="geocoder-control leaflet-control"><div class="geocoder-control-input leaflet-bar" title="Check My Location" style="background-image: url(assets/images/location.png)"></div><div class="geocoder-control-suggestions leaflet-bar"><div class=""></div></div></div>
+
+
+
+-->
+
+	<style>
+		       /* Text alignment for body */
+			   body {
+            text-align: center;
+        }
+          
+        /* Styling h1 tag */
+        h1 {
+            color: green;
+            text-align: center;
+        }
+          
+		        /* Styling modal */
+				.modal:before {
+            content: '';
+            display: inline-block;
+            height: 100%;
+            vertical-align: middle;
+            text-align: center;
+        }
+          
+        .modal-dialog {
+            display: inline-block;
+            vertical-align: middle;
+			align-content: center;
+        }
+          
+        .modal .modal-content {
+            padding: 20px 20px 20px 20px;
+            -webkit-animation-name: modal-animation;
+            -webkit-animation-duration: 0.5s;
+            animation-name: modal-animation;
+            animation-duration: 0.5s;
+        }
+
+	</style>
+
+	<body>
+					
+			<div id="map"></div>
+
+		
+		<div id="spinner">
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+		</div>
+		
+		  <!-- Modal -->
+		  <div class="modal fade" id="statsModal" role="dialog" style="overflow: hidden; margin-top: 10px;" >
+			<div class="modal-dialog" style="width: 80%; height: 120%;overflow: hidden; " >
+			
+			  <!-- Modal content-->
+			  <div class="modal-content" style="height: 80%; overflow: hidden;">
+				<div class="modal-header" style="overflow: hidden;" >
+				  <button type="button" class="close" data-dismiss="modal">&times;</button>
+				  <h4 class="modal-title">Active Fire Incidents Stats</h4>
+				</div>
+				<iframe frameBorder="0" src="https://smartcity.tacc.utexas.edu/FireIncident/FireIncidentStats.html" width="130%" height="130%" style="overflow: hidden;        -ms-zoom: 0.75; 
+				-moz-transform: scale(0.75);
+				-moz-transform-origin: 0 0;
+				-o-transform: scale(0.75);
+				-o-transform-origin: 0 0;
+				-webkit-transform: scale(0.75);
+				-webkit-transform-origin: 0 0;"></iframe>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			  </div>
+			  
+			</div>
+		  </div>
+
+
+		<!-- Modal -->
+		  <div class="modal fade" id="infoModal" role="dialog" >
+			<div id="InfoBox" class="modal-dialog">
+			
+			  <!-- Modal content-->
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <button type="button" class="close" data-dismiss="modal">&times;</button>
+				  <h4 class="modal-title">Active Fire Incidents Map Information</h4>
+				</div>
+				<div class="modal-body" style="text-align:left;">
+					<h4>About</h4>
+
+					<p>This page provides live weather information of active fire incidents as an interactive map.
+						It also provides predicted smoke fallout from each fire, as well as live air quality data.
+						We currently collect and showcase past and present fires from over 20+ cities.
+					</p>
+				  
+				  <h4>Credits</h4>
+
+				  <p>It was created underneath the Smart Cities Project, under the Good Systems Initiative in collaboration with The University of Texas at Austin.</p>
+				Additional support for this project comes from the Texas Advanced Computing Center, The Georgia Forestry Commission, and the Austin Fire Department.</p>
+				
+				<div style="text-align:center;">
+					
+				<img width="25%" height="25%"  src="https://www.grcooling.com/wp-content/uploads/2018/04/tacc-logo.jpg"></img>
+				<img width="15%" height="15%" src="https://bloximages.newyork1.vip.townnews.com/northwestgeorgianews.com/content/tncms/assets/v3/editorial/a/08/a0838f32-e071-11e9-9839-b30e780dd5d0/5d8cd81b48f48.image.jpg?resize=400%2C533"></img>
+				<img width="15%" height="15%" src="https://www.austintexas.gov/themes/custom/coa/microsites/coa_psrecruiting_fire/images/logo.png"></img>
+					</div>
+				An extended list of credits can be found <a href="#" onclick="credits()">here</a>.
+			</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			  </div>
+			  
+			</div>
+		  </div>
+
+		  		<!-- Modal -->
+		<div class="modal fade" id="creditsModal" role="dialog">
+			<div id="InfoBox1" class="modal-dialog">
+			
+				<!-- Modal content-->
+				<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<h4 class="modal-title">Active Fire Incidents Map Extended Credits</h4>
+				</div>
+				<div class="modal-body" id="statsBody" style="text-align:left;">
+					This fire map could not be possible without the help of the following fire departments:
+					<br><br>
+					Austin Fire Department<br>
+					Dallas Fire Department<br>
+					El Paso Fire Department<br>
+					Houston Fire Department<br>
+					Los Angeles Fire Department<br>
+					San Antonio Fire Department<br>
+
+					
+				</div>
+				<div class="modal-footer">
+					<button onclick="$('#infoModal').show()" type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+				</div>
+				
+			</div>
+			</div>
+		  
+		  <script type="text/javascript">
+			function stats(){
+				$("#statsModal").modal({backdrop: true});
+			}
+			function info(){
+				$("#infoModal").modal({backdrop: true});
+			}
+			function credits(){
+				$('#infoModal').hide();
+				$("#creditsModal").modal({backdrop: true});
+			}
+
+		</script>
+
+<section>
+    <div style="display: block; background-color: #bf1d00; height: 40px; text-align: center; user-select: none;" >
+		
+		<div  onclick="info()">
+		<!-- Fire Logo -->
+		<a href="#" onclick="info()" style="float: left; margin-right: 1rem; margin-top:0;">
+            <span style="margin-left: 10px; max-height: 25px; margin-top: -5px; display: block; max-width: 100%; height: auto;">
+                <img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/firelogo.svg" width="50px" height="50px"  xml:space="preserve"> </img>
+            </span>
+        </a>
+
+		<!-- Fire Toggles -->
+
+
+			<h2 id="MapTitle" style="float: left; margin-right: 1rem; margin-top:5px; color: white;"><b><a style="color:white" href="#">Active Fire Incidents Map</a></b></h2>
+			</div>
+								<!--
+                                <div id="get-help">
+                                        <p><a onclick="stats()" href="#">View Stats</a></p>
+                                        <p><a onclick="info()" href="#">More Information</a></p>
+                                </div>
+								-->
+
+
+								
+		<!-- College/Project Branding -->
+        <a href="http://www.utexas.edu" style="float: right; margin-right: 1rem; margin-top:0;">
+            <span style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;color: #fff">University of Texas at Austin</span> 
+            <span style="max-height: 25px; margin-top: 9px; display: block; max-width: 100%; height: auto;">
+                <svg id="UTexas" xmlns="http://www.w3.org/2000/svg" width="115px" height="25px" viewBox="0 0 154 34" xml:space="preserve">
+                    <g id="ShieldTexas" style="fill:#ffffff;">
+                        <path id="S" d="M148.3,14.1l-4.5-2c-2.1-0.9-3.7-2.3-3.7-4.4c0-2.6,1.8-4.3,4.9-4.3c2.3,0,3.6,0.9,4.6,1.9
+                            l1.1,3.6h2V3.6c-2-1.4-4.7-2.3-7.1-2.3c-5.4,1.1-9.3,3.6-9.3,7.9c0,3.5,2.3,5.3,5.1,6.5l4.7,2.1c2.3,1,4.1,2.5,4.1,5.2
+                            c0,2.9-2,5-5.3,5c-2.2,0-4.3-1-5.5-2.5l-1.4-3.3h-2.7l0.9,5.3c2.1,1.6,4.5,2.7,8.1,2.7c7.3-1.5,9.8-5.1,9.8-8.7
+                            C154,17.4,151.3,15.4,148.3,14.1z"></path>
+                        <path id="XA" d="M121.8,1.7l-2.3,0.7l-9.7,25.3l-1.9,0.3l-1.9-0.3l-8.7-12.8l8-11l3-0.4L108.2,2l-4.6,0.1
+                            L99.1,2l-0.2,1.4l3.4,0.5L96.1,13l-5.5-9.1l3.3-0.5L93.7,2l-5.5,0.2L82.6,2l-0.2,1.4l3,0.4L93.5,16l-8.4,11.6L82,28l0.2,1.4
+                            l4.4-0.1l4.6,0.1l0.2-1.4l-3.2-0.5l6.7-9.7l6.1,9.7L97.6,28l0.2,1.4l5.6-0.1l4.6,0.1l3.2-0.1l4.7,0.1l0.2-1.4l-3.4-0.5l2.5-7.3
+                            h9.6l2.7,7.3l-3.3,0.5l0.2,1.4l5.2-0.1l5.4,0.1l0.2-1.4l-3-0.4L121.8,1.7z M115.7,18.4l4-11.7l4.3,11.7H115.7z"></path>
+                        <polygon id="E" points="76.5,27.5 65.7,27.6 65.7,15.9 71.2,16 72.8,20.1 74.1,20.1 73.7,14.9 74.1,10
+                            72.8,10 71.2,14.1 65.7,14.2 65.7,3.9 76.1,4 78.3,9 79.6,9 79.2,2 63.7,2.1 58.3,2 58.1,3.4 61.6,3.9 61.6,27.6 58.1,28.1
+                            58.3,29.4 63.7,29.3 79.2,29.4 80.6,22.2 79.1,22.2 		"></polygon>
+                        <polygon id="T" points="33.5,2 33.5,8.9 35.1,8.9 36.9,4 42.7,3.9 42.7,27.6 38,28.1 38.2,29.4 44.8,29.3
+                            51.1,29.4 51.3,28.1 46.8,27.6 46.8,3.9 52.7,4 54.5,8.9 56,8.9 56,2 44.7,2.1 		"></polygon>
+                        <path id="Laurel" d="M21.7,21.3c-0.3,0.3-0.7,0.6-1.2,0.7c0.1-0.5,0.3-0.9,0.6-1.2c0.3-0.3,0.7-0.6,1.2-0.7
+                            C22.2,20.6,22,21,21.7,21.3L21.7,21.3z M20,18.7c-0.1-0.5,0-0.9,0.2-1.3c0.3,0.3,0.5,0.8,0.6,1.2c0.1,0.5,0,0.9-0.2,1.3
+                            C20.3,19.5,20.1,19.1,20,18.7L20,18.7z M21,15.2c-0.1-0.5,0-0.9,0.1-1.3c0.3,0.3,0.5,0.7,0.6,1.2c0.1,0.5,0,0.9-0.1,1.3
+                            C21.3,16,21,15.6,21,15.2L21,15.2z M23.1,16.2c0,0.5-0.1,0.9-0.3,1.3c-0.2,0.4-0.6,0.7-1,0.9c0-0.5,0.1-0.9,0.3-1.3
+                            C22.4,16.7,22.7,16.4,23.1,16.2L23.1,16.2z M19.8,24.8c-0.4,0.3-0.8,0.4-1.3,0.4c0.2-0.4,0.4-0.8,0.8-1.1c0.4-0.3,0.8-0.4,1.3-0.4
+                            C20.4,24.2,20.2,24.5,19.8,24.8L19.8,24.8z M18.7,21.9c0-0.5,0.2-0.9,0.5-1.3c0.2,0.4,0.3,0.8,0.3,1.3c0,0.5-0.2,0.9-0.5,1.3
+                            C18.8,22.8,18.7,22.3,18.7,21.9L18.7,21.9z M17.5,25c-0.1,0.4-0.4,0.8-0.7,1.1c-0.1-0.4-0.1-0.9,0-1.3c0.1-0.4,0.4-0.8,0.7-1.1
+                            C17.6,24,17.7,24.5,17.5,25L17.5,25z M18.2,27c-0.2,0.4-0.6,0.7-1,0.9C16.9,28,16.6,28,16.3,28l0,0c-0.1,0-0.3,0-0.4,0
+                            c0.2-0.4,0.6-0.7,1-0.9C17.3,26.9,17.8,26.9,18.2,27L18.2,27z M14.3,27.1c0.2-0.4,0.6-0.7,1-0.9c0,0.5,0,0.9-0.3,1.3
+                            c-0.2,0.4-0.6,0.7-1,0.9C13.9,28,14,27.5,14.3,27.1L14.3,27.1z M9.1,27.8c-0.4-0.2-0.8-0.5-1-0.9c0.4-0.1,0.9,0,1.3,0.2
+                            c0.4,0.2,0.8,0.5,1,0.9C10,28.1,9.6,28,9.1,27.8L9.1,27.8z M8.8,25c-0.1-0.4-0.1-0.9,0-1.3c0.4,0.3,0.6,0.7,0.7,1.1
+                            c0.1,0.4,0.1,0.9,0,1.3C9.2,25.8,8.9,25.4,8.8,25L8.8,25z M11.1,26.2c0.4,0.2,0.7,0.5,1,0.9c0.2,0.4,0.3,0.9,0.3,1.3
+                            c-0.4-0.2-0.7-0.5-1-0.9C11.2,27.1,11.1,26.6,11.1,26.2L11.1,26.2z M6.5,24.8c-0.4-0.3-0.7-0.6-0.8-1.1c0.5,0,0.9,0.2,1.3,0.4
+                            c0.4,0.3,0.7,0.6,0.8,1.1C7.4,25.2,6.9,25.1,6.5,24.8L6.5,24.8z M7.1,20.6c0.3,0.4,0.5,0.8,0.5,1.2c0,0.5-0.1,0.9-0.3,1.3
+                            c-0.3-0.4-0.5-0.8-0.5-1.3C6.8,21.5,6.9,21,7.1,20.6L7.1,20.6z M4.6,21.3c-0.3-0.3-0.5-0.8-0.6-1.2c0.4,0.1,0.8,0.3,1.2,0.7
+                            c0.3,0.3,0.5,0.8,0.6,1.2C5.3,21.9,4.9,21.7,4.6,21.3L4.6,21.3z M4.5,18.4c-0.4-0.2-0.8-0.5-1-0.9s-0.3-0.9-0.3-1.3
+                            c0.4,0.2,0.8,0.5,1,0.9C4.4,17.5,4.5,18,4.5,18.4L4.5,18.4z M4.6,15c0.1-0.5,0.3-0.9,0.6-1.2c0.2,0.4,0.2,0.9,0.1,1.3
+                            c-0.1,0.5-0.3,0.9-0.6,1.2C4.6,15.9,4.5,15.5,4.6,15L4.6,15z M5.5,18.5c0.1-0.5,0.3-0.9,0.6-1.2c0.2,0.4,0.3,0.9,0.2,1.3
+                            c-0.1,0.5-0.3,0.9-0.6,1.2C5.5,19.5,5.4,19,5.5,18.5L5.5,18.5z M21.7,19.1c0.7-0.2,1.3-0.7,1.7-1.3c0.4-0.6,0.5-1.4,0.3-2.1
+                            l-0.1-0.3l-0.3,0.1c-0.4,0.1-0.7,0.3-1,0.5c0.1-0.4,0.1-0.7,0-1.1c-0.1-0.7-0.5-1.4-1.1-1.8l-0.3-0.2l-0.2,0.3
+                            c-0.4,0.6-0.5,1.4-0.4,2.1c0.1,0.7,0.5,1.4,1.1,1.8c-0.1,0.2-0.2,0.5-0.2,0.8c-0.2-0.5-0.5-0.9-0.9-1.2l-0.3-0.2L20,16.7
+                            c-0.4,0.6-0.6,1.3-0.5,2.1c0.1,0.7,0.5,1.4,1,1.9l0,0c-0.2,0.2-0.3,0.5-0.4,0.7c-0.1-0.5-0.3-1-0.6-1.4l-0.2-0.3L19,19.9
+                            c-0.5,0.5-0.9,1.2-0.9,1.9c-0.1,0.7,0.2,1.5,0.6,2l0,0c-0.2,0.2-0.4,0.4-0.5,0.6c0-0.5-0.1-1-0.3-1.5l-0.1-0.3l-0.3,0.2
+                            c-0.6,0.4-1.1,1-1.3,1.7C16,25.3,16,26,16.4,26.7l0,0c-0.2,0.1-0.5,0.3-0.7,0.5c0.1-0.5,0.1-1,0-1.5l-0.1-0.3l-0.3,0.1
+                            c-0.7,0.2-1.3,0.7-1.6,1.4c-0.3,0.6-0.4,1.3-0.3,2c-0.1,0.1-0.2,0.1-0.3,0.2c-0.1-0.1-0.2-0.1-0.3-0.2c0.2-0.7,0.1-1.4-0.3-2
+                            c-0.4-0.6-0.9-1.1-1.6-1.4l-0.3-0.1l-0.1,0.3c-0.1,0.5-0.1,1,0,1.5c-0.2-0.2-0.4-0.4-0.7-0.5l0,0c0.3-0.7,0.4-1.4,0.2-2.1
+                            c-0.2-0.7-0.7-1.3-1.3-1.7l-0.3-0.2L8.4,23c-0.2,0.5-0.3,1-0.3,1.5C8,24.3,7.8,24,7.6,23.9l0,0c0.5-0.6,0.7-1.3,0.6-2
+                            c-0.1-0.7-0.4-1.4-0.9-1.9L7,19.7l-0.2,0.3c-0.3,0.4-0.5,0.9-0.6,1.4c-0.1-0.3-0.2-0.5-0.4-0.7l0,0c0.6-0.5,0.9-1.1,1-1.9
+                            C7,18,6.8,17.3,6.4,16.7l-0.2-0.3l-0.3,0.2c-0.4,0.3-0.7,0.8-0.9,1.2c0-0.3-0.1-0.5-0.2-0.8c0.6-0.4,1-1.1,1.1-1.8
+                            c0.1-0.7,0-1.5-0.4-2.1l-0.2-0.3l-0.3,0.2c-0.6,0.4-1,1.1-1.1,1.8c-0.1,0.4-0.1,0.7,0,1.1c-0.3-0.2-0.6-0.4-1-0.5l-0.3-0.1
+                            l-0.1,0.3c-0.2,0.7,0,1.5,0.3,2.1c0.4,0.6,1,1.1,1.7,1.3l0.3,0.1c0,0.2,0.1,0.5,0.2,0.7c-0.4-0.3-0.8-0.4-1.3-0.4l-0.3,0l0,0.3
+                            c0,0.7,0.3,1.4,0.7,2c0.5,0.5,1.2,0.9,1.9,0.9l0.3,0c0.1,0.2,0.2,0.4,0.3,0.6c-0.3-0.1-0.7-0.2-1-0.2c-0.1,0-0.2,0-0.4,0l-0.3,0
+                            L5,23.5c0.1,0.7,0.5,1.4,1.1,1.8c0.5,0.4,1.1,0.5,1.7,0.5c0.1,0,0.2,0,0.4,0l0.3,0C8.6,26,8.8,26.2,9,26.3c-0.5-0.1-0.9,0-1.4,0.1
+                            l-0.3,0.1l0.1,0.3c0.3,0.7,0.8,1.2,1.5,1.5c0.4,0.2,0.8,0.2,1.2,0.2c0.3,0,0.6-0.1,1-0.2l0.2-0.1c0.4,0.3,0.8,0.6,1.4,1
+                            c-0.3,0.2-0.6,0.4-0.9,0.6l0.6,0.4c0.3-0.2,0.6-0.4,0.9-0.6c0.3,0.2,0.5,0.4,0.9,0.6l0.6-0.4c-0.3-0.2-0.6-0.4-0.9-0.6
+                            c0.6-0.4,1-0.7,1.4-1l0.2,0.1c0.3,0.1,0.6,0.2,1,0.2l0,0c0.4,0,0.8-0.1,1.2-0.2c0.7-0.3,1.2-0.8,1.5-1.5l0.1-0.3l-0.3-0.1
+                            c-0.4-0.2-0.9-0.2-1.4-0.1c0.2-0.2,0.3-0.4,0.4-0.6l0.3,0c0.1,0,0.2,0,0.4,0l0,0c0.6,0,1.2-0.2,1.7-0.5c0.6-0.4,1-1.1,1.1-1.8
+                            l0.1-0.3l-0.3,0c-0.1,0-0.2,0-0.4,0c-0.3,0-0.7,0.1-1,0.2c0.1-0.2,0.2-0.4,0.3-0.6l0.3,0c0.7-0.1,1.4-0.4,1.9-0.9s0.8-1.2,0.7-2
+                            l0-0.3l-0.3,0c-0.5,0-0.9,0.2-1.3,0.4c0.1-0.2,0.1-0.4,0.2-0.7L21.7,19.1L21.7,19.1z"></path>
+                        <path id="Star" d="M12.4,16.9l0.8-2l0.8,2l2.1,0.1l-1.6,1.4l0.5,2.1l-1.8-1.1l-1.8,1.1l0.5-2.1l-1.6-1.4
+                            L12.4,16.9L12.4,16.9z M7.6,16.2L7.6,16.2l3.4,2.5l-1.3,4.1c0,0,0,0,0,0s0,0,0,0l3.5-2.5l3.5,2.5c0,0,0,0,0,0c0,0,0,0,0,0l-1.3-4
+                            l3.4-2.5l0,0c0,0,0,0,0,0c0,0,0,0,0,0v0h-4.2l-1.3-4h0c0,0,0,0,0,0c0,0,0,0,0,0h0l-1.3,4L7.6,16.2L7.6,16.2
+                            C7.6,16.2,7.6,16.2,7.6,16.2C7.6,16.2,7.6,16.2,7.6,16.2L7.6,16.2z"></path>
+                        <path id="Book" d="M16.6,8.5c-0.7-0.1-1.4-0.2-2-0.2c-0.3,0-0.6,0-0.9,0.1l-0.1-4V3.7
+                            c0.3-0.1,0.6-0.2,1.1-0.2c0.6,0,1.2,0.1,1.9,0.2c0.6,0.1,1.2,0.2,1.8,0.2l0.2,4.8C17.9,8.7,17.2,8.6,16.6,8.5L16.6,8.5z M9.8,8.5
+                            C9.1,8.6,8.5,8.7,7.9,8.7L8,3.9c0.6,0,1.2-0.1,1.8-0.2c0.7-0.1,1.3-0.2,1.9-0.2c0.4,0,0.8,0.1,1.1,0.2v0.7l-0.1,4
+                            c-0.3-0.1-0.5-0.1-0.9-0.1C11.2,8.3,10.5,8.4,9.8,8.5L9.8,8.5z M19.9,5.7V4.8h-0.6V3.2H19c-0.8,0-1.6-0.1-2.4-0.2
+                            c-0.7-0.1-1.4-0.2-2-0.2c-0.6,0-1.1,0.1-1.5,0.3c-0.4-0.2-0.9-0.3-1.5-0.3c-0.6,0-1.3,0.1-2,0.2C9,3.1,8.2,3.2,7.4,3.2H7v1.6H6.4
+                            v0.9H7v1.2H6.4v0.9H7v1.7h0.4c0.9,0,1.7-0.1,2.5-0.3C10.6,9.1,11.2,9,11.8,9c0.4,0,0.8,0.1,1,0.2l0,0h0.7l0,0
+                            c0.3-0.1,0.6-0.2,1-0.2c0.6,0,1.2,0.1,1.9,0.2c0.8,0.1,1.7,0.3,2.5,0.3h0.4V7.8h0.6V6.9h-0.6V5.7H19.9L19.9,5.7z M9.9,4.4V5
+                            c0,0,0,0,0,0C9.5,5.1,9.1,5.1,8.7,5.2l0-0.6c0.4,0,0.7-0.1,1.1-0.1C9.8,4.4,9.8,4.4,9.9,4.4L9.9,4.4z M10.3,4.4V5
+                            c0.6-0.1,1.2-0.2,1.8-0.1l0-0.6C11.6,4.2,11,4.3,10.3,4.4L10.3,4.4z M9.9,7.2c0,0-0.1,0-0.1,0C9.4,7.3,9,7.3,8.6,7.4l0,0.6
+                            c0.4,0,0.9-0.1,1.3-0.2c0,0,0,0,0,0V7.2L9.9,7.2z M10.3,7.1v0.6c0.6-0.1,1.2-0.1,1.7-0.1L12,7C11.5,7,10.9,7,10.3,7.1L10.3,7.1z
+                                M9.8,5.8v0.6c0,0,0,0,0.1,0c0.8-0.1,1.6-0.2,2.2-0.2l0-0.6C11.4,5.6,10.6,5.7,9.8,5.8L9.8,5.8z M9.3,5.9C9.1,5.9,8.9,5.9,8.6,6
+                            l0,0.6c0.2,0,0.5-0.1,0.7-0.1V5.9L9.3,5.9z M15.8,4.3c-0.5-0.1-1-0.1-1.5-0.1l0,0.6c0.4,0,0.9,0,1.5,0.1V4.3L15.8,4.3z M17.7,4.6
+                            c-0.4,0-0.7-0.1-1.1-0.1c-0.1,0-0.3,0-0.4-0.1V5c0.1,0,0.2,0,0.3,0c0.4,0.1,0.8,0.1,1.2,0.2L17.7,4.6L17.7,4.6z M15.6,5.7
+                            c-0.5-0.1-0.9-0.1-1.3-0.1l0,0.6c0.4,0,0.8,0,1.3,0.1V5.7L15.6,5.7z M17.7,6c-0.4,0-0.8-0.1-1.1-0.2c-0.2,0-0.3-0.1-0.5-0.1v0.6
+                            c0.1,0,0.3,0,0.4,0.1c0.4,0.1,0.8,0.1,1.2,0.2L17.7,6L17.7,6z M16.6,7.8C17,7.9,17.4,7.9,17.8,8l0-0.6c-0.4,0-0.8-0.1-1.2-0.2
+                            c0,0,0,0-0.1,0V7.8L16.6,7.8z M16.1,7.1C15.5,7.1,14.9,7,14.4,7l0,0.6c0.5,0,1.1,0,1.7,0.1V7.1L16.1,7.1z"></path>
+                        <path id="ShieldOutline" d="M21.8,25.5c-0.6,0.9-1.3,1.7-2.2,2.6c-2.6,2.4-5.6,3.8-6.4,4.1
+                            c-0.8-0.3-3.8-1.7-6.4-4.1c-0.9-0.8-1.6-1.7-2.2-2.6c-3-4.4-3.4-9.4-3.4-13.4h0l12-0.7l12,0.7C25.2,16.1,24.8,21.2,21.8,25.5
+                            L21.8,25.5z M1.9,2c2.2-0.2,7.2-0.7,11.3-0.7c4.1,0,9.1,0.5,11.3,0.7l0.6,8.8h-12h-12L1.9,2L1.9,2z M26.4,1l-0.5-0.1
+                            C25.8,0.9,18.7,0,13.2,0c0,0,0,0,0,0c0,0,0,0,0,0C7.7,0,0.6,0.9,0.5,0.9L0,1v9.8h0v1.4c0,4.1,0.4,9.4,3.6,14.1
+                            c0.7,1,1.4,1.8,2.3,2.7l0,0c0,0,0,0,0,0c1.7,1.7,4,3.2,7.3,5v0c0,0,0,0,0,0c0,0,0,0,0,0v0c3.3-1.8,5.5-3.4,7.3-5c0,0,0,0,0,0v0
+                            c0.9-0.9,1.6-1.7,2.3-2.7c3.2-4.7,3.6-10,3.6-14.1v-0.2h0V1L26.4,1z"></path>
+                    </g>
+                </svg>
+            </span>
+        </a>
+
+
+
+			<div style="float: right; margin-right: 2rem; margin-top:-10px;" class="date-bar">
+								<!--
+
+				<div class="select-bar" style="opacity: 0;">
+					<div class="bar bar-grey">
+						<div class="option">Today</div>
+						<div class="option">Yesterday</div>
+						<div class="option">Past 3 Days</div>
+						<div class="option">Custom</div>
+					</div>
+					<div class="bar-outer">
+						<div class="bar bar-purple">
+							<div class="option">Today</div>
+							<div class="option">Yesterday</div>
+							<div class="option">Past 3 Days</div>
+							<div class="option">Custom</div>
+						</div>
+					</div>
+				</div>
+									-->
+
+				<div class="date-picker">
+					<!--<label for="start">Start date:</label>-->
+					<input type="date" id="start" name="trip-start" min="2022-01-31">
+				</div>
+	
+				<!-- <div class="status-toggle"> </div> -->
+	
+				<div id="filter-menu" class="dropdown-check-list" tabindex="100">
+					<span class="anchor">᠎⠀ ⠀᠎⠀ ⠀</span>
+					
+					<ul class="items">
+						<b><li>Fire Data</li></b>
+						<li><input style="margin-left: 15px;" type="checkbox" class="active-fire" checked />  Inactive Fire </li>
+						<b><li>Smoke Data</li></b>
+						<li><input style="margin-left: 15px;" type="checkbox" class="one-hour-smoke" checked />  1 Hour Forecast </li>
+						<li><input style="margin-left: 15px;" type="checkbox" class="two-hour-smoke" checked />  2 Hour Forecast </li>
+						<li><input style="margin-left: 15px;" type="checkbox" class="three-hour-smoke" checked />  3 Hour Forecast </li>
+						<b><li>Air Data</li></b>
+						<li><input style="margin-left: 15px;" type="checkbox" class="purple-air" checked />  PurpleAir Data</li>
+						<!-- Microsoft seems to have pulled the rug on their air sensors -->
+						<li style="display: none;"><input style=" margin-left: 15px;" type="checkbox" class="microsoft-air" checked />  MSR Air Quality Sensors </li>
+						<b><li>Shapefile</li></b>
+						<li><input style="margin-left: 15px;" type="radio" id="test-risk-radio" name="shapefile-radio" value="test-risk-radio"
+								 />
+								<label for="test-risk-radio">Fire Risk</label>
+							</li>
+						<li><input style="margin-left: 15px;" type="radio" id="afd-radio" name="shapefile-radio" value="afd-radio" />
+								<label for="afd-radio">AFD Coverage</label>
+						</li>
+						<li style="display:none"><input style="margin-left: 15px;"type="radio" id="hvi-radio" name="shapefile-radio" value="hvi-radio" />
+							<label for="hvi-radio">HVI Map</label>
+						</li>
+						<li><input style="margin-left: 15px;" type="radio" id="fire-risk-radio" name="shapefile-radio" value="fire-risk-radio" checked />
+							<label for="fire-risk-radio">Fire Vulnerability Map</label>
+						</li>
+						<li ><input style="margin-left: 15px;" type="radio" id="no-shapefile" name="shapefile-radio" value="none-radio" />
+							<label for="none-radio">None</label>
+						</li>
+						<b><li>Points of Interest</li></b>
+						<li><input style="margin-left: 15px;" type="checkbox" class="firedept"  />  Fire Departments </li>
+						<li><input style="margin-left: 15px;" type="checkbox" class="policedept"  />  Police Departments </li>
+						<li><input style="margin-left: 15px;" type="checkbox" class="hospital"  />  Hospitals </li>
+						<b><li>Urban Mobility</li></b>
+						<li><input style="margin-left: 15px;" type="checkbox" class="transit"  />  Transit </li>
+						<li><input style="margin-left: 15px;" type="checkbox" class="micromobility"  />  Micromobility </li>
+
+
+					</ul>
+				</div>
+
+				<div id="filter-menu2" class="dropdown-check-list2" tabindex="100" style="position:relative; margin-top: 17px; margin-left: 15px;">
+					<a onclick="stats()" href="#">
+					<img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/stats.png" width="25px" height="25px"  xml:space="preserve"> </img>
+				</a>
+
+				</div>
+	
+				<div class="dropdown" >
+
+				<div id="filter-menu1" class="dropdown-check-list1" tabindex="100">
+					<span id="CurrentSelectedDate" class="anchor"  type="button" data-toggle="dropdown" style="user-select: none">⠀ ⠀᠎⠀ ⠀Today</span>
+
+					<ul class="dropdown-menu" style=" user-select: none">
+						<li><a onclick="getToday()" href="#" class="option">Today</a></li>
+						<li><a onclick="getYesterday()" href="#" class="option">Yesterday</a></li>
+						<li><a onclick="get3Days()" href="#" class="option">Past 3 Days</a></li>
+						<li><a onclick="getCustom()" href="#" class="option">Custom</a></li>
+					  </ul>
+					<!--
+					<ul class="items">
+
+					<div class="select-bar">
+					<div class="bar bar-grey" style="color: black; display: block;">
+						<div class="option1">Today</div>
+						<div class="option1">Yesterday</div>
+						<div class="option1">Past 3 Days</div>
+						<div class="option1">Custom</div>
+					</div>
+					<div class="bar-outer">
+						<div class="bar bar-purple" style="color: black; display: block;">
+							<div class="option1">Today</div>
+							<div class="option1">Yesterday</div>
+							<div class="option1">Past 3 Days</div>
+							<div class="option1">Custom</div>
+						</div>
+					</div>
+				</div>
+	
+
+					</ul>
+					-->
+				</div>
+				</div>
+
+				<!--
+				<div class="select-bar" width="10%" style="margin-left:100px; width: 300px;">
+					<div class="bar bar-grey" style="width: 300px;">
+						<div class="option2" style="width: 300px;">Check my Location</div>
+					</div>
+					<div class="bar-outer2" style="width: 300px;">
+						<div class="bar bar-purple bar-purple2" style="width: 300px;">
+							<div class="option2" style="width: 300px;">Check my Location</div>
+						</div>
+					</div>
+				</div> -->
+			
+				<div id="filter-menu2" class="dropdown-check-list2" tabindex="100" style="position:relative; margin-top: 17px; margin-left: 15px;">
+					<a href="https://smartcity.tacc.utexas.edu/FireIncident/3D" style="text-decoration:none;">
+						<h3 style="position:relative; top: -20px; color:white"><b>3D</b></h3>
+					<!--<img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/stats.png" width="25px" height="25px"  xml:space="preserve"> </img>-->
+				</a>
+
+			</div>
+			
+
+		<a href="http://goodsystems.utexas.edu" style="display: none; float: right; margin-right: 1rem; margin-top:0;">
+            <span style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0;color: #fff">University of Texas at Austin</span> 
+            <span style="max-height: 25px; margin-top: 9px; display: block; max-width: 100%; height: auto;">
+                <img src="https://smartcity.tacc.utexas.edu/FireIncident/assets/images/goodsystems.svg" width="115px" height="25px"  xml:space="preserve"> </img>
+            </span>
+        </a>
+    </div>
+</section>
+
+	<!--
+		<div id="top-container">
+			<div id="title">
+				<h2 style="margin-top:12px; margin-right: 100px;"><a href>Active Fire Incidents Map</a></h2>
+
+				<div style="clear: both;"></div>
+
+				<div class="date-bar">
+				<div class="select-bar">
+					<div class="bar bar-grey">
+						<div class="option">Today</div>
+						<div class="option">Yesterday</div>
+						<div class="option">Past 3 Days</div>
+						<div class="option">Custom</div>
+					</div>
+					<div class="bar-outer">
+						<div class="bar bar-purple">
+							<div class="option">Today</div>
+							<div class="option">Yesterday</div>
+							<div class="option">Past 3 Days</div>
+							<div class="option">Custom</div>
+						</div>
+					</div>
+				</div>
+	
+				<div class="date-picker">
+					<label for="start">Start date:</label>
+					<input type="date" id="start" name="trip-start" min="2022-01-31">
+				</div>
+	
+
+	
+				<div id="filter-menu" class="dropdown-check-list" tabindex="100">
+					<span class="anchor">Data Filter</span>
+					<ul class="items">
+						<li>- Fire Data -</li>
+						<li><input type="checkbox" class="active-fire" checked />Inactive Fire </li>
+						<li>- Smoke Data -</li>
+						<li><input type="checkbox" class="one-hour-smoke" checked />1 Hour Forecast </li>
+						<li><input type="checkbox" class="two-hour-smoke" checked />2 Hour Forecast </li>
+						<li><input type="checkbox" class="three-hour-smoke" checked />3 Hour Forecast </li>
+						<li>- Air Data -</li>
+						<li><input type="checkbox" class="purple-air" checked />PurpleAir Data</li>
+						<li><input type="checkbox" class="microsoft-air" checked />MSR Air Quality Sensors </li>
+						<li>- Shapefile -</li>
+						<li><input type="radio" id="fire-risk-radio" name="shapefile-radio" value="fire-risk-radio"
+								checked />
+							<label for="fire-risk-radio">Fire Vulnerability</label>
+						</li>
+						<li><input type="radio" id="afd-radio" name="shapefile-radio" value="afd-radio" />
+							<label for="afd-radio">AFD Converage</label>
+						</li>
+						<li><input type="radio" id="hvi-radio" name="shapefile-radio" value="hvi-radio" />
+							<label for="hvi-radio">HVI Map</label>
+						</li>
+						<li><input type="radio" id="no-shapefile" name="shapefile-radio" value="none-radio" />
+							<label for="none-radio">None</label>
+						</li>
+					</ul>
+				</div>
+	
+				<div class="select-bar" width="10%" style="margin-left:100px; width: 300px;">
+					<div class="bar bar-grey" style="width: 300px;">
+						<div class="option2" style="width: 300px;">Check my Location</div>
+					</div>
+					<div class="bar-outer2" style="width: 300px;">
+						<div class="bar bar-purple bar-purple2" style="width: 300px;">
+							<div class="option2" style="width: 300px;">Check my Location</div>
+						</div>
+					</div>
+				</div>
+	
+			</div>
+			
+
+			</div>
+			
+			
+			<div id="search-input-container">
+				<input
+					id="search-input"
+					name="search"
+					type="text"
+					spellcheck="false"
+					placeholder="Search by address"
+				/>
+				<div id="clear" tabindex="0"><img src="assets/images/times-dark.svg" /></div>
+			</div>
+
+			<div id="search-results-container">
+				<div id="search-results-counter"></div>
+				<ul id="search-results-list"></ul>
+				<div id="selected-container">
+					<table id="info-table">
+						<tr id="affiliated-row">
+							<td id="affiliated-label">Affiliated with:</td>
+							<td id="affiliated-value"></td>
+						</tr>
+						<tr id="owned-row">
+							<td id="owned-label">Units owned:</td>
+							<td id="owned-value"></td>
+						</tr>
+						<tr id="taxpayer-row">
+							<td id="taxpayer-label">Property taxpayer:</td>
+							<td id="taxpayer-value"></td>
+						</tr>
+					</table>
+					<button id="download-button" class="button-hover"></button>
+					<div id="bottom-links">
+						<p id="data-info-link" class="property-details-link" tabindex="0">See an issues with our data?</p>
+						<p id="additional-details-link" class="property-details-link" tabindex="0">Additional property details</p>
+						<div style="clear: both;"></div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+-->
+		
+			
+			<div class="legend-wrapper">
+				<div class="air-quality-legend" style="margin-top: -50px;">
+					<div style="background-color: white;">
+						<span>Air Quality: </span>
+					</div>
+					<div style="background-color: #9cd74e;">
+						<span>0</span>
+					</div>
+					<div style="background-color: #facf39;">
+						<span>50</span>
+					</div>
+					<div style="background-color: #f68f47;">
+						<span>100</span>
+					</div>
+					<div style="background-color: #f55e5f;">
+						<span style="color:#ffffff">150</span>
+					</div>
+					<div style="background-color: #a070b5;">
+						<span style="color:#ffffff">200</span>
+					</div>
+					<div style="background-color: #a06a7b;">
+						<span style="color:#ffffff">300</span>
+					</div>
+				</div>
+			</div>
+			<div class="legend-wrapper">
+				<div class="air-quality-legend" style="margin-top: -30px;">
+					<div style="background-color: white; width:325px">
+						<!-- Get current date -->
+						<span id="date"></span>
+					</div>
+					</div>
+				</div>
+			</div>
+
+			<script>
+				// Put the date in the legend, as Month Name Day, Year, Time
+				var d = new Date();
+				var month = d.getMonth() + 1;
+				// Convert month number to month name
+				var monthName = new Array();
+				monthNames = ["January", "February", "March", "April", "May", "June",
+					"July", "August", "September", "October", "November", "December"
+				];
+				monthName = monthNames[month - 1];
+				var day = d.getDate();
+				var year = d.getFullYear();
+				var hour = d.getHours();
+				var minute = d.getMinutes();
+				var second = d.getSeconds();
+				var ampm = hour >= 12 ? 'PM' : 'AM';
+				hour = hour % 12;
+				hour = hour ? hour : 12; // the hour '0' should be '12'
+				minute = minute < 10 ? '0' + minute : minute;
+				second = second < 10 ? '0' + second : second;
+				var strTime = hour + ':' + minute + ':' + second + ' ' + ampm;
+				// Get Time Zone Acronym
+				var timeZone = d.toLocaleDateString('en-US', {day: '2-digit',timeZoneName: 'short',}).slice(4);
+
+				document.getElementById("date").innerHTML = monthName + " " + day + ", " + year + ", " + strTime + " " + timeZone;
+
+				// Make the legend update every second
+				setInterval(function() {
+					var d = new Date();
+					var month = d.getMonth() + 1;
+					// Convert month number to month name
+					var monthName = new Array();
+					monthNames = ["January", "February", "March", "April", "May", "June",
+						"July", "August", "September", "October", "November", "December"
+					];
+					monthName = monthNames[month - 1];
+					var day = d.getDate();
+					var year = d.getFullYear();
+					var hour = d.getHours();
+					var minute = d.getMinutes();
+					var second = d.getSeconds();
+					var ampm = hour >= 12 ? 'PM' : 'AM';
+					hour = hour % 12;
+					hour = hour ? hour : 12; // the hour '0' should be '12'
+					minute = minute < 10 ? '0' + minute : minute;
+					second = second < 10 ? '0' + second : second;
+					var strTime = hour + ':' + minute + ':' + second + ' ' + ampm;
+					// Get Time Zone Acronym
+					var timeZone = d.toLocaleDateString('en-US', {day: '2-digit',timeZoneName: 'short',}).slice(4);
+
+					document.getElementById("date").innerHTML = monthName + " " + day + ", " + year + ", " + strTime + " " + timeZone;
+				}, 60000);
+
+
+
+
+			</script>
+
+
+		
+			<div class="legend-wrapper">
+				<div class="fire-risk-legend">
+					<div style="background-color: white;">
+						<span id="fireRiskType">Fire Risk: </span>
+					</div>
+					<div style="background-color: red;">
+						<span style="color:#ffffff">Highest</span>
+					</div>
+					<div style="background-color: orange;">
+						<span>Elevated</span>
+					</div>
+					<div style="background-color: yellow;">
+						<span>Normal</span>
+					</div>
+				</div>
+			</div>			
+			<div class="legend-wrapper">
+				<div class="afd-legend">
+					<div style="background-color: white;">
+						<span>AFD Response Rate: </span>
+					</div>
+					<div style="background-color: rgb(1, 106, 1);">
+						<span style="color:#ffffff">90% and up</span>
+					</div>
+					<div style="background-color: #699d50;">
+						<span style="color:#ffffff">80% ~ 89%</span>
+					</div>
+					<div style="background-color: orange;">
+						<span style="color:#ffffff">70% ~ 79%</span>
+					</div>
+					<div style="background-color: #ff5500;">
+						<span style="color:#ffffff">50% ~ 67%</span>
+					</div>
+					<div style="background-color: #704489;">
+						<span style="color:#ffffff">Less than 50%</span>
+					</div>
+				</div>
+			</div>
+			<div class="legend-wrapper">
+				<div class="hvi-legend">
+					<div style="background-color: white;">
+						<span>AFD Response Rate: </span>
+					</div>
+					<div style="background-color: rgb(1, 106, 1);">
+						<span>90% and up</span>
+					</div>
+					<div style="background-color: #699d50;">
+						<span>80% ~ 89%</span>
+					</div>
+					<div style="background-color: orange;">
+						<span>60% ~ 79%</span>
+					</div>
+					<div style="background-color: #ff5500;">
+						<span>40% ~ 59%</span>
+					</div>
+					<div style="background-color: #704489;">
+						<span>Less than 40%</span>
+					</div>
+				</div>
+			</div>
+		
+		</div>
+
+		<link
+		rel="stylesheet"
+		href="assets/css/fireMap.css"
+		/>
+		<script src="assets/js/fireMap.js"></script>
+
+		<!-- Google Cloud Firebase
+		<script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-analytics.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-auth.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-firestore.js"></script>
+
+		<script src="assets/js/jspdf.min.js"></script>
+		
+		<script src="assets/js/jspdf.plugin.autotable.js"></script>
+
+		<script src="assets/fonts/ManifoldDSA/js/ManifoldDSA-normal.js"></script>
+		<script src="assets/fonts/ManifoldDSA/js/ManifoldDSA-bold.js"></script> -->
+
+		
+		<script src="https://smartcity.tacc.utexas.edu/FireIncident/assets/js/checkIE.js"></script>
+
+		<!--
+		<script src="assets/js/constants.js"></script>
+
+		<script src="assets/js/firebase.js"></script>
+
+		<script src="assets/js/matchAddresses.js"></script>
+		<script src="assets/js/modalContent.js"></script>
+		<script src="assets/js/attachModal.js"></script>
+		<script src="assets/js/getProperty.js"></script>
+		<script src="assets/js/createPDF.js"></script> -->
+	</body>
+</html>      
