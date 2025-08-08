@@ -682,73 +682,9 @@ Check My Location button code leaflet
 		</div>
 	</div>
 </div>
-<div class="legend-wrapper">
-	<div class="air-quality-legend" style="margin-top: -30px;">
-		<div style="background-color: white; width:325px">
-			<!-- Get current date -->
-			<span id="date"></span>
-		</div>
-		</div>
-	</div>
-</div>
-
-<script>
-	// Put the date in the legend, as Month Name Day, Year, Time
-	var d = new Date();
-	var month = d.getMonth() + 1;
-	// Convert month number to month name
-	var monthName = new Array();
-	monthNames = ["January", "February", "March", "April", "May", "June",
-		"July", "August", "September", "October", "November", "December"
-	];
-	monthName = monthNames[month - 1];
-	var day = d.getDate();
-	var year = d.getFullYear();
-	var hour = d.getHours();
-	var minute = d.getMinutes();
-	var second = d.getSeconds();
-	var ampm = hour >= 12 ? 'PM' : 'AM';
-	hour = hour % 12;
-	hour = hour ? hour : 12; // the hour '0' should be '12'
-	minute = minute < 10 ? '0' + minute : minute;
-	second = second < 10 ? '0' + second : second;
-	var strTime = hour + ':' + minute + ':' + second + ' ' + ampm;
-	// Get Time Zone Acronym
-	var timeZone = d.toLocaleDateString('en-US', {day: '2-digit',timeZoneName: 'short',}).slice(4);
-
-	document.getElementById("date").innerHTML = monthName + " " + day + ", " + year + ", " + strTime + " " + timeZone;
-
-	// Make the legend update every second
-	setInterval(function() {
-		var d = new Date();
-		var month = d.getMonth() + 1;
-		// Convert month number to month name
-		var monthName = new Array();
-		monthNames = ["January", "February", "March", "April", "May", "June",
-			"July", "August", "September", "October", "November", "December"
-		];
-		monthName = monthNames[month - 1];
-		var day = d.getDate();
-		var year = d.getFullYear();
-		var hour = d.getHours();
-		var minute = d.getMinutes();
-		var second = d.getSeconds();
-		var ampm = hour >= 12 ? 'PM' : 'AM';
-		hour = hour % 12;
-		hour = hour ? hour : 12; // the hour '0' should be '12'
-		minute = minute < 10 ? '0' + minute : minute;
-		second = second < 10 ? '0' + second : second;
-		var strTime = hour + ':' + minute + ':' + second + ' ' + ampm;
-		// Get Time Zone Acronym
-		var timeZone = d.toLocaleDateString('en-US', {day: '2-digit',timeZoneName: 'short',}).slice(4);
-
-		document.getElementById("date").innerHTML = monthName + " " + day + ", " + year + ", " + strTime + " " + timeZone;
-	}, 60000);
 
 
 
-
-</script>
 
 
 

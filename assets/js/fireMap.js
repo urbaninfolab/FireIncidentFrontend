@@ -1841,7 +1841,15 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
     // initialize map and base layer
     var map = L.map('map',{ preferCanvas:true, zoomControl: false, renderer: L.canvas() }).setView([30.356635, -97.701180], 12);
 
-    new L.Control.Zoom({ position: 'bottomright' }).addTo(map);
+    // Add zoom control to top-right position
+    new L.Control.Zoom({ position: 'topright' }).addTo(map);
+    
+    // Add scale control to bottom-right
+    L.control.scale({ 
+        position: 'bottomright',
+        metric: true,
+        imperial: true
+    }).addTo(map);
 
     let inactive_flag = true;
     let purple_air_diaplay_flag = true;
@@ -1867,31 +1875,6 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
 
 
-
-    // add zostera legend
-    L.control.legend({
-        position: 'bottomleft',
-        items: [
-            {color: 'white', label: '<b>Fire Risk</b>'},
-            {color: 'red', label: 'Highest'},
-            {color: 'orange', label: 'Elevated'},
-            {color: 'yellow', label: 'Low'},
-            {color: 'white', label: ''},
-            {color: 'white', label: '<b>Smoke Levels</b>'},
-            {color: '#9cd74e', label: 'Good'},
-            {color: '#facf39', label: 'Moderate'},
-            {color: '#f68f47', label: 'Unhealthy for Sensitive Groups'},
-            {color: '#f55e5f', label: 'Unhealthy'},
-            {color: '#a070b5', label: 'Very Unhealthy'},
-            {color: '#a06a7b', label: 'Hazardous'},
-        ],
-        collapsed: true,
-        // insert different label for the collapsed legend button.
-        buttonHtml: 'Legend'
-    }).addTo(map);
-
-    document.getElementsByClassName("leaflet-left")[1].style.left = "5px"
-    document.getElementsByClassName("leaflet-legend-list")[0].style = "text-align: left;"
 
     // add geolocator for address
     //const provider = new GeoSearch.OpenStreetMapProvider();
@@ -1927,29 +1910,146 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
         foundLocationGeocoded(data);
     });
 
-    // Get user location and display on map
+    // Custom control container for top-right stack
+  L.Control.TopRightStack = L.Control.extend({
+    onAdd: function (map) {
+        var container = L.DomUtil.create('div', 'leaflet-control-container');
+        container.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        `;
+        return container;
+    }
+  });
 
+  // Add compass control
+  L.Control.Compass = L.Control.extend({
+    onAdd: function (map) {
+        var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar');
+        container.style.cssText = `
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: #202124;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 -1px 0px rgba(0,0,0,0.02);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+            position: relative;
+        `;
+        
+        container.innerHTML = `
+            <div style="
+                position: absolute;
+                top: 2px;
+                width: 0;
+                height: 0;
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 12px solid #d32f2f;
+                z-index: 1;
+                filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+            "></div>
+            <span style="position: absolute; z-index: 2; font-weight: 700;">N</span>
+        `;
+        
+        container.title = "North Arrow";
+        
+        container.onmouseover = function(){
+            container.style.backgroundColor = 'rgba(255, 255, 255, 1)';
+            container.style.transform = 'translateY(-1px)';
+            container.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+        };
+        
+        container.onmouseout = function(){
+            container.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+            container.style.transform = 'translateY(0)';
+            container.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2), 0 -1px 0px rgba(0,0,0,0.02)';
+        };
 
+        return container;
+    }
+  });
+
+  // Add timestamp control
+  L.Control.Timestamp = L.Control.extend({
+    onAdd: function (map) {
+        var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar');
+        container.style.cssText = `
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #202124;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 -1px 0px rgba(0,0,0,0.02);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            white-space: nowrap;
+        `;
+        
+        var updateTimestamp = function() {
+            var now = new Date();
+            var options = {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            };
+            container.textContent = now.toLocaleDateString('en-US', options);
+        };
+        
+        updateTimestamp();
+        setInterval(updateTimestamp, 60000); // Update every minute
+        
+        container.title = "Current Time";
+        
+        container.onmouseover = function(){
+            container.style.backgroundColor = 'rgba(255, 255, 255, 1)';
+            container.style.transform = 'translateY(-1px)';
+            container.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+        };
+        
+        container.onmouseout = function(){
+            container.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+            container.style.transform = 'translateY(0)';
+            container.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2), 0 -1px 0px rgba(0,0,0,0.02)';
+        };
+
+        return container;
+    }
+  });
+
+  // Create compass and timestamp controls in bottom-right (compass above timestamp)
+  new L.Control.Timestamp({ position: 'bottomright' }).addTo(map);
+  new L.Control.Compass({ position: 'bottomright' }).addTo(map);
+
+  // Get user location and display on map
   L.Control.Watermark = L.Control.extend({
     onAdd: function (map) {
         var container = L.DomUtil.create('div');
         container.type="button";
-        container.title="No cat";
+        container.title="Check My Location";
         container.value = "42";
         container.classList = ["geocoder-control leaflet-control"]
-    
-        /*container.style.backgroundColor = 'white';     
-        //container.style.backgroundImage = "url(https://t1.gstatic.com/images?q=tbn:ANd9GcR6FCUMW5bPn8C4PbKak2BJQQsmC-K9-mbYBeFZm1ZM2w2GRy40Ew)";
-        container.style.backgroundSize = "30px 30px";
-        container.style.width = '30px';
-        container.style.height = '30px'; 
-        
-        container.onmouseover = function(){
-          container.style.backgroundColor = 'pink'; 
-        }
-        container.onmouseout = function(){
-          container.style.backgroundColor = 'white'; 
-        } */
     
         container.onclick = function(){
           getUserLocation();
@@ -1971,7 +2071,7 @@ L.control.watermark = function(opts) {
     return new L.Control.Watermark(opts);
 }
 
-L.control.watermark({ position: 'bottomright' }).addTo(map);
+L.control.watermark({ position: 'topright' }).addTo(map);
 
 
 L.Control.Watermark = L.Control.extend({

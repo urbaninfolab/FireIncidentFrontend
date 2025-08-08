@@ -1839,15 +1839,6 @@ function toggleLayerCustom1(ids, bool) {
 
 
 
-    // add mapbox controls
-    map.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
-    map.addControl(new mapboxgl.GeolocateControl({
-        positionOptions: {
-        enableHighAccuracy: true
-        },
-        trackUserLocation: true
-    }), 'bottom-right');
-    
     // add mapbox geocoder
     map.addControl(
         new MapboxGeocoder({
@@ -1856,13 +1847,179 @@ function toggleLayerCustom1(ids, bool) {
         })
     );
 
-    // add mapbox scale
-    map.addControl(new mapboxgl.ScaleControl({
-        maxWidth: 80,
+    // add mapbox controls to top-right (below search)
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    map.addControl(new mapboxgl.GeolocateControl({
+        positionOptions: {
+        enableHighAccuracy: true
+        },
+        trackUserLocation: true
+    }), 'top-right');
+
+    // Custom Compass Control for Mapbox
+    class CompassControl {
+        onAdd(map) {
+            this.map = map;
+            this.container = document.createElement('div');
+            this.container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
+            this.container.style.cssText = `
+                background-color: rgba(255, 255, 255, 0.9);
+                border-radius: 20px;
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: 'Open Sans', sans-serif;
+                font-size: 12px;
+                font-weight: 600;
+                color: #202124;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 -1px 0px rgba(0,0,0,0.02);
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+                transition: all 0.2s ease;
+                cursor: pointer;
+                border: none;
+                padding: 0;
+                position: relative;
+                margin-bottom: 10px;
+            `;
+            
+            this.container.innerHTML = `
+                <div style="
+                    position: absolute;
+                    top: 2px;
+                    width: 0;
+                    height: 0;
+                    border-left: 5px solid transparent;
+                    border-right: 5px solid transparent;
+                    border-bottom: 12px solid #d32f2f;
+                    z-index: 1;
+                    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+                "></div>
+                <span style="position: absolute; z-index: 2; font-weight: 700;">N</span>
+            `;
+            
+            this.container.title = "North Arrow";
+            
+            this.container.onmouseover = () => {
+                this.container.style.backgroundColor = 'rgba(255, 255, 255, 1)';
+                this.container.style.transform = 'translateY(-1px)';
+                this.container.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+            };
+            
+            this.container.onmouseout = () => {
+                this.container.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                this.container.style.transform = 'translateY(0)';
+                this.container.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2), 0 -1px 0px rgba(0,0,0,0.02)';
+            };
+
+            return this.container;
+        }
+
+        onRemove() {
+            this.container.parentNode.removeChild(this.container);
+            this.map = undefined;
+        }
+    }
+
+    // Custom Timestamp Control for Mapbox
+    class TimestampControl {
+        onAdd(map) {
+            this.map = map;
+            this.container = document.createElement('div');
+            this.container.className = 'mapboxgl-ctrl mapboxgl-ctrl-group';
+            this.container.style.cssText = `
+                background-color: rgba(255, 255, 255, 0.9);
+                border-radius: 8px;
+                padding: 6px 12px;
+                font-family: 'Open Sans', sans-serif;
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: #202124;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 -1px 0px rgba(0,0,0,0.02);
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+                transition: all 0.2s ease;
+                cursor: pointer;
+                border: none;
+                white-space: nowrap;
+                margin-bottom: 10px;
+            `;
+            
+            const updateTimestamp = () => {
+                const now = new Date();
+                const options = {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                };
+                this.container.textContent = now.toLocaleDateString('en-US', options);
+            };
+            
+            updateTimestamp();
+            setInterval(updateTimestamp, 60000); // Update every minute
+            
+            this.container.title = "Current Time";
+            
+            this.container.onmouseover = () => {
+                this.container.style.backgroundColor = 'rgba(255, 255, 255, 1)';
+                this.container.style.transform = 'translateY(-1px)';
+                this.container.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)';
+            };
+            
+            this.container.onmouseout = () => {
+                this.container.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                this.container.style.transform = 'translateY(0)';
+                this.container.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2), 0 -1px 0px rgba(0,0,0,0.02)';
+            };
+
+            return this.container;
+        }
+
+        onRemove() {
+            this.container.parentNode.removeChild(this.container);
+            this.map = undefined;
+        }
+    }
+
+    // Add custom controls to bottom-right (scale first, then timestamp, then compass on top)
+    // Add scale control with proper scale line styling
+    const scaleControl = new mapboxgl.ScaleControl({
+        maxWidth: 100,
         unit: 'imperial'
-    }));
-
-
+    });
+    map.addControl(scaleControl, 'bottom-right');
+    
+    // Style the scale control to show proper scale line without background
+    setTimeout(() => {
+        const scaleElement = document.querySelector('.mapboxgl-ctrl-scale');
+        if (scaleElement) {
+            scaleElement.style.cssText = `
+                background: transparent !important;
+                border: none !important;
+                border-bottom: 3px solid #000 !important;
+                border-left: 2px solid #000 !important;
+                border-right: 2px solid #000 !important;
+                padding: 2px 4px !important;
+                font-family: 'Open Sans', sans-serif !important;
+                font-size: 11px !important;
+                font-weight: bold !important;
+                color: #000 !important;
+                margin-top: 10px !important;
+                display: block !important;
+                visibility: visible !important;
+                text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 1px -1px 0px #fff, -1px 1px 0px #fff !important;
+            `;
+        }
+    }, 1000);
+    
+    map.addControl(new TimestampControl(), 'bottom-right');
+    
+    map.addControl(new CompassControl(), 'bottom-right');
 
     //document.getElementsByClassName("geocoder-control")[0].children[0].style = "background-color: transparent; border-color: transparent; background-image:url(assets/images/search.png);"
     //document.getElementsByClassName("geocoder-control")[0].style = "position: fixed;top: 2.5px;right: -4.5px;"
