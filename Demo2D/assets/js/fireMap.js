@@ -272,7 +272,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                 rotationOrigin: 'center',
                 zIndexOffset: -1,
             }).addTo(map); */
-            addSmokeRegions(map, "https://smartcity.tacc.utexas.edu/data/" + longNLatString)
+            addSmokeRegions(map, "https://firesync.uturbaninfolab.workers.dev/data/" + longNLatString)
         }
 
     }
@@ -744,7 +744,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
         switch (shapefile_display_flag) {
             case 'fire-risk-radio':
-                shapefileName = "https://smartcity.tacc.utexas.edu/data/austin_wildfire_vulnerable_populations.zip";
+                shapefileName = "../../data/austin_wildfire_vulnerable_populations.zip";
                 shpfile = new L.Shapefile(shapefileName, {
                     onEachFeature: function (feature, layer) {
                         popupContent = `
@@ -802,7 +802,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                 currentShapefile = shpfile;
                 break;
             case 'afd-radio':
-                shapefileName = "https://smartcity.tacc.utexas.edu/data/AFD Standard of Cover.zip";
+                shapefileName = "../../data/AFD Standard of Cover.zip";
                 // var pasttern = new L.Pattern();
                 shpfile = new L.Shapefile(shapefileName, {
                     onEachFeature: function (feature, layer) {
@@ -846,7 +846,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                 currentShapefile = shpfile;
                 break;
             case 'hvi-radio':
-                shapefileName = "https://smartcity.tacc.utexas.edu/data/HVI_Map.zip";
+                shapefileName = "../../data/HVI_Map.zip";
                 shpfile = new L.Shapefile(shapefileName, {
                     onEachFeature: function (feature, layer) {
                         popupContent = `
@@ -889,7 +889,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
             case 'fireStations':
                 // display CSV file of fire stations as points and add popups
                 // use fetch to get the data
-                fetch('https://smartcity.tacc.utexas.edu/data/Fire_Stations.csv')
+                fetch('../../data/Fire_Stations.csv')
                     .then(response => response.text())
                     .then(text => {
                         // parse the CSV file
@@ -927,8 +927,8 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                 break; */
 
             case 'test-risk-radio':
-                shapefileName = "https://smartcity.tacc.utexas.edu/data/firerisk.shp.zip";
-                var filePath = 'https://smartcity.tacc.utexas.edu/data/AverageFire.json';
+                shapefileName = "../../data/firerisk.shp.zip";
+                var filePath = '../../data/AverageFire.json';
                 var result;
                 cities = {
                     '48453' : '',  // Austin
@@ -1494,7 +1494,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
         console.log("POI radio button clicked");
         // display csv file from POI.csv
-        var filePath = 'https://smartcity.tacc.utexas.edu/data/POI.csv';
+        var filePath = '../../data/POI.csv';
         var result;
         fetch(filePath)
             .then(response => {

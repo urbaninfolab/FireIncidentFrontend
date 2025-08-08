@@ -270,7 +270,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                 rotationOrigin: 'center',
                 zIndexOffset: -1,
             }).addTo(map); */
-            addSmokeRegions(map, "https://smartcity.tacc.utexas.edu/data/" + longNLatString)
+            addSmokeRegions(map, "https://firesync.uturbaninfolab.workers.dev/data/" + longNLatString)
         }
 
     }
@@ -741,7 +741,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
         switch (shapefile_display_flag) {
             case 'fire-risk-radio':
-                shapefileName = "https://smartcity.tacc.utexas.edu/data/austin_wildfire_vulnerable_populations.zip";
+                shapefileName = "../../data/austin_wildfire_vulnerable_populations.zip";
                 shpfile = new L.Shapefile(shapefileName, {
                     onEachFeature: function (feature, layer) {
                         popupContent = `
@@ -800,7 +800,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                 currentShapefile = shpfile;
                 break;
             case 'afd-radio':
-                shapefileName = "https://smartcity.tacc.utexas.edu/data/AFD Standard of Cover.zip";
+                shapefileName = "../../data/AFD Standard of Cover.zip";
                 // var pasttern = new L.Pattern();
                 shpfile = new L.Shapefile(shapefileName, {
                     onEachFeature: function (feature, layer) {
@@ -844,7 +844,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                 currentShapefile = shpfile;
                 break;
             case 'hvi-radio':
-                shapefileName = "https://smartcity.tacc.utexas.edu/data/HVI_Map.zip";
+                shapefileName = "../../data/HVI_Map.zip";
                 shpfile = new L.Shapefile(shapefileName, {
                     onEachFeature: function (feature, layer) {
                         popupContent = `
@@ -887,7 +887,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
             case 'fireStations':
                 // display CSV file of fire stations as points and add popups
                 // use fetch to get the data
-                fetch('https://smartcity.tacc.utexas.edu/data/Fire_Stations.csv')
+                fetch('../../data/Fire_Stations.csv')
                     .then(response => response.text())
                     .then(text => {
                         // parse the CSV file
@@ -925,8 +925,8 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
                 break; */
 
             case 'test-risk-radio':
-                shapefileName = "https://smartcity.tacc.utexas.edu/data/firerisk.shp.zip";
-                var filePath = 'https://smartcity.tacc.utexas.edu/data/AverageFire.json';
+                shapefileName = "../../data/firerisk.shp.zip";
+                var filePath = '../../data/AverageFire.json';
                 var result = window.AverageFire;
                 cities = {
                     '48453' : '',  // Austin
@@ -1499,7 +1499,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
         console.log("POI radio button clicked");
         // display csv file from POI.csv
-        var filePath = 'https://smartcity.tacc.utexas.edu/data/POI.csv';
+        var filePath = '../../data/POI.csv';
         var result;
         fetch(filePath)
             .then(response => {
@@ -1591,7 +1591,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
         // mobility JSON data
         if (transit) {
-            // fetch("https://smartcity.tacc.utexas.edu/data/transportation/transitposition.json")
+            // fetch("../../data/transportation/transitposition.json")
             //   .then((response) => response.json())
             //   .then((json) => console.log(json));
             jsdata = '{"header":{"gtfsRealtimeVersion":"2.0","incrementality":"FULL_DATASET","timestamp":"1694631061"},"entity":[{"id":"2551","vehicle":{"trip":{"tripId":"2732178_6309","startDate":"20230913","routeId":"335"},"position":{"latitude":30.30258,"longitude":-97.7004,"bearing":116.31392,"speed":0},"currentStopSequence":1,"currentStatus":"STOPPED_AT","timestamp":"1694631060","stopId":"5926","vehicle":{"id":"2551","label":"2551"}}},{"id":"2306","vehicle":{"trip":{"tripId":"2731209_5257","startDate":"20230913","routeId":"323"},"position":{"latitude":30.340689,"longitude":-97.6933,"bearing":52.423656,"speed":9.074911},"currentStopSequence":9,"currentStatus":"IN_TRANSIT_TO","timestamp":"1694631058","stopId":"6424","vehicle":{"id":"2306","label":"2306"}}},{"id":"2304","vehicle":{"trip":{"tripId":"2732839_6769","startDate":"20230913","routeId":"345"},"position":{"latitude":30.300224,"longitude":-97.71672,"bearing":179.29863,"speed":3.4422078},"currentStopSequence":12,"currentStatus":"STOPPED_AT","timestamp":"1694631058","stopId":"2312","vehicle":{"id":"2304","label":"2304"}}},{"id":"2303","vehicle":{"trip":{"tripId":"2730805_4955","startDate":"20230913","routeId":"318"},"position":{"latitude":30.23089,"longitude":-97.79216,"bearing":27.723995,"speed":8.6278715},"currentStopSequence":40,"currentStatus":"STOPPED_AT","timestamp":"1694631059","stopId":"2216","vehicle":{"id":"2303","label":"2303"}}}]}'
@@ -1640,7 +1640,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
         // mobility JSON data
         if (micromobility) {
-            // fetch("https://smartcity.tacc.utexas.edu/data/transportation/freebike.json")
+            // fetch("../../data/transportation/freebike.json")
             //   .then((response) => response.json())
             //   .then((json) => console.log(json));
             jsdata = '{"last_updated":1694794522,"ttl":16,"version":"2.2","data":{"bikes":[{"bike_id":"ed7592c8-0a1e-4482-a614-0dd6e1b9ac6f","vehicle_type_id":"1","lat":30.27044,"lon":-97.75432,"is_reserved":false,"is_disabled":false,"pricing_plan_id":"a582358c-0fda-4335-8089-2ac014b38b8b"},{"bike_id":"f5a0b086-e400-4a67-bbdb-42fd17f857f1","vehicle_type_id":"1","lat":30.26451,"lon":-97.74535,"is_reserved":false,"is_disabled":false,"pricing_plan_id":"a582358c-0fda-4335-8089-2ac014b38b8b"},{"bike_id":"2840da9d-47d9-4fba-b1f5-c2e3c5b7b647","vehicle_type_id":"1","lat":30.25376,"lon":-97.73538,"is_reserved":false,"is_disabled":false,"pricing_plan_id":"a582358c-0fda-4335-8089-2ac014b38b8b"},{"bike_id":"357c78c7-4165-48b1-bbdb-8fd25c544020","vehicle_type_id":"1","lat":30.26454,"lon":-97.74416,"is_reserved":false,"is_disabled":false,"pricing_plan_id":"a582358c-0fda-4335-8089-2ac014b38b8b"},{"bike_id":"a6ec8ab2-e2b9-4d41-b1dd-c50354e306fc","vehicle_type_id":"1","lat":30.28782,"lon":-97.74225,"is_reserved":false,"is_disabled":false,"pricing_plan_id":"a582358c-0fda-4335-8089-2ac014b38b8b"}]}}'
@@ -2083,7 +2083,7 @@ L.control.watermark({ position: 'bottomright' }).addTo(map);
     //buildWeeklyColumnChart();
     //buildPerHourBoxChart();
 
-    fetch('https://smartcity.tacc.utexas.edu/data/AverageFire.json').then(response => {
+    fetch('../../data/AverageFire.json').then(response => {
         // Replace all instances of "NaN" with 0
         return response.text().then(text => text.replace(/NaN/g, 0));
         }).then(jsondata => {

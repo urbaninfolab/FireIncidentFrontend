@@ -169,7 +169,7 @@
             "yAxisLabel": "Number of case"
         };
 
-        let jsonUrl = 'https://smartcity.tacc.utexas.edu/data/weeklySumChart.json';
+        let jsonUrl = '../data/weeklySumChart.json';
         let response = await fetch(jsonUrl);
         response_data = await response.json();
 
@@ -352,7 +352,7 @@
             "xAxisLabel": "Date",
             "yAxisLabel": "Number of case"
         };
-        let jsonUrl = 'https://smartcity.tacc.utexas.edu/data/weekdayChart.json';
+        let jsonUrl = '../data/weekdayChart.json';
         let response = await fetch(jsonUrl);
         response_data = await response.json();
 
@@ -593,7 +593,7 @@
             "xAxisLabel": "Hour",
             "yAxisLabel": "Number of case"
         };
-        let jsonUrl = 'https://smartcity.tacc.utexas.edu/data/perHourChart.json';
+        let jsonUrl = '../data/perHourChart.json';
         let response = await fetch(jsonUrl);
         response_data = await response.json();
 
@@ -677,7 +677,7 @@
     }
 
     async function buildSlider() {
-        let sliderJsonUrl = 'https://smartcity.tacc.utexas.edu/data/title_by_day.json';
+        let sliderJsonUrl = '../data/title_by_day.json';
         let sliderResponse = await fetch(sliderJsonUrl);
         slider_data = await sliderResponse.json();
         //let minDateString = slider_data["minDate"].split('-');

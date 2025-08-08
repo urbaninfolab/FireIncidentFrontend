@@ -107,7 +107,7 @@ function toggleLayerCustom1(ids, bool) {
         for (let i = 0; i < dateArray.length; i++) {
             try{
                 let date = dateArray[i];
-                //let jsonUrl = 'https://smartcity.tacc.utexas.edu/data/' + date + '-FireMap' + cities[city] + '.json';
+                //let jsonUrl = '../../data/' + date + '-FireMap' + cities[city] + '.json';
                 //let jsonUrl = 'demoFireMap.json';
                 let jsonUrl = 'https://firesync.uturbaninfolab.workers.dev/data/' + date + '-FireMap.json';
                 let response = await fetch(jsonUrl);
@@ -286,7 +286,7 @@ function toggleLayerCustom1(ids, bool) {
                 rotationOrigin: 'center',
                 zIndexOffset: -1,
             }).addTo(map); */
-            addSmokeRegions(map, "https://smartcity.tacc.utexas.edu/data/" + longNLatString)
+            addSmokeRegions(map, "https://firesync.uturbaninfolab.workers.dev/data/" + longNLatString)
         }
 
     }
@@ -336,7 +336,7 @@ function toggleLayerCustom1(ids, bool) {
                             forecastGroup.push(tb)
         
                             var options = {
-                                obj:  "https://smartcity.tacc.utexas.edu/data/generated/" + KMLstring.substring(KMLstring.indexOf("data/") + 5),
+                                obj:  "../../data/generated/" + KMLstring.substring(KMLstring.indexOf("data/") + 5),
                                 type: 'fbx',
                                 scale: 0.006,
                                 units: 'meters',
@@ -348,7 +348,7 @@ function toggleLayerCustom1(ids, bool) {
                             tb.loadObj(options, function (model) {
                                 // cut off .fbx 
                                 var name = KMLstring.substring(0, KMLstring.indexOf('.fbx'));
-                                // cut off https://smartcity.tacc.utexas.edu/data/
+                                // cut off ../../data/
                                 name = name.substring(8);
                                 console.log(name)
                                 coords = name.split(',');
@@ -392,7 +392,7 @@ function toggleLayerCustom1(ids, bool) {
                             console.log("ADDED :3")
         
                             var options = {
-                                obj: 'https://smartcity.tacc.utexas.edu/data/' + KMLstring,
+                                obj: '../../data/' + KMLstring,
                                 type: 'fbx',
                                 scale: 0.006,
                                 units: 'meters',
@@ -404,7 +404,7 @@ function toggleLayerCustom1(ids, bool) {
                             tb.loadObj(options, function (model) {
                                 // cut off .fbx 
                                 var name = KMLstring.substring(0, KMLstring.indexOf('.fbx'));
-                                // cut off https://smartcity.tacc.utexas.edu/data/
+                                // cut off ../../data/
                                 name = name.substring(8);
                                 console.log(name)
                                 coords = name.split(',');
@@ -843,7 +843,7 @@ function toggleLayerCustom1(ids, bool) {
 
         switch (shapefile_display_flag) {
             case 'fire-risk-radio':
-                shapefileName = "https://smartcity.tacc.utexas.edu/data/austin_wildfire_vulnerable_populations.zip";
+                shapefileName = "../../data/austin_wildfire_vulnerable_populations.zip";
                 shpfile = new L.Shapefile(shapefileName, {
                     onEachFeature: function (feature, layer) {
                         popupContent = `
@@ -885,7 +885,7 @@ function toggleLayerCustom1(ids, bool) {
                 shpfile.addTo(map);
                 break;
             case 'afd-radio':
-                shapefileName = "https://smartcity.tacc.utexas.edu/data/AFD Standard of Cover.zip";
+                shapefileName = "../../data/AFD Standard of Cover.zip";
                 // var pasttern = new L.Pattern();
                 shpfile = new L.Shapefile(shapefileName, {
                     onEachFeature: function (feature, layer) {
@@ -926,7 +926,7 @@ function toggleLayerCustom1(ids, bool) {
                 shpfile.addTo(map);
                 break;
             case 'hvi-radio':
-                shapefileName = "https://smartcity.tacc.utexas.edu/data/HVI_Map.zip";
+                shapefileName = "../../data/HVI_Map.zip";
                 shpfile = new L.Shapefile(shapefileName, {
                     onEachFeature: function (feature, layer) {
                         popupContent = `
@@ -966,8 +966,8 @@ function toggleLayerCustom1(ids, bool) {
                 break;
 
             case 'test-risk-radio':
-                shapefileName = "https://smartcity.tacc.utexas.edu/data/firerisk.shp.zip";
-                var filePath = 'https://smartcity.tacc.utexas.edu/data/AverageFire.json';
+                shapefileName = "../../data/firerisk.shp.zip";
+                var filePath = '../../data/AverageFire.json';
                 var result;
                 cities = {
                     '48453' : '',  // Austin
@@ -1043,7 +1043,7 @@ function toggleLayerCustom1(ids, bool) {
 
             case 'POI-radio':
                 // display csv file from POI.csv
-                var filePath = 'https://smartcity.tacc.utexas.edu/data/POI.csv';
+                var filePath = '../../data/POI.csv';
                 var result;
                 fetch(filePath)
                     .then(response => {
