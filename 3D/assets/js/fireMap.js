@@ -686,7 +686,7 @@ function toggleLayerCustom1(ids, bool) {
     }
 
     function getCustom() {
-        document.getElementById("CurrentSelectedDate").textContent = "⠀ ⠀᠎⠀ ⠀Custom";
+        document.getElementById("CurrentSelectedDate").innerHTML = "⠀ ⠀᠎⠀ ⠀Custom";;
 
         var datePicker = document.querySelector('.date-picker');
         datePicker.style.display = 'none';

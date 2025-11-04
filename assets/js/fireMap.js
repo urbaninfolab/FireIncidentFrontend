@@ -568,7 +568,7 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
     }
 
     function getCustom() {
-        document.getElementById("CurrentSelectedDate").textContent = "⠀ ⠀᠎⠀ ⠀Custom";
+        document.getElementById("CurrentSelectedDate").innerHTML = "⠀ ⠀᠎⠀ ⠀Custom";;
 
         var datePicker = document.querySelector('.date-picker');
         datePicker.style.display = 'none';
