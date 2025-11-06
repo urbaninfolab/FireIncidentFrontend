@@ -333,6 +333,10 @@ Check My Location button code leaflet
 					<span class="anchor">&#12288;&#12288;</span>
 					
 					<ul class="items">
+						<li class="sidebar-header" style="padding: 15px 12px; margin-bottom: 10px; border-bottom: 2px solid #500606;">
+							<h3 style="margin: 0; color: #333; font-size: 18px; display: inline-block;">Layer Control</h3>
+							<span class="sidebar-close" style="float: right; cursor: pointer; font-size: 24px; color: #666; line-height: 1; margin-top: -2px;" title="Close">×</span>
+						</li>
 						<b><li>Fire Data</li></b>
 						<li><input style="margin-left: 15px;" type="checkbox" class="active-fire" checked />  Inactive Fire </li>
 						<b><li>Smoke Data</li></b>
@@ -371,6 +375,8 @@ Check My Location button code leaflet
 
 					</ul>
 				</div>
+				<!-- 遮罩层 -->
+				<div class="dropdown-check-list-overlay" id="filter-menu-overlay"></div>
 
 				<div id="filter-menu2" class="dropdown-check-list2" tabindex="100" style="position:relative; margin-top: 17px; margin-left: 15px;">
 					<a onclick="stats()" href="#">

@@ -386,6 +386,26 @@ body {
     position: relative;
 }
 
+/* 遮罩层样式 */
+.dropdown-check-list-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+.dropdown-check-list.visible ~ .dropdown-check-list-overlay,
+.dropdown-check-list-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
 .dropdown-check-list .anchor {
     position: relative;
     cursor: pointer;
@@ -524,25 +544,74 @@ body {
 
 .dropdown-check-list ul.items {
     user-select: none;
-    padding: 2px;
-    display: none;
+    padding: 20px;
     margin: 0;
-    border: 1px solid #ccc;
-    border-radius: 7px;
+    border: none;
+    border-radius: 0;
+    border-left: 1px solid #ccc;
     background-color: white;
-    position: absolute;
+    position: fixed;
     z-index: 1000;
-    width: 200px;
-    top: 57%;
-    /* border-top: none; */
+    width: 300px;
+    max-width: 80vw;
+    top: 0;
+    right: -300px;
+    height: 100vh;
+    overflow-y: auto;
     text-align: left;
-
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease-in-out;
 }
 
 .dropdown-check-list ul.items li {
     list-style: none;
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding: 8px 12px;
+    margin-bottom: 4px;
+    transition: background-color 0.2s;
+}
+
+.dropdown-check-list ul.items li:hover {
+    background-color: #f5f5f5;
+}
+
+.dropdown-check-list ul.items li.sidebar-header {
+    background-color: #f8f8f8;
+    padding: 15px 12px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #500606;
+}
+
+.dropdown-check-list ul.items li.sidebar-header:hover {
+    background-color: #f8f8f8;
+}
+
+.dropdown-check-list .sidebar-close {
+    transition: color 0.2s;
+}
+
+.dropdown-check-list .sidebar-close:hover {
+    color: #500606;
+}
+
+.dropdown-check-list ul.items b {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 16px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.dropdown-check-list ul.items b:first-child {
+    margin-top: 0;
+}
+
+.dropdown-check-list ul.items b li {
+    padding: 0;
+    margin: 0;
+    border-bottom: none;
 }
 
 .dropdown-check-list.visible .anchor {
@@ -550,7 +619,7 @@ body {
 }
 
 .dropdown-check-list.visible .items {
-    display: block;
+    right: 0;
 }
 
 /* --------------------------Style of Air Quality Legend-------------------------- */
@@ -661,5 +730,30 @@ body {
     }
     #InfoBox, #InfoBox1 {
         width:400px;
+    }
+    
+    /* 移动端侧边栏优化 */
+    .dropdown-check-list ul.items {
+        width: 280px;
+        max-width: 85vw;
+        right: -280px;
+    }
+    
+    .dropdown-check-list.visible .items {
+        right: 0;
+    }
+}
+
+/* 小屏幕设备优化 */
+@media (max-width: 480px) {
+    .dropdown-check-list ul.items {
+        width: 260px;
+        max-width: 90vw;
+        right: -260px;
+        padding: 15px;
+    }
+    
+    .dropdown-check-list.visible .items {
+        right: 0;
     }
 }

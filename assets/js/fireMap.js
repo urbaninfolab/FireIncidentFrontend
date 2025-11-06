@@ -1670,11 +1670,50 @@ return new L.DivIcon({ html: '<div><span><b>' + Math.round(avg) + '</b></span></
 
     function buildDropdownMenu(map) {
         var checkList = document.getElementById('filter-menu');
-        checkList.getElementsByClassName('anchor')[0].onclick = function (evt) {
-            if (checkList.classList.contains('visible'))
+        var overlay = document.getElementById('filter-menu-overlay');
+        
+        // 切换菜单显示/隐藏
+        function toggleMenu() {
+            if (checkList.classList.contains('visible')) {
                 checkList.classList.remove('visible');
-            else
+                if (overlay) overlay.classList.remove('show');
+            } else {
                 checkList.classList.add('visible');
+                if (overlay) overlay.classList.add('show');
+            }
+        }
+        
+        // 点击锚点切换菜单
+        checkList.getElementsByClassName('anchor')[0].onclick = function (evt) {
+            evt.stopPropagation();
+            toggleMenu();
+        }
+        
+        // 点击遮罩层关闭菜单
+        if (overlay) {
+            overlay.onclick = function (evt) {
+                evt.stopPropagation();
+                checkList.classList.remove('visible');
+                overlay.classList.remove('show');
+            }
+        }
+        
+        // 点击菜单内部时阻止事件冒泡
+        var items = checkList.getElementsByClassName('items')[0];
+        if (items) {
+            items.onclick = function (evt) {
+                evt.stopPropagation();
+            }
+        }
+        
+        // 点击关闭按钮关闭菜单
+        var closeBtn = checkList.querySelector('.sidebar-close');
+        if (closeBtn) {
+            closeBtn.onclick = function (evt) {
+                evt.stopPropagation();
+                checkList.classList.remove('visible');
+                if (overlay) overlay.classList.remove('show');
+            }
         }
         // add event listener
         var checkboxActiveFire = document.querySelector(".active-fire");
