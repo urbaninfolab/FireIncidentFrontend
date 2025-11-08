@@ -141,6 +141,96 @@ Check My Location button code leaflet
             animation-duration: 0.5s;
         }
 
+		/* Stats Modal - Slide up animation */
+		#statsModal .modal-dialog {
+			width: 90%;
+			max-width: 1200px;
+			margin: 0 auto;
+			position: fixed;
+			bottom: 0;
+			left: 50%;
+			margin-bottom: 0;
+			-webkit-transform: translate(-50%, 100%);
+			-moz-transform: translate(-50%, 100%);
+			-ms-transform: translate(-50%, 100%);
+			-o-transform: translate(-50%, 100%);
+			transform: translate(-50%, 100%);
+			-webkit-transition: -webkit-transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+			-moz-transition: -moz-transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+			-o-transition: -o-transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+			transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+		}
+
+		#statsModal.modal.fade.in .modal-dialog {
+			-webkit-transform: translate(-50%, 0);
+			-moz-transform: translate(-50%, 0);
+			-ms-transform: translate(-50%, 0);
+			-o-transform: translate(-50%, 0);
+			transform: translate(-50%, 0);
+		}
+
+		#statsModal .modal-content {
+			border-radius: 15px 15px 0 0;
+			border: none;
+			box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+			max-height: 90vh;
+		}
+
+		#statsModal .modal-body {
+			padding: 0;
+			height: calc(85vh - 120px);
+			max-height: calc(90vh - 120px);
+			overflow: hidden;
+			position: relative;
+		}
+
+		#statsModal .iframe-wrapper {
+			width: 100%;
+			height: 100%;
+			overflow-y: auto;
+			overflow-x: hidden;
+			position: relative;
+		}
+
+		/* Custom scrollbar styling */
+		#statsModal .iframe-wrapper::-webkit-scrollbar {
+			width: 8px;
+		}
+
+		#statsModal .iframe-wrapper::-webkit-scrollbar-track {
+			background: #f1f1f1;
+			border-radius: 4px;
+		}
+
+		#statsModal .iframe-wrapper::-webkit-scrollbar-thumb {
+			background: #888;
+			border-radius: 4px;
+		}
+
+		#statsModal .iframe-wrapper::-webkit-scrollbar-thumb:hover {
+			background: #555;
+		}
+
+		#statsModal iframe {
+			border: none;
+			display: block;
+			transform-origin: top left;
+			transition: transform 0.3s ease;
+		}
+
+		/* Responsive adjustments */
+		@media (max-width: 768px) {
+			#statsModal .modal-dialog {
+				width: 100%;
+				max-width: 100%;
+			}
+
+			#statsModal .modal-body {
+				height: calc(80vh - 120px);
+				max-height: calc(80vh - 120px);
+			}
+		}
+
 	</style>
 
 	<body>
@@ -156,29 +246,25 @@ Check My Location button code leaflet
 		</div>
 		
 		  <!-- Modal -->
-		  <div class="modal fade" id="statsModal" role="dialog" style="overflow: hidden; margin-top: 10px;" >
-			<div class="modal-dialog" style="width: 80%; height: 120%;overflow: hidden; " >
-			
+		  <div class="modal fade" id="statsModal" role="dialog" tabindex="-1">
+			<div class="modal-dialog">
 			  <!-- Modal content-->
-			  <div class="modal-content" style="height: 60%; overflow: hidden;">
-				<div class="modal-header" style="overflow: hidden;" >
-				  <button type="button" class="close" data-dismiss="modal">&times;</button>
+			  <div class="modal-content">
+				<div class="modal-header">
+				  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				  </button>
 				  <h4 class="modal-title">Active Fire Incidents Stats</h4>
 				</div>
-				<iframe frameBorder="0" src="https://fire.austindigitaltwin.com/FireIncidentStats.html" width="125%" height="125%" style="overflow: hidden; max-height: 70vh; zoom: 0.75; -ms-zoom: 0.75; 
-				transform: scale(0.75);
-				transform-origin: center center;
-				-moz-transform: scale(0.75);
-				-moz-transform-origin: center center;
-				-o-transform: scale(0.75);
-				-o-transform-origin: center center;
-				-webkit-transform: scale(0.75);
-				-webkit-transform-origin: center center;"></iframe>
+				<div class="modal-body">
+				  <div class="iframe-wrapper" id="statsIframeWrapper">
+					<iframe id="statsIframe" src="https://fire.austindigitaltwin.com/FireIncidentStats.html"></iframe>
+				  </div>
+				</div>
 				<div class="modal-footer">
 				  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 				</div>
 			  </div>
-			  
 			</div>
 		  </div>
 
@@ -255,10 +341,94 @@ Check My Location button code leaflet
 		  <script type="text/javascript">
 			function stats(){
 				$("#statsModal").modal({backdrop: true});
+				
+				// Adjust iframe width when modal is fully shown
+				$('#statsModal').on('shown.bs.modal', function () {
+					adjustIframeWidth();
+				});
+				
+				// Re-adjust width when window is resized
+				$(window).on('resize', function() {
+					if ($('#statsModal').hasClass('in')) {
+						adjustIframeWidth();
+					}
+				});
 			}
+			
+			function adjustIframeWidth() {
+				var iframe = document.getElementById('statsIframe');
+				var wrapper = document.getElementById('statsIframeWrapper');
+				
+				if (!iframe || !wrapper) return;
+				
+				// Get container width
+				var containerWidth = wrapper.offsetWidth;
+				
+				// Try to get content width from iframe (if same origin)
+				var contentWidth;
+				try {
+					var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+					contentWidth = iframeDoc.body.scrollWidth || iframeDoc.documentElement.scrollWidth;
+				} catch (e) {
+					// Cross-origin restriction, use default value
+					// Adjust this value based on actual external HTML width
+					contentWidth = 1600; // Expected width of external HTML
+				}
+				
+				// Use default value if content width cannot be obtained
+				if (!contentWidth || contentWidth < 100) {
+					contentWidth = 1600;
+				}
+				
+				// Get content height (for setting iframe height)
+				var contentHeight;
+				try {
+					var iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+					contentHeight = iframeDoc.body.scrollHeight || iframeDoc.documentElement.scrollHeight;
+				} catch (e) {
+					// Cross-origin restriction, use default value
+					contentHeight = 2000; // Expected height of external HTML
+				}
+				
+				if (!contentHeight || contentHeight < 100) {
+					contentHeight = 2000;
+				}
+				
+				// Calculate width scale ratio
+				var scaleX = containerWidth / contentWidth;
+				
+				// If content width is greater than container width, scale is needed
+				if (scaleX < 1) {
+					// Set iframe original dimensions
+					iframe.style.width = contentWidth + 'px';
+					iframe.style.height = contentHeight + 'px';
+					// Scale only width, keep height original
+					iframe.style.transform = 'scaleX(' + scaleX + ')';
+					iframe.style.transformOrigin = 'top left';
+				} else {
+					// Content width is less than or equal to container width, no scaling needed
+					iframe.style.width = '100%';
+					iframe.style.height = contentHeight + 'px';
+					iframe.style.transform = 'scaleX(1)';
+					iframe.style.transformOrigin = 'top left';
+				}
+			}
+			
+			// Also try to adjust when iframe is loaded
+			$(document).ready(function() {
+				$('#statsIframe').on('load', function() {
+					setTimeout(function() {
+						if ($('#statsModal').hasClass('in')) {
+							adjustIframeWidth();
+						}
+					}, 500); // Delay 500ms to ensure content is fully loaded
+				});
+			});
+			
 			function info(){
 				$("#infoModal").modal({backdrop: true});
 			}
+			
 			function credits(){
 				$('#infoModal').hide();
 				$("#creditsModal").modal({backdrop: true});
@@ -375,7 +545,7 @@ Check My Location button code leaflet
 
 					</ul>
 				</div>
-				<!-- 遮罩层 -->
+				<!-- Overlay -->
 				<div class="dropdown-check-list-overlay" id="filter-menu-overlay"></div>
 
 				<div id="filter-menu2" class="dropdown-check-list2" tabindex="100" style="position:relative; margin-top: 17px; margin-left: 15px;">
